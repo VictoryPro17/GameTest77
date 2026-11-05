@@ -1,0 +1,59 @@
+{
+    "version": 1,
+    "name": "RebornControls",
+    "maps": [
+        {
+            "name": "Gameplay",
+            "id": "6f3c1a52-8d1e-4b2a-9c71-2a0f5d1e7b01",
+            "actions": [
+                {
+                    "name": "Move",
+                    "type": "Value",
+                    "id": "a1d2c3b4-0001-4e5f-8a9b-1c2d3e4f5a01",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Attack",
+                    "type": "Button",
+                    "id": "a1d2c3b4-0002-4e5f-8a9b-1c2d3e4f5a02",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Dodge",
+                    "type": "Button",
+                    "id": "a1d2c3b4-0003-4e5f-8a9b-1c2d3e4f5a03",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                { "name": "WASD", "id": "b0000001-0000-4000-8000-000000000001", "path": "2DVector", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": true, "isPartOfComposite": false },
+                { "name": "up", "id": "b0000001-0000-4000-8000-000000000002", "path": "<Keyboard>/w", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": true },
+                { "name": "down", "id": "b0000001-0000-4000-8000-000000000003", "path": "<Keyboard>/s", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": true },
+                { "name": "left", "id": "b0000001-0000-4000-8000-000000000004", "path": "<Keyboard>/a", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": true },
+                { "name": "right", "id": "b0000001-0000-4000-8000-000000000005", "path": "<Keyboard>/d", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": true },
+                { "name": "Pfeiltasten", "id": "b0000001-0000-4000-8000-000000000006", "path": "2DVector", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": true, "isPartOfComposite": false },
+                { "name": "up", "id": "b0000001-0000-4000-8000-000000000007", "path": "<Keyboard>/upArrow", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": true },
+                { "name": "down", "id": "b0000001-0000-4000-8000-000000000008", "path": "<Keyboard>/downArrow", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": true },
+                { "name": "left", "id": "b0000001-0000-4000-8000-000000000009", "path": "<Keyboard>/leftArrow", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": true },
+                { "name": "right", "id": "b0000001-0000-4000-8000-00000000000a", "path": "<Keyboard>/rightArrow", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": true },
+                { "name": "", "id": "b0000001-0000-4000-8000-00000000000b", "path": "<Gamepad>/leftStick", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "b0000002-0000-4000-8000-000000000001", "path": "<Keyboard>/j", "interactions": "", "processors": "", "groups": "", "action": "Attack", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "b0000002-0000-4000-8000-000000000002", "path": "<Mouse>/leftButton", "interactions": "", "processors": "", "groups": "", "action": "Attack", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "b0000002-0000-4000-8000-000000000003", "path": "<Gamepad>/buttonWest", "interactions": "", "processors": "", "groups": "", "action": "Attack", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "b0000003-0000-4000-8000-000000000001", "path": "<Keyboard>/space", "interactions": "", "processors": "", "groups": "", "action": "Dodge", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "b0000003-0000-4000-8000-000000000002", "path": "<Keyboard>/leftShift", "interactions": "", "processors": "", "groups": "", "action": "Dodge", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "b0000003-0000-4000-8000-000000000003", "path": "<Gamepad>/buttonSouth", "interactions": "", "processors": "", "groups": "", "action": "Dodge", "isComposite": false, "isPartOfComposite": false }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
