@@ -14,8 +14,8 @@ namespace Reborn.Combat
         public InputActionAsset actions;
         public int damage = 10;
         public float cooldown = 0.4f;
-        public float range = 0.7f;
-        public float radius = 0.6f;
+        public float range = 0.55f;
+        public float radius = 0.45f;
         public float knockback = 4f;
         public float hitDelay = 0.08f;
         public float lockTime = 0.25f;

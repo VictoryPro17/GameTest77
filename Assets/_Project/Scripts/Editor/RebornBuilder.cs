@@ -296,6 +296,7 @@ namespace Reborn.EditorTools
             col.offset = new Vector2(0f, 0.12f);
             var health = go.AddComponent<Health>();
             health.maxHealth = 50;
+            health.hitInvulnerability = 0.6f;
             var controller = go.AddComponent<PlayerController>();
             controller.actions = input;
             var attack = go.AddComponent<PlayerAttack>();
@@ -452,7 +453,7 @@ namespace Reborn.EditorTools
             var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
             var cam = camGo.AddComponent<Camera>();
             cam.orthographic = true;
-            cam.orthographicSize = 6f;
+            cam.orthographicSize = 3.5f;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.08f, 0.1f, 0.08f);
             camGo.transform.position = new Vector3(0, 0, -10);
@@ -499,7 +500,7 @@ namespace Reborn.EditorTools
             playerInstance.transform.position = Vector3.zero;
             camGo.GetComponent<CameraFollow>().target = playerInstance.transform;
 
-            Vector2[] slimePositions = { new(-6, 3), new(6, 3), new(-6, -3), new(6, -3), new(0, 4) };
+            Vector2[] slimePositions = { new(-6, 3), new(6, 3), new(-6, -3), new(6, -3), new(4, -4) };
             var enemies = new GameObject("Enemies").transform;
             foreach (var p in slimePositions)
             {

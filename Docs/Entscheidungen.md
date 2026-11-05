@@ -31,6 +31,43 @@ Stand: 2026-11-05 · Meilenstein 1 („Mini-Spiel“)
 
 Danach in Unity: Menü **Reborn → Meilenstein 1 bauen** (baut Sprites-Import, Daten, Prefabs und die Szene `Room_Test` neu).
 
+## Abweichungen vom Plan (Review 1)
+
+| # | Abweichung | Entscheidung |
+|---|---|---|
+| D1 | Spieler-Modell mit Haaren, Armen, Beinen und Schwert statt Kapsel | behalten |
+| D2 | Freestyle-Umrisslinien | **entfernt** (in beiden Blender-Skripten) |
+| D3 | Pivot an den Füßen (Spieler 0,5/0,3 · Schleim 0,5/0,41) | behalten, damit die Y-Sortierung stimmt |
+| D4 | Treffer-Aufblitzen rot statt weiß | behalten (weiß bräuchte einen eigenen Shader) |
+| D5 | Spieler-Collider Radius 0,2 statt 0,3 | behalten |
+| D6 | Trefferkreis 0,55 / 0,45 statt 0,7 / 0,6 | behalten, Skript-Standardwerte angepasst |
+| D7 | Zusätzliche Skript-Funktionen (Rückstoß, Bewegungs-Sperre usw.) | behalten |
+| D8 | Zusätzliche Dateien (RebornBuilder, Item-Icons, Wand-Kachel) | behalten |
+| D9 | Sortierachse (0,1,0) und Polygons-Collider an der Wand | behalten |
+| D10 | Neues Global Light 2D in Room_Test | behalten |
+| D11 | Selbst gewählte Werte (siehe Tabelle unten) | behalten, hier festgehalten |
+| D12 | Erster Commit enthielt Änderungen, die schon vorher da waren (ProjectSettings, Build-Liste ohne SampleScene) | so gelassen |
+| D13 | Tastatur/Touch nur teilweise getestet | nachgetestet per Controller-Simulation, Touch auf echtem Handy steht noch aus |
+
+Spielprobleme aus Review 1:
+- **Keine Schutzzeit nach einem Treffer:** `Health.hitInvulnerability` eingeführt, beim Spieler 0,6 s.
+- **Schleim greift sofort an:** Startposition (0,4) → (4,−4).
+- **Figuren zu klein:** Kamera `orthographicSize` 6 → 3,5.
+
+## Werte (Stand Meilenstein 1)
+
+| Wert | Spieler | Waldschleim |
+|---|---|---|
+| HP | 50 (+10 pro Level) | 30 |
+| Schutzzeit nach Treffer | 0,6 s | 0 s |
+| Schaden | 10 pro Schlag (Abklingzeit 0,4 s) | 5 bei Berührung (Abklingzeit 1 s) |
+| Trefferkreis | Abstand 0,55 · Radius 0,45 | – |
+| Collider-Radius | 0,2 | 0,22 |
+| Tempo | 5 (Ausweichen 12 für 0,2 s) | 2, erkennt den Spieler ab 5 |
+| XP | 100 × Level bis zum nächsten Level | gibt 30 XP |
+| Animations-fps | idle 3 · walk 8 · attack 12 · dodge 15 | idle 6 · hurt 8 · death 10 |
+| Kamera | orthographicSize 3,5 · Sprites 64 px pro Einheit | |
+
 ## Wichtige Dateien
 
 - `Art/Blender/Reborn_Characters.blend` – Spieler (Szene „Characters“) und Waldschleim (Szene „Slime“)

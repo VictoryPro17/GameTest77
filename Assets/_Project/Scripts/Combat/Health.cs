@@ -8,6 +8,10 @@ namespace Reborn.Combat
     {
         public int maxHealth = 50;
         public bool invulnerable;
+        /// <summary>Schutzzeit in Sekunden nach einem Treffer (0 = keine)</summary>
+        public float hitInvulnerability = 0f;
+
+        float _hitTimer;
 
         /// <summary>Schaden, Rueckstoss-Geschwindigkeit</summary>
         public event Action<int, Vector2> OnDamaged;
@@ -16,17 +20,25 @@ namespace Reborn.Combat
 
         public int Current { get; private set; }
         public bool IsDead => Current <= 0;
+        public bool IsHitInvulnerable => _hitTimer > 0f;
 
         void Awake()
         {
             Current = maxHealth;
         }
 
+        void Update()
+        {
+            if (_hitTimer > 0f) _hitTimer -= Time.deltaTime;
+        }
+
         /// <returns>true, wenn der Treffer zaehlt</returns>
         public bool TakeDamage(int amount, Vector2 knockback)
         {
             if (invulnerable || IsDead || amount <= 0) return false;
+            if (_hitTimer > 0f) return false;
             Current = Mathf.Max(0, Current - amount);
+            _hitTimer = hitInvulnerability;
             OnDamaged?.Invoke(amount, knockback);
             OnChanged?.Invoke();
             if (Current == 0) OnDied?.Invoke();

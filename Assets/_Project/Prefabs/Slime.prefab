@@ -114,6 +114,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Reborn.Combat.Health
   maxHealth: 30
   invulnerable: 0
+  hitInvulnerability: 0
 --- !u!114 &4781925471945961548
 MonoBehaviour:
   m_ObjectHideFlags: 0

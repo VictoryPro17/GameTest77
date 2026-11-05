@@ -26,7 +26,7 @@ scene = bpy.data.scenes.new("Slime")
 bpy.context.window.scene = scene if bpy.context.window else None
 r, s = scene.render, src.render
 for attr in ("engine", "resolution_x", "resolution_y", "resolution_percentage", "film_transparent",
-             "filter_size", "use_freestyle", "line_thickness_mode", "line_thickness"):
+             "filter_size", "use_freestyle"):
     setattr(r, attr, getattr(s, attr))
 r.image_settings.file_format = "PNG"
 r.image_settings.color_mode = "RGBA"
@@ -36,9 +36,6 @@ except AttributeError:
     pass
 scene.view_settings.view_transform = "Standard"
 scene.world = src.world
-ls = scene.view_layers[0].freestyle_settings.linesets.new("Outline")
-ls.select_by_visibility = True
-ls.linestyle.color = (0.05, 0.12, 0.05)
 
 # Kamera + Licht (gleicher Winkel wie beim Spieler, etwas naeher)
 TARGET = Vector((0, 0, 0.3))

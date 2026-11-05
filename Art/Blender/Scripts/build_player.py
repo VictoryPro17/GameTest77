@@ -41,13 +41,7 @@ try:
 except AttributeError:
     pass
 scene.view_settings.view_transform = "Standard"
-scene.render.use_freestyle = True
-scene.render.line_thickness_mode = "ABSOLUTE"
-scene.render.line_thickness = 1.0
-lineset = scene.view_layers[0].freestyle_settings.linesets.new("Outline")
-lineset.select_by_visibility = True
-lineset.linestyle.color = (0.08, 0.06, 0.1)
-lineset.linestyle.thickness = 1.0
+scene.render.use_freestyle = False
 
 world = bpy.data.worlds.new("World")
 scene.world = world
