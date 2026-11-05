@@ -47,12 +47,13 @@ Danach in Unity: Menü **Reborn → Meilenstein 1 bauen** (baut Sprites-Import, 
 | D10 | Neues Global Light 2D in Room_Test | behalten |
 | D11 | Selbst gewählte Werte (siehe Tabelle unten) | behalten, hier festgehalten |
 | D12 | Erster Commit enthielt Änderungen, die schon vorher da waren (ProjectSettings, Build-Liste ohne SampleScene) | so gelassen |
-| D13 | Tastatur/Touch nur teilweise getestet | nachgetestet per Controller-Simulation, Touch auf echtem Handy steht noch aus |
+| D13 | Tastatur/Touch nur teilweise getestet | nachgetestet im Editor mit virtuellem Controller und virtueller Tastatur (D, J, Leertaste); Touch auf echtem Handy steht noch aus |
 
 Spielprobleme aus Review 1:
 - **Keine Schutzzeit nach einem Treffer:** `Health.hitInvulnerability` eingeführt, beim Spieler 0,6 s.
 - **Schleim greift sofort an:** Startposition (0,4) → (4,−4).
 - **Figuren zu klein:** Kamera `orthographicSize` 6 → 3,5.
+- **Schutzzeit-Test:** höchstens 6 Treffer (30 HP) in 3 s, weil der erste Treffer bei 0 s zählt. Gemessen mit 5 Schleimen direkt am Spieler: 5 Treffer in 3 s, kleinster Abstand 0,600 s, 25 HP Verlust, Spieler lebt.
 
 ## Werte (Stand Meilenstein 1)
 
