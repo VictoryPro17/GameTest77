@@ -16,7 +16,7 @@ $global:RebornFails = 0
 $global:RebornShotSize = $null
 $global:RebornTestSession = $false
 $log = Join-Path $TmpDir 'last_run.log'
-$scripts = @{ wall = 'walltest.ps1'; m2 = 'm2test.ps1'; play = 'playtest.ps1'; iframe = 'iframetest.ps1'; kb = 'kbtest.ps1' }
+$scripts = @{ wall = 'walltest.ps1'; m2 = 'm2test.ps1'; play = 'playtest.ps1'; iframe = 'iframetest.ps1'; kb = 'kbtest.ps1'; hp0 = 'hp0test.ps1'; magic = 'magictest.ps1' }
 
 & {
     "=== RE:BORN Play-Tests: $($Tests -join ', ') ==="
@@ -44,6 +44,8 @@ $scripts = @{ wall = 'walltest.ps1'; m2 = 'm2test.ps1'; play = 'playtest.ps1'; i
     }
     else { 'Kein Spielstand vorhanden, nichts zu sichern.' }
 
+    # Alte Meldungen (z. B. vom eigenen Spielen) sollen keinen Test beeinflussen
+    unity command console clear @U 2>$null | Out-Null
     $global:RebornTestSession = $true
     $total = [System.Diagnostics.Stopwatch]::StartNew()
     try {

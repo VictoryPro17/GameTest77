@@ -23,7 +23,8 @@ New-Item -ItemType Directory -Force $ShotDir | Out-Null
 function Eval([string]$file, [hashtable]$vars) {
     $src = [System.IO.File]::ReadAllText((Join-Path $CsDir $file), [System.Text.Encoding]::UTF8)
     if ($src.Contains('//#HEADER')) { $src = $src.Replace('//#HEADER', $HeaderText) }
-    if ($vars) { foreach ($k in $vars.Keys) { $src = $src.Replace("%$k%", [string]$vars[$k]) } }
+    # GetEnumerator statt .Keys: bei einem Eintrag namens "Keys" liefert .Keys sonst dessen Wert
+    if ($vars) { foreach ($kv in $vars.GetEnumerator()) { $src = $src.Replace("%$($kv.Key)%", [string]$kv.Value) } }
     $tmp = Join-Path $TmpDir $file
     [System.IO.File]::WriteAllText($tmp, $src, $Utf8NoBom)
     $raw = unity command script eval @U --result-only --file $tmp 2>$null | Out-String

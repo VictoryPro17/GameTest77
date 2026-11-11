@@ -16,6 +16,9 @@ namespace Reborn.UI
         public GameObject characterPage;
         public Button inventoryTabButton;
         public Button characterTabButton;
+        public Button magicTabButton;
+        public GameObject magicPage;
+        public MagicView magicView;
         public Button closeButton;
         public InventoryView inventoryView;
         public CharacterView characterView;
@@ -28,7 +31,7 @@ namespace Reborn.UI
 
         public int Page { get; private set; }
 
-        static readonly string[] BlockedActions = { "Move", "Attack", "Dodge", "UsePotion" };
+        static readonly string[] BlockedActions = { "Move", "Attack", "Dodge", "UsePotion", "Spell1", "Spell2", "Spell3", "Spell4", "Meditate" };
 
         InputAction _menu;
         readonly List<InputAction> _blocked = new List<InputAction>();
@@ -44,6 +47,7 @@ namespace Reborn.UI
             }
             if (inventoryTabButton != null) inventoryTabButton.onClick.AddListener(() => ShowPage(0));
             if (characterTabButton != null) characterTabButton.onClick.AddListener(() => ShowPage(1));
+            if (magicTabButton != null) magicTabButton.onClick.AddListener(() => ShowPage(2));
             if (closeButton != null) closeButton.onClick.AddListener(Close);
             if (root != null) root.SetActive(false);
             IsOpen = false;
@@ -99,13 +103,17 @@ namespace Reborn.UI
 
         public void ShowPage(int page)
         {
-            Page = Mathf.Clamp(page, 0, 1);
+            Page = Mathf.Clamp(page, 0, 2);
             if (inventoryPage != null) inventoryPage.SetActive(Page == 0);
             if (characterPage != null) characterPage.SetActive(Page == 1);
+            if (magicPage != null) magicPage.SetActive(Page == 2);
             SetTabColor(inventoryTabButton, Page == 0);
             SetTabColor(characterTabButton, Page == 1);
+            SetTabColor(magicTabButton, Page == 2);
             if (Page == 0 && inventoryView != null) inventoryView.SelectFirst();
             if (Page == 1 && characterView != null) characterView.SelectFirst();
+            if (Page == 2 && magicTabButton != null && EventSystem.current != null)
+                EventSystem.current.SetSelectedGameObject(magicTabButton.gameObject);
         }
 
         void SetTabColor(Button button, bool active)

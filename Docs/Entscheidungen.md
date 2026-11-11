@@ -28,7 +28,10 @@ Stand: 2026-11-05 · Meilenstein 1 („Mini-Spiel“)
 "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" -b --factory-startup --python Art/Blender/Scripts/build_player.py -- D:\GameTest77
 "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" -b Art/Blender/Reborn_Characters.blend --python Art/Blender/Scripts/build_slime.py -- D:\GameTest77
 "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" -b Art/Blender/Reborn_Characters.blend --python Art/Blender/Scripts/build_props.py -- D:\GameTest77
+"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" -b Art/Blender/Reborn_Characters.blend --python Art/Blender/Scripts/build_spells.py -- D:\GameTest77
 ```
+
+Hinweis: `build_player.py` legt die .blend-Datei neu an. Danach immer Schleim, Truhe und Zauber erneut rendern.
 
 Danach in Unity: Menü **Reborn → Spiel neu bauen** (baut Sprites-Import, Icons, Daten, Prefabs, Menü und die Szene `Room_Test` neu).
 
@@ -169,6 +172,79 @@ Ergebnis am 11.11.2026: 49 Prüfungen, 0 Fehler (Mauern, Meilenstein 2, Spieltes
 - Das Fenster „Wirklich löschen?“ sperrt die Knöpfe dahinter nicht.
 - Kein Tod und keine Wiederbelebung (Meilenstein 3).
 
+## Meilenstein 3: Magie
+
+### Entscheidungen
+
+| # | Thema | Entscheidung |
+|---|---|---|
+| E1 | Elemente | Wasser und Feuer, je 2 Zauber |
+| E2 | Ausruf | Text über dem Kopf; bei starken Zaubern groß in der Bildmitte |
+| E3 | Mana-Training | Zaubern und Meditieren geben Mana-Erfahrung |
+| E4 | Effekte | Unity-Partikel und 2D-Licht; Drachenkopf, Körper, Kugeln und Icons aus Blender (`build_spells.py`) |
+| E5 | Stufen | 1–10 je Zauber, steigen durch Treffer |
+| E6 | Tasten | Feste Plätze 1–4 |
+| E7 | Animation | Neue Spieler-Animation „cast“ (3 Bilder, 4 Richtungen) |
+| E8 | Review-Reste | Erledigt (unbenutzte Testdateien entfernt, 0-HP-Rätsel untersucht) |
+
+### Zauber
+
+| Zauber | Mana | Schaden (Stufe 1) | Abklingzeit | Freigeschaltet |
+|---|---|---|---|---|
+| Wasserkugel | 5 | 8 | 0,5 s | von Anfang an |
+| Wasserdrache | 25 | 20, durchdringt, trifft jeden einmal | 4 s | Wasserkugel Stufe 3 |
+| Feuerball | 8 | 12 + Explosion 6 (Radius 1) | 0,8 s | Spieler-Level 2 |
+| Flammenring | 20 | 15 + Rückstoß (Radius 1,8) | 3 s | Feuerball Stufe 3 |
+
+- Schaden = (Grundschaden + Intelligenz) × (1 + 0,25 × (Stufe − 1)). Effektgröße +5 % pro Stufe, ab Stufe 10 goldener Rand.
+- Zauber-Erfahrung: 1 pro Treffer (Drache 2), nächste Stufe braucht 10 × Stufe.
+- Ausruf: „Wasser-Erschaffungsmagie: …!“ bzw. „Feuer-Erschaffungsmagie: …!“.
+
+### Mana
+
+| Wert | Formel |
+|---|---|
+| Max. Mana | 20 + 5 × Intelligenz + 8 × (Mana-Stufe − 1) |
+| Auffüllen | 1 + 0,2 × Intelligenz pro Sekunde |
+| Meditieren | 5 pro Sekunde, Spieler steht still |
+| Mana-Erfahrung | 1 pro ausgegebenem Mana und pro Sekunde Meditieren; nächste Stufe braucht 50 × Stufe, höchstens Stufe 10 |
+
+### Steuerung (neu)
+
+| Aktion | Tastatur | Controller | Handy |
+|---|---|---|---|
+| Zauber 1–4 | 1, 2, 3, 4 | RB, RT, LB, LT | Knöpfe Z1–Z4 |
+| Meditieren (halten) | M | Ost-Taste (B / ○) | Knopf „Medit.“ |
+
+### Speichern
+
+Version 2 speichert zusätzlich Stufe und Erfahrung je Zauber, Mana-Stufe, Mana-Erfahrung und aktuelles Mana. Spielstände der Version 1 laden weiter (Zauber auf Stufe 1, Mana voll).
+
+### Befunde und Testfehler
+
+- **0-HP-Rätsel aus Review 3:** Nicht nachstellbar. Mit zur Laufzeit abgeschalteten Mauern läuft der Spieler weit aus dem Raum, bekommt aber weder Schaden noch stirbt er (Test `hp0`). Nebenbefund: Ausweichen setzt den Test-Schutz (`invulnerable`) zurück.
+- **Absturz beim Hand-Leuchten:** Das Prefab hatte kein Partikelsystem am Hauptobjekt, `TryCast` stürzte nach dem Mana-Abzug ab, Effekte erschienen nie. Behoben: Leuchten über die Kinder, und erst nach dem Effekt. Die Konsolenmeldungen von 13:32–13:33 am 11.11. kamen von diesem alten Code (vermutlich beim eigenen Ausprobieren).
+- **Testfehler Platzhalter:** `$vars.Keys` liefert in PowerShell bei einem Eintrag „KEYS“ dessen Wert. Die Tasten-Datei lief deshalb nie. Behoben in `lib.ps1` (`GetEnumerator`), Platzhalter heißt jetzt `%TASTEN%`.
+- **Testfehler Erwartungen:** Nach Stufenaufstiegen bleibt durch echte Treffer etwas Erfahrung übrig; die Tests erwarten jetzt `XP ≥ 0`.
+
+### Abweichungen vom Plan
+
+- Die Aufzählungen `SpellElement` und `SpellKind` haben je eine eigene Datei; dazu kamen `SpellEffect.cs` (Grundklasse), `LightFlash.cs` (Lichtblitz) und `SpriteLoop.cs` (Feuerball flackert).
+- Intelligenz wird direkt in `PlayerMana` und `SpellBook` gelesen, `PlayerStats` selbst blieb unverändert.
+- Das Leuchten der Hand kommt als Partikel aus Unity, nicht aus dem Sprite.
+- Z5 (Abklingzeit) ruft `TryCast` zweimal direkt auf, statt zweimal die Taste zu drücken.
+- Die Test-Schleime im Magie-Test verfolgen den Spieler nicht, damit Treffer und Rückstoß messbar sind.
+
+### Tests
+
+`run_all.ps1` mit `magic, wall, m2, play, iframe, kb, hp0`: 75 Prüfungen, 0 Fehler (11.11.2026).
+
+### Bekannte Grenzen
+
+- Auf den Screenshots sind Wasserkugel, Drache und Feuerball oft schon vorbei, weil das Bild verzögert aufgenommen wird.
+- Untertitel des großen Banners und Ausruf über dem Kopf überlappen sich (wird mit der neuen Oberfläche in Meilenstein 4 behoben).
+- Touch auf einem echten Handy noch nicht getestet.
+
 ## Wichtige Dateien
 
 - `Art/Blender/Reborn_Characters.blend` – Spieler (Szene „Characters“) und Waldschleim (Szene „Slime“)
@@ -176,4 +252,6 @@ Ergebnis am 11.11.2026: 49 Prüfungen, 0 Fehler (Mauern, Meilenstein 2, Spieltes
 - `Assets/_Project/Scripts/` – Spiel-Code (Player, Combat, Enemies, Loot, Progression, UI, Animation, Core)
 - `Assets/_Project/Scripts/Editor/RebornBuilder.cs` – baut alles automatisch
 - `Art/Blender/Scripts/build_props.py` – Schatztruhe (Szene „Props“)
+- `Art/Blender/Scripts/build_spells.py` – Zauber-Grafik (Szene „Spells“)
+- `Assets/_Project/Scripts/Magic/` – Mana, Zauberbuch, Effekte
 - `Tools/PlayTests/` – automatische Play-Tests

@@ -31,6 +31,8 @@ namespace Reborn.Save
         PlayerInventory _inventory;
         PlayerEquipment _equipment;
         Health _health;
+        Magic.SpellBook _spells;
+        Magic.PlayerMana _mana;
         bool _suppress;
 
         void Awake()
@@ -40,6 +42,8 @@ namespace Reborn.Save
             _inventory = GetComponent<PlayerInventory>();
             _equipment = GetComponent<PlayerEquipment>();
             _health = GetComponent<Health>();
+            _spells = GetComponent<Magic.SpellBook>();
+            _mana = GetComponent<Magic.PlayerMana>();
         }
 
         void OnEnable()
@@ -101,6 +105,18 @@ namespace Reborn.Save
                 }
             foreach (var chest in FindObjectsByType<TreasureChest>())
                 if (chest.IsOpen) data.openedChests.Add(chest.chestId);
+            if (_mana != null)
+            {
+                data.manaLevel = _mana.Level;
+                data.manaXp = _mana.XP;
+                data.currentMana = _mana.Current;
+            }
+            if (_spells != null)
+                for (int i = 0; i < Magic.SpellBook.SlotCount; i++)
+                {
+                    var spell = _spells.Get(i);
+                    if (spell != null) data.spells.Add(new SaveData.SpellSave { id = spell.id, level = _spells.Level(i), xp = _spells.XP(i) });
+                }
 
             try
             {
@@ -155,6 +171,15 @@ namespace Reborn.Save
 
             foreach (var chest in FindObjectsByType<TreasureChest>())
                 if (data.openedChests.Contains(chest.chestId)) chest.SetOpenedSilently();
+
+            // Ab Version 2: Zauber und Mana (bei aelteren Dateien bleiben die Startwerte)
+            if (_spells != null && data.spells != null)
+                foreach (var s in data.spells)
+                {
+                    int slot = s != null ? _spells.IndexOf(s.id) : -1;
+                    if (slot >= 0) _spells.SetState(slot, s.level, s.xp);
+                }
+            if (_mana != null) _mana.SetState(data.manaLevel, data.manaXp, data.currentMana);
 
             OnLoaded?.Invoke();
             return true;

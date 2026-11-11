@@ -48,7 +48,7 @@ namespace Reborn.Combat
         {
             _cooldownTimer -= Time.deltaTime;
             if (_health != null && _health.IsDead) return;
-            if (_attack.WasPressedThisFrame() && _cooldownTimer <= 0f && !_controller.IsDodging && !_controller.Locked)
+            if (_attack.WasPressedThisFrame() && _cooldownTimer <= 0f && !_controller.Busy)
             {
                 StartCoroutine(DoAttack());
             }

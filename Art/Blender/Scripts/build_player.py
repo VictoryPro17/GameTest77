@@ -239,6 +239,12 @@ ANIMS = {
          "leg.L": {"rx": 45}, "leg.R": {"rx": 30}, "arm.L": {"rx": 50}, "arm.R": {"rx": 50}},
         {"root": {"z": -0.08}, "spine": {"rx": 12}, "leg.L": {"rx": -12}, "leg.R": {"rx": 15}},
     ],
+    # Zaubern: Arme holen aus, stossen nach vorne, halten (Leuchten der Hand kommt als Partikel aus Unity)
+    "cast": [
+        {"spine": {"rx": -8}, "arm.L": {"rx": 35, "rz": 20}, "arm.R": {"rx": 35, "rz": -20}, "head": {"rx": -6}},
+        {"spine": {"rx": 10}, "arm.L": {"rx": 88, "rz": 8}, "arm.R": {"rx": 88, "rz": -8}, "leg.L": {"rx": 10}, "leg.R": {"rx": -8}},
+        {"spine": {"rx": 5}, "arm.L": {"rx": 75, "rz": 5}, "arm.R": {"rx": 75, "rz": -5}},
+    ],
 }
 
 rendered = 0

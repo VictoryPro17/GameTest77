@@ -20,6 +20,20 @@ namespace Reborn.Player
         public bool IsDodging => _dodgeTimer > 0f;
         /// <summary>Wird waehrend eines Angriffs gesetzt.</summary>
         public bool Locked { get; set; }
+        /// <summary>Wird von PlayerMana gesetzt: Spieler steht still und kann nichts anderes tun.</summary>
+        public bool Meditating { get; set; }
+        public bool IsCasting => _castTimer > 0f;
+        /// <summary>Gerade mit etwas anderem beschaeftigt (Angriff, Ausweichen, Zaubern, Meditieren)</summary>
+        public bool Busy => Locked || IsDodging || IsCasting || Meditating;
+
+        float _castTimer;
+
+        /// <summary>Kurz stehen bleiben, waehrend die Zauber-Animation laeuft.</summary>
+        public void StartCast(float duration)
+        {
+            _castTimer = Mathf.Max(_castTimer, duration);
+            _input = Vector2.zero;
+        }
 
         Rigidbody2D _body;
         Health _health;
@@ -67,6 +81,14 @@ namespace Reborn.Player
             if (_health != null && _health.IsDead)
             {
                 _input = Vector2.zero;
+                return;
+            }
+
+            if (_castTimer > 0f || Meditating)
+            {
+                if (_castTimer > 0f) _castTimer -= Time.deltaTime;
+                _input = Vector2.zero;
+                if (Meditating && _animator != null) _animator.Play("idle");
                 return;
             }
 

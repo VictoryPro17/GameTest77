@@ -26,7 +26,7 @@ using UnityEngine.UI;
 namespace Reborn.EditorTools
 {
     /// <summary>Baut das Spiel automatisch (Meilenstein 1 + 2): Einstellungen, Sprites, Daten, Prefabs und die Test-Szene.</summary>
-    public static class RebornBuilder
+    public static partial class RebornBuilder
     {
         const string Root = "Assets/_Project";
         const string SpritesPlayer = Root + "/Sprites/Player";
@@ -56,12 +56,13 @@ namespace Reborn.EditorTools
             var icons = CreateItemIcons();
             var ui = CreateUiSprites();
             var playerAnim = CreateAnimationSet("Player_Anim", SpritesPlayer,
-                ("idle", 3f, true, 2), ("walk", 8f, true, 4), ("attack", 12f, false, 3), ("dodge", 15f, false, 3));
+                ("idle", 3f, true, 2), ("walk", 8f, true, 4), ("attack", 12f, false, 3), ("dodge", 15f, false, 3), ("cast", 12f, false, 3));
+            var magic = CreateMagic();
             var slimeAnim = CreateAnimationSet("Slime_Anim", SpritesSlime,
                 ("idle", 6f, true, 4), ("hurt", 8f, false, 1), ("death", 10f, false, 3));
             var (items, database, lootTable) = CreateItems(icons);
             var pickup = CreatePickupPrefab(icons["schleimgel"]);
-            var player = CreatePlayerPrefab(playerAnim, database);
+            var player = CreatePlayerPrefab(playerAnim, database, magic);
             var slime = CreateSlimePrefab(slimeAnim, lootTable, pickup);
             var chest = CreateChestPrefab(pickup, items);
             var hud = CreateHudPrefab(ui);
@@ -70,7 +71,7 @@ namespace Reborn.EditorTools
             BuildScene(tiles, player, slime, hud, mobile, chest, menu);
             ConfigureBuild();
             AssetDatabase.SaveAssets();
-            return "Meilenstein 2 gebaut: " + ScenePath + " (" + database.items.Count + " Gegenstaende)";
+            return "Meilenstein 3 gebaut: " + ScenePath + " (" + database.items.Count + " Gegenstaende, " + magic.spells.Length + " Zauber)";
         }
 
         // ------------------------------------------------------------ Projekt
@@ -499,7 +500,7 @@ namespace Reborn.EditorTools
             return rb;
         }
 
-        static GameObject CreatePlayerPrefab(SpriteAnimationSet anim, ItemDatabase database)
+        static GameObject CreatePlayerPrefab(SpriteAnimationSet anim, ItemDatabase database, MagicAssets magic)
         {
             var input = AssetDatabase.LoadAssetAtPath<InputActionAsset>(InputPath);
             var go = new GameObject("Player") { tag = "Player", layer = LayerPlayer };
@@ -526,6 +527,7 @@ namespace Reborn.EditorTools
             potions.actions = input;
             var save = go.AddComponent<SaveSystem>();
             save.database = database;
+            AddMagicToPlayer(go, magic, input);
             Visual(go.transform, anim);
             return SavePrefab(go, "Player");
         }
@@ -658,7 +660,7 @@ namespace Reborn.EditorTools
             hud.pointsHint.text = "";
 
             // Trank-Platz unter den Balken
-            var frame = Rect("PotionSlot", canvas.transform, new Vector2(0, 1), new Vector2(30, -106), new Vector2(84, 84)).gameObject.AddComponent<Image>();
+            var frame = Rect("PotionSlot", canvas.transform, new Vector2(0, 1), new Vector2(30, -128), new Vector2(84, 84)).gameObject.AddComponent<Image>();
             frame.sprite = ui.emptyFrame;
             hud.potionIcon = Rect("PotionIcon", frame.transform, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(64, 64)).gameObject.AddComponent<Image>();
             hud.potionIcon.preserveAspect = true;
@@ -666,6 +668,7 @@ namespace Reborn.EditorTools
             hud.potionCountText = Label("PotionCount", frame.transform, new Vector2(1, 0), new Vector2(-6, 2), new Vector2(60, 34), 26, TextAnchor.LowerRight);
             hud.potionCountText.text = "0";
             Label("PotionKey", frame.transform, new Vector2(0, 1), new Vector2(6, -2), new Vector2(40, 30), 20, TextAnchor.UpperLeft).text = "Q";
+            AddMagicHud(canvas, hud, ui);
             return SavePrefab(canvas.gameObject, "HUD");
         }
 
@@ -705,6 +708,12 @@ namespace Reborn.EditorTools
             Button("DodgeButton", "Ausw.", new Vector2(-330, 70), 150, new Color(0.3f, 0.6f, 0.9f, 0.6f), "<Gamepad>/buttonSouth");
             Button("PotionButton", "Trank", new Vector2(-145, 340), 130, new Color(0.3f, 0.8f, 0.4f, 0.6f), "<Gamepad>/buttonNorth");
             Button("MenuButton", "Menü", new Vector2(-30, -30), 120, new Color(0.85f, 0.7f, 0.3f, 0.6f), "<Gamepad>/start", new Vector2(1, 1));
+            var spellColor = new Color(0.45f, 0.5f, 1f, 0.6f);
+            Button("Spell1Button", "Z1", new Vector2(-330, 240), 100, spellColor, "<Gamepad>/rightShoulder");
+            Button("Spell2Button", "Z2", new Vector2(-440, 240), 100, spellColor, "<Gamepad>/rightTrigger");
+            Button("Spell3Button", "Z3", new Vector2(-330, 350), 100, spellColor, "<Gamepad>/leftShoulder");
+            Button("Spell4Button", "Z4", new Vector2(-440, 350), 100, spellColor, "<Gamepad>/leftTrigger");
+            Button("MeditateButton", "Medit.", new Vector2(-145, 490), 100, new Color(0.3f, 0.75f, 0.9f, 0.6f), "<Gamepad>/buttonEast");
             return SavePrefab(canvas.gameObject, "MobileControls");
         }
 
@@ -798,6 +807,7 @@ namespace Reborn.EditorTools
             menu.inventoryTabButton = MenuButton("TabInventar", panel, new Vector2(-760, 425), new Vector2(200, 62), "Inventar", 30, tabColor);
             menu.characterTabButton = MenuButton("TabCharakter", panel, new Vector2(-545, 425), new Vector2(200, 62), "Charakter", 30, tabColor);
             menu.closeButton = MenuButton("Close", panel, new Vector2(830, 425), new Vector2(76, 62), "X", 34, new Color(0.55f, 0.2f, 0.22f, 1f));
+            AddMagicMenu(menu, panel, tabColor);
 
             // ---------------- Reiter Inventar
             var invPage = Stretch("InventoryPage", panel);

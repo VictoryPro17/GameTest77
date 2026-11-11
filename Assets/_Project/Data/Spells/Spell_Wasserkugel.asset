@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2a7011a527842f4ab07cb3a7a277620, type: 3}
+  m_Name: Spell_Wasserkugel
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Magic.SpellData
+  id: wasserkugel
+  spellName: Wasserkugel
+  element: 0
+  kind: 0
+  icon: {fileID: 21300000, guid: 9b1b9d6f33a0aeb4f96aaa73db820687, type: 3}
+  description: Eine Kugel aus Wasser, die beim Treffer zerspritzt.
+  manaCost: 5
+  baseDamage: 8
+  splashDamage: 0
+  splashRadius: 1
+  cooldown: 0.5
+  speed: 9
+  range: 6
+  radius: 0.3
+  knockback: 3
+  xpPerHit: 1
+  bigChant: 0
+  unlockSpellId: 
+  unlockSpellLevel: 0
+  unlockPlayerLevel: 1
+  effectPrefab: {fileID: 5237766017259133207, guid: 9b64c4b2a9916424b915813d8b9a8a42, type: 3}

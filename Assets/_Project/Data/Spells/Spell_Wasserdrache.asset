@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2a7011a527842f4ab07cb3a7a277620, type: 3}
+  m_Name: Spell_Wasserdrache
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Magic.SpellData
+  id: wasserdrache
+  spellName: Wasserdrache
+  element: 0
+  kind: 1
+  icon: {fileID: 21300000, guid: a8a51d65b60398c4a93423513251fd79, type: 3}
+  description: "Ein Drache aus Wasser schl\xE4ngelt sich durch alle Gegner."
+  manaCost: 25
+  baseDamage: 20
+  splashDamage: 0
+  splashRadius: 1
+  cooldown: 4
+  speed: 9
+  range: 8
+  radius: 0.5
+  knockback: 4
+  xpPerHit: 2
+  bigChant: 1
+  unlockSpellId: wasserkugel
+  unlockSpellLevel: 3
+  unlockPlayerLevel: 1
+  effectPrefab: {fileID: 8962949428280355049, guid: 33f5e14d54a3f124d8183ba40987ef07, type: 3}

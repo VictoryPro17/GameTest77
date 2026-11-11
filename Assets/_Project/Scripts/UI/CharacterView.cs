@@ -26,7 +26,7 @@ namespace Reborn.UI
             "+1 Angriff pro Punkt",
             "Schneller angreifen und ausweichen",
             "+5 Leben pro Punkt",
-            "Wirkt ab Fähigkeiten (später)",
+            "+5 Mana, +1 Magieschaden pro Punkt",
             "+3 % Beute-Chance pro Punkt"
         };
 
