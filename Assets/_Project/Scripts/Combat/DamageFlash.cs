@@ -3,12 +3,14 @@ using UnityEngine;
 
 namespace Reborn.Combat
 {
-    /// <summary>Laesst die Figur kurz aufblitzen, wenn sie getroffen wird.</summary>
+    /// <summary>Laesst die Figur kurz aufblitzen: rot bei Treffer, gruen bei Heilung.</summary>
     [RequireComponent(typeof(SpriteRenderer))]
     public class DamageFlash : MonoBehaviour
     {
         public Color flashColor = new Color(1f, 0.35f, 0.35f, 1f);
+        public Color healColor = new Color(0.45f, 1f, 0.45f, 1f);
         public float duration = 0.1f;
+        public float healDuration = 0.25f;
 
         SpriteRenderer _renderer;
         Health _health;
@@ -23,24 +25,34 @@ namespace Reborn.Combat
 
         void OnEnable()
         {
-            if (_health != null) _health.OnDamaged += HandleDamaged;
+            if (_health == null) return;
+            _health.OnDamaged += HandleDamaged;
+            _health.OnHealed += HandleHealed;
         }
 
         void OnDisable()
         {
-            if (_health != null) _health.OnDamaged -= HandleDamaged;
+            if (_health == null) return;
+            _health.OnDamaged -= HandleDamaged;
+            _health.OnHealed -= HandleHealed;
         }
 
         void HandleDamaged(int amount, Vector2 knockback)
         {
             StopAllCoroutines();
-            StartCoroutine(Flash());
+            StartCoroutine(Flash(flashColor, duration));
         }
 
-        IEnumerator Flash()
+        void HandleHealed(int amount)
         {
-            _renderer.color = flashColor;
-            yield return new WaitForSeconds(duration);
+            StopAllCoroutines();
+            StartCoroutine(Flash(healColor, healDuration));
+        }
+
+        IEnumerator Flash(Color color, float time)
+        {
+            _renderer.color = color;
+            yield return new WaitForSecondsRealtime(time);
             _renderer.color = _normal;
         }
     }

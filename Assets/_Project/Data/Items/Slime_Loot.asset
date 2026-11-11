@@ -21,3 +21,19 @@ MonoBehaviour:
     dropChance: 0.25
     min: 1
     max: 1
+  - item: {fileID: 11400000, guid: d2c11d2e7f427464f95e76f2eef8e943, type: 2}
+    dropChance: 0.06
+    min: 1
+    max: 1
+  - item: {fileID: 11400000, guid: 448c8a2cd00741f418b2598982e249a5, type: 2}
+    dropChance: 0.06
+    min: 1
+    max: 1
+  - item: {fileID: 11400000, guid: cddf504a86e8b4148b0d508effcc4dce, type: 2}
+    dropChance: 0.06
+    min: 1
+    max: 1
+  - item: {fileID: 11400000, guid: 25b1484f52eec7a42a1afef246e26690, type: 2}
+    dropChance: 0.03
+    min: 1
+    max: 1

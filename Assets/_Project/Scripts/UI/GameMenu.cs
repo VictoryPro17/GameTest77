@@ -1,0 +1,118 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
+
+namespace Reborn.UI
+{
+    /// <summary>Spielmenue mit den Reitern Inventar und Charakter. Pausiert das Spiel, solange es offen ist.</summary>
+    public class GameMenu : MonoBehaviour
+    {
+        public InputActionAsset actions;
+        public GameObject root;
+        public GameObject inventoryPage;
+        public GameObject characterPage;
+        public Button inventoryTabButton;
+        public Button characterTabButton;
+        public Button closeButton;
+        public InventoryView inventoryView;
+        public CharacterView characterView;
+        public Color tabActive = new Color(0.85f, 0.7f, 0.3f, 1f);
+        public Color tabInactive = new Color(0.25f, 0.23f, 0.3f, 1f);
+
+        public static bool IsOpen { get; private set; }
+        public static event Action OnOpened;
+        public static event Action OnClosed;
+
+        public int Page { get; private set; }
+
+        static readonly string[] BlockedActions = { "Move", "Attack", "Dodge", "UsePotion" };
+
+        InputAction _menu;
+        readonly List<InputAction> _blocked = new List<InputAction>();
+
+        void Awake()
+        {
+            var map = actions.FindActionMap("Gameplay", true);
+            _menu = map.FindAction("Menu", true);
+            foreach (var name in BlockedActions)
+            {
+                var action = map.FindAction(name);
+                if (action != null) _blocked.Add(action);
+            }
+            if (inventoryTabButton != null) inventoryTabButton.onClick.AddListener(() => ShowPage(0));
+            if (characterTabButton != null) characterTabButton.onClick.AddListener(() => ShowPage(1));
+            if (closeButton != null) closeButton.onClick.AddListener(Close);
+            if (root != null) root.SetActive(false);
+            IsOpen = false;
+        }
+
+        void OnEnable()
+        {
+            _menu.actionMap.Enable();
+        }
+
+        void OnDestroy()
+        {
+            if (IsOpen)
+            {
+                Time.timeScale = 1f;
+                IsOpen = false;
+                foreach (var action in _blocked) action.Enable();
+            }
+        }
+
+        void Update()
+        {
+            if (_menu.WasPressedThisFrame()) Toggle();
+        }
+
+        public void Toggle()
+        {
+            if (IsOpen) Close();
+            else Open();
+        }
+
+        public void Open()
+        {
+            if (IsOpen) return;
+            IsOpen = true;
+            if (root != null) root.SetActive(true);
+            Time.timeScale = 0f;
+            foreach (var action in _blocked) action.Disable();
+            ShowPage(0);
+            OnOpened?.Invoke();
+        }
+
+        public void Close()
+        {
+            if (!IsOpen) return;
+            IsOpen = false;
+            if (root != null) root.SetActive(false);
+            Time.timeScale = 1f;
+            foreach (var action in _blocked) action.Enable();
+            if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
+            OnClosed?.Invoke();
+        }
+
+        public void ShowPage(int page)
+        {
+            Page = Mathf.Clamp(page, 0, 1);
+            if (inventoryPage != null) inventoryPage.SetActive(Page == 0);
+            if (characterPage != null) characterPage.SetActive(Page == 1);
+            SetTabColor(inventoryTabButton, Page == 0);
+            SetTabColor(characterTabButton, Page == 1);
+            if (Page == 0 && inventoryView != null) inventoryView.SelectFirst();
+            if (Page == 1 && characterView != null) characterView.SelectFirst();
+        }
+
+        void SetTabColor(Button button, bool active)
+        {
+            if (button == null) return;
+            var img = button.targetGraphic as Image;
+            if (img != null) img.color = active ? tabActive : tabInactive;
+        }
+    }
+}

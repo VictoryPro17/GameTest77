@@ -12,8 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c202c9871bcfb44b8ed91b1549a41ff, type: 3}
   m_Name: Item_Schleimgel
   m_EditorClassIdentifier: Assembly-CSharp::Reborn.Loot.ItemData
+  id: schleimgel
   itemName: Schleimgel
   description: Klebriges Material eines Waldschleims. Wird zum Herstellen gebraucht.
   icon: {fileID: 21300000, guid: 42aaabc1d48167147a17703a4cb4d7b5, type: 3}
   rarity: 0
+  category: 0
+  equipSlot: 0
+  stats:
+    attack: 0
+    defense: 0
+    maxHealth: 0
+    strength: 0
+    dexterity: 0
+    vitality: 0
+    intelligence: 0
+    luck: 0
+  healAmount: 0
+  sellValue: 2
   maxStack: 99

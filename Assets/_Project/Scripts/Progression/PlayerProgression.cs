@@ -1,27 +1,17 @@
 using System;
-using Reborn.Combat;
 using UnityEngine;
 
 namespace Reborn.Progression
 {
-    /// <summary>Level und Erfahrung. Naechstes Level braucht 100 x Level XP.</summary>
+    /// <summary>Level und Erfahrung. Naechstes Level braucht 100 x Level XP. Punkte und Leben regelt PlayerStats.</summary>
     public class PlayerProgression : MonoBehaviour
     {
-        public int healthPerLevel = 10;
-
         public int Level { get; private set; } = 1;
         public int XP { get; private set; }
         public int XPToNextLevel => 100 * Level;
 
         public event Action OnChanged;
         public event Action<int> OnLevelUp;
-
-        Health _health;
-
-        void Awake()
-        {
-            _health = GetComponent<Health>();
-        }
 
         public void AddXP(int amount)
         {
@@ -31,9 +21,16 @@ namespace Reborn.Progression
             {
                 XP -= XPToNextLevel;
                 Level++;
-                if (_health != null) _health.SetMaxHealth(_health.maxHealth + healthPerLevel, true);
                 OnLevelUp?.Invoke(Level);
             }
+            OnChanged?.Invoke();
+        }
+
+        /// <summary>Zustand aus dem Spielstand setzen.</summary>
+        public void SetState(int level, int xp)
+        {
+            Level = Mathf.Max(1, level);
+            XP = Mathf.Clamp(xp, 0, XPToNextLevel - 1);
             OnChanged?.Invoke();
         }
     }

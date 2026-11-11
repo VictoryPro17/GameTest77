@@ -115,6 +115,7 @@ MonoBehaviour:
   maxHealth: 30
   invulnerable: 0
   hitInvulnerability: 0
+  defense: 0
 --- !u!114 &4781925471945961548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271,4 +272,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Reborn.Combat.DamageFlash
   flashColor: {r: 1, g: 0.35, b: 0.35, a: 1}
+  healColor: {r: 0.45, g: 1, b: 0.45, a: 1}
   duration: 0.1
+  healDuration: 0.25

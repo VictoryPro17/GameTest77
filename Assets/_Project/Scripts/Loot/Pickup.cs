@@ -1,8 +1,9 @@
+using Reborn.Inventory;
 using UnityEngine;
 
 namespace Reborn.Loot
 {
-    /// <summary>Gegenstand am Boden. Wird bei Beruehrung durch den Spieler eingesammelt.</summary>
+    /// <summary>Gegenstand am Boden. Wird bei Beruehrung durch den Spieler eingesammelt, soweit Platz ist.</summary>
     [RequireComponent(typeof(Collider2D))]
     public class Pickup : MonoBehaviour
     {
@@ -30,9 +31,10 @@ namespace Reborn.Loot
         {
             if (Time.time - _spawnTime < pickupDelay) return;
             var inventory = other.GetComponentInParent<PlayerInventory>();
-            if (inventory == null) return;
-            inventory.Add(item, count);
-            Destroy(gameObject);
+            if (inventory == null || item == null) return;
+            int rest = inventory.Add(item, count);
+            if (rest <= 0) Destroy(gameObject);
+            else count = rest;
         }
     }
 }

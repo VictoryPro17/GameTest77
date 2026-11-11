@@ -16,6 +16,10 @@ GameObject:
   - component: {fileID: 1421249504331765155}
   - component: {fileID: 3126241472899932810}
   - component: {fileID: 287365394593654940}
+  - component: {fileID: 4698138938897190451}
+  - component: {fileID: 2360383358188620112}
+  - component: {fileID: 6222677361809108153}
+  - component: {fileID: 5238043546220141973}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -117,6 +121,7 @@ MonoBehaviour:
   maxHealth: 50
   invulnerable: 0
   hitInvulnerability: 0.6
+  defense: 0
 --- !u!114 &6796762599423153123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,7 +176,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59e6387f254afca4eb6d6583ce2d8c35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Reborn.Progression.PlayerProgression
-  healthPerLevel: 10
 --- !u!114 &287365394593654940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -183,8 +187,120 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6478688455e52c74c97af7669b14401b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Loot.PlayerInventory
-  items: []
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Inventory.PlayerInventory
+  slots:
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 0}
+    count: 0
+--- !u!114 &4698138938897190451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396621224206838731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b9213932c627c34b80e9d6e169641b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Inventory.PlayerEquipment
+  equipped:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+--- !u!114 &2360383358188620112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396621224206838731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b61af9e23d475748a22e4a0a3ae2a38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Progression.PlayerStats
+  pointsPerLevel: 3
+  baseAttributes: 0100000001000000010000000100000001000000i
+--- !u!114 &6222677361809108153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396621224206838731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c541441ac3c16ec47a7de52fd8b45401, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Inventory.PotionUser
+  actions: {fileID: -944628639613478452, guid: 79a42bc919e6511469bfeff9972f10e5, type: 3}
+  cooldown: 1
+--- !u!114 &5238043546220141973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396621224206838731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd587ca6689699248a0c4c6e9b3e9b3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Save.SaveSystem
+  database: {fileID: 11400000, guid: 54d6a302af7511c4c8d541a045fbf15d, type: 2}
 --- !u!1 &8611488771405005857
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,4 +422,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Reborn.Combat.DamageFlash
   flashColor: {r: 1, g: 0.35, b: 0.35, a: 1}
+  healColor: {r: 0.45, g: 1, b: 0.45, a: 1}
   duration: 0.1
+  healDuration: 0.25
