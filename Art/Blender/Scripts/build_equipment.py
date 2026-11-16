@@ -1,276 +1,252 @@
-"""RE:BORN - Sichtbare Ausruestung und Item-Icons (Meilenstein 4)
+"""RE:BORN - Sichtbare Ausruestung und Item-Icons (v2, Meilenstein 5, Comic-Look)
 
 Oeffnet Reborn_Characters.blend (nach build_player.py), baut 14 Ausruestungsteile am Spieler-Skelett
-und rendert jedes Teil in allen Animationen und 4 Richtungen als eigene Bildebene (96x96).
-Der Koerper ist dabei "Holdout": unsichtbar, verdeckt aber das Teil, damit vorne/hinten stimmt.
-Danach Item-Icons (32x32) fuer alle Gegenstaende.
+und rendert jedes Teil in allen Animationen (gleiche Bildpositionen wie der Koerper) und 4 Richtungen
+als eigene Bildebene (128x128). Der Koerper ist dabei "Holdout": unsichtbar, verdeckt aber das Teil.
+Danach Item-Icons (48x48) fuer alle 22 Gegenstaende.
 
-Aufruf:  blender.exe -b <Reborn_Characters.blend> --python build_equipment.py -- <projektordner>
+Aufruf:  blender.exe -b <Reborn_Characters.blend> --python build_equipment.py -- <projektordner> [animation ...]
+         (mit Animationsnamen werden nur diese Ebenen neu gerendert, z. B. "death")
 """
 import bpy
-import bmesh
 import math
 import os
+import shutil
 import sys
 from mathutils import Vector
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import reborn_lib as L  # noqa: E402
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 PROJECT = argv[0] if argv else os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 EQ_DIR = os.path.join(PROJECT, "Assets", "_Project", "Sprites", "Equipment")
 ICON_DIR = os.path.join(PROJECT, "Assets", "_Project", "Sprites", "Items")
 BLEND_PATH = os.path.join(PROJECT, "Art", "Blender", "Reborn_Characters.blend")
-DIRECTIONS = {"down": 0.0, "right": 90.0, "up": 180.0, "left": -90.0}
+ICON_SIZE = 48
 
 scene = bpy.data.scenes["Characters"]
-if bpy.context.window:
-    bpy.context.window.scene = scene
 rig = bpy.data.objects["PlayerRig"]
 body = bpy.data.objects["Player"]
-ANIM_FRAMES = dict(scene["anim_frames"])
+ANIM = {k: list(v) for k, v in scene["anim_frames"].items()}
+# Animationen mit eigener Aktion pro Richtung ("Player_<anim>_<richtung>", von build_player.py)
+DIR_ACTIONS = set(scene.get("dir_actions", []))
+# Optional nur einzelne Animationen neu rendern:  -- <projektordner> death walk
+ONLY_ANIMS = set(argv[1:])
 r = scene.render
 
-# Alte Ausruestung und Icon-Modelle entfernen
 for o in list(bpy.data.objects):
     if o.name.startswith(("EQ_", "ICON_")) or o.name == "IconCamera":
         bpy.data.objects.remove(o, do_unlink=True)
 
-
-def mat(name, rgb, metallic=0.0, rough=1.0, emission=0.0):
-    m = bpy.data.materials.get(name) or bpy.data.materials.new(name)
-    m.use_nodes = True
-    p = m.node_tree.nodes.get("Principled BSDF")
-    p.inputs["Base Color"].default_value = (*rgb, 1.0)
-    p.inputs["Metallic"].default_value = metallic
-    p.inputs["Roughness"].default_value = rough
-    if "Emission Color" in p.inputs:
-        p.inputs["Emission Color"].default_value = (*rgb, 1.0)
-        p.inputs["Emission Strength"].default_value = emission
-    return m
-
-
 M = {
-    "leather": mat("EQ_Leder", (0.47, 0.30, 0.15)),
-    "leather_dark": mat("EQ_LederDunkel", (0.30, 0.18, 0.09)),
-    "iron": mat("EQ_Eisen", (0.60, 0.62, 0.67), 0.7, 0.45),
-    "iron_dark": mat("EQ_EisenDunkel", (0.36, 0.37, 0.41), 0.6, 0.5),
-    "iron_light": mat("EQ_EisenHell", (0.86, 0.88, 0.92), 0.8, 0.3),
-    "gold": mat("EQ_Gold", (0.95, 0.72, 0.25), 0.8, 0.35),
-    "red": mat("EQ_Rot", (0.62, 0.10, 0.10)),
-    "wood": mat("EQ_Holz", (0.58, 0.38, 0.18)),
-    "wood_dark": mat("EQ_HolzDunkel", (0.34, 0.21, 0.10)),
-    "orb": mat("EQ_Kristall", (0.35, 0.65, 1.0), 0.0, 0.3, 2.0),
-    "gel": mat("ICON_Gel", (0.25, 0.75, 0.25), 0.0, 0.3, 0.3),
-    "foam": mat("ICON_Glanz", (0.95, 1.0, 0.95), 0.0, 0.2, 0.5),
-    "potion_red": mat("ICON_TrankRot", (0.85, 0.12, 0.2), 0.0, 0.2, 0.6),
-    "potion_blue": mat("ICON_TrankBlau", (0.15, 0.4, 0.95), 0.0, 0.2, 0.6),
-    "glass": mat("ICON_Glas", (0.8, 0.9, 0.95), 0.0, 0.1, 0.2),
-    "cork": mat("ICON_Korken", (0.6, 0.42, 0.25)),
-    "copper": mat("ICON_Kupfer", (0.8, 0.45, 0.22), 0.8, 0.35),
-    "gem_teal": mat("ICON_Tuerkis", (0.2, 0.75, 0.8), 0.0, 0.2, 0.8),
-    "gem_blue": mat("ICON_Saphir", (0.15, 0.3, 0.95), 0.0, 0.2, 0.8),
-    "tooth": mat("ICON_Zahn", (0.93, 0.9, 0.82)),
+    "leather": L.cel("EQ_Leder", (0.55, 0.35, 0.18)),
+    "leather_dark": L.cel("EQ_LederDunkel", (0.34, 0.2, 0.1)),
+    "stitch": L.cel("EQ_Naht", (0.9, 0.78, 0.55)),
+    "iron": L.cel("EQ_Eisen", (0.5, 0.53, 0.6), shadow=0.45, mid=0.75, light=1.05),
+    "iron_dark": L.cel("EQ_EisenDunkel", (0.3, 0.32, 0.38), shadow=0.5),
+    "iron_light": L.cel("EQ_EisenHell", (0.72, 0.76, 0.84), shadow=0.5, mid=0.8),
+    "gold": L.cel("EQ_Gold", (1.0, 0.78, 0.28), light=1.15),
+    "red": L.cel("EQ_Rot", (0.75, 0.13, 0.13)),
+    "wood": L.cel("EQ_Holz", (0.66, 0.44, 0.22)),
+    "wood_dark": L.cel("EQ_HolzDunkel", (0.4, 0.25, 0.12)),
+    "orb": L.cel("EQ_Kristall", (0.4, 0.75, 1.0), shadow=0.8, emission=1.2),
+    "gel": L.cel("ICON_Gel", (0.3, 0.82, 0.3), emission=0.2),
+    "shine": L.cel("ICON_Glanz", (1, 1, 1), shadow=1, mid=1, emission=0.5),
+    "potion_red": L.cel("ICON_TrankRot", (0.92, 0.15, 0.25), emission=0.3),
+    "potion_blue": L.cel("ICON_TrankBlau", (0.2, 0.45, 1.0), emission=0.3),
+    "glass": L.cel("ICON_Glas", (0.82, 0.92, 0.97)),
+    "cork": L.cel("ICON_Korken", (0.66, 0.46, 0.27)),
+    "copper": L.cel("ICON_Kupfer", (0.86, 0.5, 0.25), light=1.15),
+    "gem_teal": L.cel("ICON_Tuerkis", (0.2, 0.85, 0.85), emission=0.6),
+    "gem_blue": L.cel("ICON_Saphir", (0.15, 0.35, 1.0), emission=0.6),
+    "tooth": L.cel("ICON_Zahn", (0.95, 0.92, 0.84)),
 }
-R60 = math.radians(-60)
-R90 = math.radians(90)
 
 
-def prim(kind, loc, scale, rot):
-    if kind == "sphere":
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=16, ring_count=8, location=loc, rotation=rot)
-    elif kind == "cyl":
-        bpy.ops.mesh.primitive_cylinder_add(vertices=16, location=loc, rotation=rot)
-    elif kind == "cone":
-        bpy.ops.mesh.primitive_cone_add(vertices=12, location=loc, rotation=rot)
-    elif kind == "torus":
-        bpy.ops.mesh.primitive_torus_add(major_segments=24, minor_segments=8, location=loc, rotation=rot, major_radius=1.0, minor_radius=0.18)
-    else:
-        bpy.ops.mesh.primitive_cube_add(location=loc, rotation=rot)
-    o = bpy.context.active_object
-    o.scale = scale
-    bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
-    return o
+def part(kind, bone, mat, loc, scale, rot=(0, 0, 0), **kw):
+    return L.shape(kind, loc, scale, rot, M[mat], bone, collection=scene.collection, **kw)
 
 
-def build(name, parts, rigged=True):
-    """parts: (kind, bone, material, loc, scale[, rot]) -> ein Objekt (am Skelett, wenn rigged)"""
-    bpy.ops.object.mode_set(mode="OBJECT") if bpy.context.object and bpy.context.object.mode != "OBJECT" else None
-    objs = []
-    for p in parts:
-        kind, bone, material, loc, scale = p[:5]
-        rot = p[5] if len(p) > 5 else (0, 0, 0)
-        o = prim(kind, loc, scale, rot)
-        o.data.materials.append(M[material])
-        if rigged:
-            vg = o.vertex_groups.new(name=bone)
-            vg.add(list(range(len(o.data.vertices))), 1.0, "REPLACE")
-        objs.append(o)
-    bpy.ops.object.select_all(action="DESELECT")
-    for o in objs:
-        o.select_set(True)
-    bpy.context.view_layer.objects.active = objs[0]
-    if len(objs) > 1:
-        bpy.ops.object.join()
-    o = bpy.context.active_object
-    o.name = name
-    bpy.ops.object.shade_flat()
-    if rigged:
-        o.parent = rig
-        mod = o.modifiers.new("Armature", "ARMATURE")
-        mod.object = rig
-    o.hide_render = True
-    return o
+def pair(fn):
+    """fn(seite, x, vorzeichen) -> Liste von Teilen; fuer links und rechts"""
+    return fn("L", -1) + fn("R", 1)
 
 
-def legs(kind_parts):
-    out = []
-    for side, x in (("L", -0.12), ("R", 0.12)):
-        for p in kind_parts:
-            kind, material, loc, scale = p
-            out.append((kind, f"leg.{side}", material, (x + loc[0], loc[1], loc[2]), scale))
-    return out
+def boots(mat_foot, mat_shaft, mat_cuff):
+    return pair(lambda s, sg: [
+        part("sphere", f"shin.{s}", mat_foot, (0.12 * sg, -0.035, 0.075), (0.093, 0.14, 0.072)),
+        part("cube", f"shin.{s}", mat_foot, (0.12 * sg, -0.015, 0.025), (0.092, 0.14, 0.028)),
+        part("cyl", f"shin.{s}", mat_shaft, (0.12 * sg, 0, 0.2), (0.09, 0.09, 0.1)),
+        part("cyl", f"shin.{s}", mat_cuff, (0.12 * sg, 0, 0.31), (0.097, 0.097, 0.022))])
 
 
-def arms(kind_parts):
-    out = []
-    for side, x in (("L", -0.31), ("R", 0.31)):
-        for p in kind_parts:
-            kind, material, loc, scale = p
-            out.append((kind, f"arm.{side}", material, (x + loc[0], loc[1], loc[2]), scale))
-    return out
+def gloves(mat, cuff):
+    return pair(lambda s, sg: [
+        part("sphere", f"forearm.{s}", mat, (0.32 * sg, -0.005, 0.89), (0.074, 0.068, 0.08)),
+        part("cube", f"forearm.{s}", mat, (0.32 * sg, -0.03, 0.835), (0.058, 0.042, 0.035)),
+        part("cyl", f"forearm.{s}", cuff, (0.315 * sg, 0, 0.975), (0.072, 0.072, 0.04), taper=1.15)])
+
+
+def pants(mat, extra):
+    return [part("cyl", "hips", mat, (0, 0, 0.875), (0.245, 0.178, 0.09))] + pair(lambda s, sg: [
+        part("cyl", f"thigh.{s}", mat, (0.12 * sg, 0, 0.66), (0.102, 0.102, 0.19), taper=0.85),
+        part("cyl", f"shin.{s}", mat, (0.12 * sg, 0, 0.36), (0.088, 0.088, 0.12), taper=0.9),
+        part("sphere", f"shin.{s}", extra, (0.12 * sg, -0.07, 0.47), (0.07, 0.04, 0.06))])
+
+
+def sword(blade, guard, grip, length):
+    rot = (-60, 0, 0)
+    return [part("cyl", "forearm.R", grip, (0.32, -0.02, 0.89), (0.022, 0.022, 0.07), rot=(30, 0, 0)),
+            part("sphere", "forearm.R", guard, (0.32, 0.03, 0.86), (0.03, 0.03, 0.03)),
+            part("cube", "forearm.R", guard, (0.32, -0.075, 0.935), (0.09, 0.02, 0.022), rot=rot),
+            part("cube", "forearm.R", blade, (0.32, -0.08 - length * 0.85, 0.93 + length * 0.5), (0.03, 0.012, length), rot=rot, smooth=False),
+            part("cube", "forearm.R", "iron_dark" if blade != "wood" else "wood_dark",
+                 (0.32, -0.085 - length * 0.85, 0.935 + length * 0.5), (0.008, 0.014, length * 0.85), rot=rot, smooth=False),
+            part("cone", "forearm.R", blade, (0.32, -0.075 - length * 1.72, 0.93 + length * 1.0), (0.03, 0.012, 0.05), rot=(-150, 0, 0))]
 
 
 EQUIP = {
-    "lederkappe": [("sphere", "head", "leather", (0, 0.02, 1.67), (0.262, 0.252, 0.16)),
-                   ("cyl", "head", "leather_dark", (0, 0.02, 1.6), (0.262, 0.252, 0.028))],
-    "eisenhelm": [("sphere", "head", "iron", (0, 0.01, 1.66), (0.268, 0.258, 0.19)),
-                  ("cyl", "head", "iron_dark", (0, 0.01, 1.585), (0.272, 0.262, 0.022)),
-                  ("cube", "head", "iron", (0, -0.262, 1.56), (0.016, 0.012, 0.07)),
-                  ("cube", "head", "red", (0, 0.02, 1.84), (0.022, 0.2, 0.035))],
-    "lederweste": [("cyl", "spine", "leather", (0, 0, 1.12), (0.242, 0.172, 0.205)),
-                   ("sphere", "spine", "leather", (0, 0, 1.255), (0.262, 0.178, 0.118)),
-                   ("cube", "spine", "leather_dark", (0, -0.178, 1.13), (0.01, 0.006, 0.15)),
-                   ("cyl", "hips", "leather_dark", (0, 0, 0.9), (0.25, 0.18, 0.06))],
-    "eisenbrust": [("cyl", "spine", "iron", (0, 0, 1.12), (0.248, 0.178, 0.21)),
-                   ("sphere", "spine", "iron", (0, 0, 1.26), (0.268, 0.182, 0.12)),
-                   ("sphere", "spine", "gold", (0, -0.182, 1.18), (0.05, 0.012, 0.05)),
-                   ("sphere", "arm.L", "iron", (-0.31, 0, 1.28), (0.1, 0.1, 0.075)),
-                   ("sphere", "arm.R", "iron", (0.31, 0, 1.28), (0.1, 0.1, 0.075)),
-                   ("cyl", "hips", "iron_dark", (0, 0, 0.9), (0.255, 0.185, 0.065))],
-    "lederhose": [("cyl", "hips", "leather", (0, 0, 0.86), (0.248, 0.178, 0.095))]
-                 + legs([("cyl", "leather", (0, 0, 0.62), (0.098, 0.098, 0.2)), ("cyl", "leather", (0, 0, 0.33), (0.084, 0.084, 0.17))]),
-    "eisenhose": [("cyl", "hips", "iron_dark", (0, 0, 0.86), (0.25, 0.18, 0.095))]
-                 + legs([("cyl", "iron", (0, 0, 0.62), (0.1, 0.1, 0.2)), ("cyl", "iron", (0, 0, 0.33), (0.086, 0.086, 0.17)),
-                         ("sphere", "iron_dark", (0, -0.07, 0.46), (0.07, 0.04, 0.06))]),
-    "lederstiefel": legs([("cube", "leather_dark", (0, -0.035, 0.065), (0.092, 0.138, 0.068)), ("cyl", "leather", (0, 0, 0.19), (0.088, 0.088, 0.1))]),
-    "eisenstiefel": legs([("cube", "iron_dark", (0, -0.035, 0.065), (0.094, 0.14, 0.07)), ("cyl", "iron", (0, 0, 0.19), (0.09, 0.09, 0.1))]),
-    "lederhandschuhe": arms([("sphere", "leather", (0, 0, 0.9), (0.074, 0.068, 0.08)), ("cyl", "leather_dark", (0, 0, 0.98), (0.07, 0.07, 0.035))]),
-    "eisenhandschuhe": arms([("sphere", "iron", (0, 0, 0.9), (0.076, 0.07, 0.082)), ("cyl", "iron_dark", (0, 0, 0.98), (0.072, 0.072, 0.04))]),
-    "holzschwert": [("cube", "arm.R", "wood_dark", (0.31, -0.02, 0.9), (0.03, 0.1, 0.03)),
-                    ("cube", "arm.R", "wood_dark", (0.31, -0.12, 0.95), (0.08, 0.02, 0.02), (R60, 0, 0)),
-                    ("cube", "arm.R", "wood", (0.31, -0.33, 1.08), (0.028, 0.022, 0.28), (R60, 0, 0))],
-    "eisenschwert": [("cube", "arm.R", "wood_dark", (0.31, -0.02, 0.9), (0.03, 0.1, 0.03)),
-                     ("cube", "arm.R", "gold", (0.31, -0.12, 0.95), (0.09, 0.02, 0.022), (R60, 0, 0)),
-                     ("cube", "arm.R", "iron_light", (0.31, -0.36, 1.1), (0.026, 0.02, 0.33), (R60, 0, 0))],
-    "eichenstab": [("cyl", "arm.R", "wood", (0.31, -0.02, 1.02), (0.025, 0.025, 0.6)),
-                   ("sphere", "arm.R", "orb", (0.31, -0.02, 1.66), (0.065, 0.065, 0.065)),
-                   ("cone", "arm.R", "wood_dark", (0.31, -0.02, 1.58), (0.06, 0.06, 0.06))],
-    "holzschild": [("cyl", "arm.L", "wood", (-0.39, -0.02, 1.0), (0.2, 0.2, 0.025), (0, R90, 0)),
-                   ("cyl", "arm.L", "iron_dark", (-0.385, -0.02, 1.0), (0.215, 0.215, 0.018), (0, R90, 0)),
-                   ("sphere", "arm.L", "iron", (-0.42, -0.02, 1.0), (0.05, 0.05, 0.05))],
+    "lederkappe": lambda: [part("sphere", "head", "leather", (0, 0.02, 1.69), (0.27, 0.26, 0.17), segments=24),
+                           part("cyl", "head", "leather_dark", (0, 0.02, 1.61), (0.275, 0.265, 0.03)),
+                           part("cyl", "head", "stitch", (0, 0.02, 1.64), (0.272, 0.262, 0.006)),
+                           part("cube", "head", "leather_dark", (0, -0.245, 1.6), (0.14, 0.05, 0.012), rot=(-15, 0, 0))],
+    "eisenhelm": lambda: ([part("sphere", "head", "iron", (0, 0.01, 1.68), (0.28, 0.27, 0.2), segments=24),
+                           part("cyl", "head", "iron_dark", (0, 0.01, 1.6), (0.285, 0.275, 0.025)),
+                           part("cube", "head", "iron", (0, -0.272, 1.57), (0.018, 0.014, 0.075)),
+                           part("cube", "head", "red", (0, 0.03, 1.87), (0.025, 0.21, 0.05))]
+                          + [part("sphere", "head", "gold", (0.27 * math.sin(a), 0.01 - 0.26 * math.cos(a), 1.6), (0.015, 0.015, 0.015))
+                             for a in [math.radians(d) for d in (-60, -30, 30, 60)]]),
+    "lederweste": lambda: ([part("cyl", "spine", "leather", (0, 0, 1.12), (0.235, 0.172, 0.2), taper=1.12),
+                            part("sphere", "spine", "leather", (0, 0, 1.26), (0.265, 0.18, 0.11)),
+                            part("cyl", "hips", "leather_dark", (0, 0, 0.93), (0.262, 0.19, 0.06), taper=0.97),
+                            part("cyl", "spine", "leather_dark", (0, 0, 1.33), (0.13, 0.11, 0.03))]
+                           + [part("cube", "spine", "stitch", (0, -0.175, 1.03 + 0.05 * i), (0.035, 0.006, 0.006), smooth=False) for i in range(5)]
+                           + [part("sphere", f"upperarm.{s}", "leather_dark", (0.31 * sg, 0, 1.28), (0.095, 0.095, 0.06)) for s, sg in (("L", -1), ("R", 1))]),
+    "eisenbrust": lambda: ([part("cyl", "spine", "iron", (0, 0, 1.12), (0.24, 0.178, 0.205), taper=1.12),
+                            part("sphere", "spine", "iron", (0, 0, 1.265), (0.27, 0.185, 0.115)),
+                            part("sphere", "spine", "gold", (0, -0.185, 1.19), (0.05, 0.012, 0.05)),
+                            part("cyl", "hips", "iron_dark", (0, 0, 0.92), (0.265, 0.192, 0.07), taper=0.97),
+                            part("cyl", "spine", "iron_dark", (0, 0, 1.34), (0.13, 0.11, 0.03))]
+                           + [part("sphere", f"upperarm.{s}", "iron", (0.32 * sg, 0, 1.29), (0.11, 0.11, 0.08)) for s, sg in (("L", -1), ("R", 1))]
+                           + [part("sphere", f"upperarm.{s}", "gold", (0.36 * sg, -0.06, 1.3), (0.018, 0.018, 0.018)) for s, sg in (("L", -1), ("R", 1))]),
+    "lederhose": lambda: pants("leather", "leather_dark"),
+    "eisenhose": lambda: pants("iron", "iron_dark"),
+    "lederstiefel": lambda: boots("leather_dark", "leather", "stitch"),
+    "eisenstiefel": lambda: boots("iron_dark", "iron", "gold"),
+    "lederhandschuhe": lambda: gloves("leather", "leather_dark"),
+    "eisenhandschuhe": lambda: gloves("iron", "iron_dark"),
+    "holzschwert": lambda: sword("wood", "wood_dark", "leather_dark", 0.25),
+    "eisenschwert": lambda: sword("iron_light", "gold", "leather_dark", 0.32),
+    "eichenstab": lambda: [part("cyl", "forearm.R", "wood", (0.32, -0.02, 1.02), (0.026, 0.026, 0.6), taper=0.8),
+                           part("sphere", "forearm.R", "wood_dark", (0.32, -0.02, 1.2), (0.035, 0.035, 0.03)),
+                           part("sphere", "forearm.R", "wood_dark", (0.32, -0.02, 0.7), (0.035, 0.035, 0.03)),
+                           part("sphere", "forearm.R", "orb", (0.32, -0.02, 1.68), (0.07, 0.07, 0.07)),
+                           part("cone", "forearm.R", "gold", (0.29, -0.02, 1.63), (0.018, 0.018, 0.07), rot=(0, -20, 0)),
+                           part("cone", "forearm.R", "gold", (0.35, -0.02, 1.63), (0.018, 0.018, 0.07), rot=(0, 20, 0))],
+    "holzschild": lambda: ([part("cyl", "forearm.L", "wood", (-0.4, -0.02, 1.0), (0.21, 0.21, 0.025), rot=(0, 90, 0), segments=24),
+                            part("torus", "forearm.L", "iron_dark", (-0.41, -0.02, 1.0), (0.21, 0.21, 0.13), rot=(0, 90, 0)),
+                            part("sphere", "forearm.L", "iron", (-0.43, -0.02, 1.0), (0.05, 0.05, 0.05))]
+                           + [part("cube", "forearm.L", "wood_dark", (-0.427, -0.02, 1.0 + dz), (0.003, 0.2, 0.006), smooth=False) for dz in (-0.1, 0.1)]),
 }
 
-equip_objs = {k: build("EQ_" + k, v) for k, v in EQUIP.items()}
+equip = {}
+for item, build in EQUIP.items():
+    o = L.join(build(), "EQ_" + item)
+    L.attach_to_rig(o, rig)
+    L.subdivide(o, 1)
+    L.add_outline(o, 0.014)
+    o.hide_render = True
+    equip[item] = o
 
-# Icon-Modelle fuer Gegenstaende ohne Ausruestungs-Modell (stehen am Ursprung, ohne Skelett)
-ICON_ONLY = {
-    "schleimgel": [("sphere", "", "gel", (0, 0, 0), (0.3, 0.3, 0.2)), ("sphere", "", "foam", (-0.1, -0.22, 0.08), (0.06, 0.03, 0.04))],
-    "heiltrank_klein": [("sphere", "", "potion_red", (0, 0, 0), (0.22, 0.22, 0.22)), ("cyl", "", "glass", (0, 0, 0.24), (0.07, 0.07, 0.07)),
-                        ("cyl", "", "cork", (0, 0, 0.33), (0.06, 0.06, 0.04))],
-    "heiltrank": [("sphere", "", "potion_red", (0, 0, 0), (0.28, 0.28, 0.3)), ("cyl", "", "glass", (0, 0, 0.32), (0.08, 0.08, 0.1)),
-                  ("cyl", "", "cork", (0, 0, 0.45), (0.07, 0.07, 0.05)), ("sphere", "", "foam", (-0.1, -0.24, 0.1), (0.05, 0.03, 0.07))],
-    "manatrank_klein": [("sphere", "", "potion_blue", (0, 0, 0), (0.22, 0.22, 0.22)), ("cyl", "", "glass", (0, 0, 0.24), (0.07, 0.07, 0.07)),
-                        ("cyl", "", "cork", (0, 0, 0.33), (0.06, 0.06, 0.04))],
-    "manatrank": [("sphere", "", "potion_blue", (0, 0, 0), (0.28, 0.28, 0.3)), ("cyl", "", "glass", (0, 0, 0.32), (0.08, 0.08, 0.1)),
-                  ("cyl", "", "cork", (0, 0, 0.45), (0.07, 0.07, 0.05)), ("sphere", "", "foam", (-0.1, -0.24, 0.1), (0.05, 0.03, 0.07))],
-    "kupferring": [("torus", "", "copper", (0, 0, 0), (0.25, 0.25, 0.25), (R90, 0, 0)), ("sphere", "", "gem_teal", (0, -0.02, 0.29), (0.08, 0.08, 0.08))],
-    "saphirring": [("torus", "", "gold", (0, 0, 0), (0.25, 0.25, 0.25), (R90, 0, 0)), ("sphere", "", "gem_blue", (0, -0.02, 0.3), (0.1, 0.1, 0.1))],
-    "wolfszahnkette": [("torus", "", "iron_dark", (0, 0, 0.12), (0.3, 0.3, 0.3), (R90, 0, 0)),
-                       ("cone", "", "tooth", (0, -0.02, -0.28), (0.07, 0.07, 0.14), (math.radians(180), 0, 0))],
-}
-icon_objs = {k: build("ICON_" + k, v, rigged=False) for k, v in ICON_ONLY.items()}
-
-
-def set_action(anim):
-    act = bpy.data.actions["Player_" + anim]
-    ad = rig.animation_data or rig.animation_data_create()
-    ad.action = act
-    if hasattr(ad, "action_slot") and ad.action_slot is None and len(getattr(act, "slots", [])) > 0:
-        ad.action_slot = act.slots[0]
-
-
-# ---------------- Ebenen rendern (Koerper = Holdout)
+# ---------------- Ebenen rendern (Koerper = Holdout, gleiche Bildpositionen wie der Koerper)
 body.is_holdout = True
 rendered = 0
-for item, obj in equip_objs.items():
+for item, obj in equip.items():
     out = os.path.join(EQ_DIR, item)
     os.makedirs(out, exist_ok=True)
     obj.hide_render = False
-    for anim, count in ANIM_FRAMES.items():
-        set_action(anim)
-        for direction, angle in DIRECTIONS.items():
+    for anim, frames in ANIM.items():
+        if ONLY_ANIMS and anim not in ONLY_ANIMS:
+            continue
+        L.use_action(rig, bpy.data.actions["Player_" + anim] if anim not in DIR_ACTIONS else None)
+        for direction, angle in L.DIRECTIONS.items():
+            if anim in DIR_ACTIONS:   # eigene Fassung pro Richtung (z. B. Tod, siehe build_player.py)
+                L.use_action(rig, bpy.data.actions[f"Player_{anim}_{direction}"])
             rig.rotation_euler = (0, 0, math.radians(angle))
-            for i in range(count):
-                scene.frame_set(i + 1)
-                r.filepath = os.path.join(out, f"{anim}_{direction}_{i}.png")
-                bpy.ops.render.render(write_still=True, scene=scene.name)
+            for i, f in enumerate(frames):
+                L.set_frame(scene, f)
+                L.render_still(scene, os.path.join(out, f"{anim}_{direction}_{i}.png"))
                 rendered += 1
     obj.hide_render = True
 body.is_holdout = False
 rig.rotation_euler = (0, 0, 0)
-set_action("idle")
+L.use_action(rig, bpy.data.actions["Player_idle"])
 scene.frame_set(1)
 
-# ---------------- Icons (32 x 32), jedes Teil einzeln, Koerper ausgeblendet
+# ---------------- Icon-Modelle ohne Skelett
+ICON_ONLY = {
+    "schleimgel": [("sphere", "gel", (0, 0, 0), (0.3, 0.3, 0.2)), ("sphere", "shine", (-0.1, -0.24, 0.08), (0.06, 0.03, 0.04))],
+    "heiltrank_klein": [("sphere", "potion_red", (0, 0, 0), (0.22, 0.22, 0.22)), ("cyl", "glass", (0, 0, 0.26), (0.07, 0.07, 0.07)),
+                        ("cyl", "cork", (0, 0, 0.35), (0.06, 0.06, 0.04)), ("sphere", "shine", (-0.08, -0.19, 0.08), (0.04, 0.02, 0.05))],
+    "heiltrank": [("sphere", "potion_red", (0, 0, 0), (0.28, 0.28, 0.3)), ("cyl", "glass", (0, 0, 0.33), (0.08, 0.08, 0.1)),
+                  ("cyl", "cork", (0, 0, 0.46), (0.07, 0.07, 0.05)), ("sphere", "shine", (-0.1, -0.24, 0.1), (0.05, 0.03, 0.07)),
+                  ("torus", "gold", (0, 0, 0.25), (0.09, 0.09, 0.09))],
+    "manatrank_klein": [("sphere", "potion_blue", (0, 0, 0), (0.22, 0.22, 0.22)), ("cyl", "glass", (0, 0, 0.26), (0.07, 0.07, 0.07)),
+                        ("cyl", "cork", (0, 0, 0.35), (0.06, 0.06, 0.04)), ("sphere", "shine", (-0.08, -0.19, 0.08), (0.04, 0.02, 0.05))],
+    "manatrank": [("sphere", "potion_blue", (0, 0, 0), (0.28, 0.28, 0.3)), ("cyl", "glass", (0, 0, 0.33), (0.08, 0.08, 0.1)),
+                  ("cyl", "cork", (0, 0, 0.46), (0.07, 0.07, 0.05)), ("sphere", "shine", (-0.1, -0.24, 0.1), (0.05, 0.03, 0.07)),
+                  ("torus", "gold", (0, 0, 0.25), (0.09, 0.09, 0.09))],
+    "kupferring": [("torus", "copper", (0, 0, 0), (0.25, 0.25, 0.25), (90, 0, 0)), ("sphere", "gem_teal", (0, -0.02, 0.3), (0.08, 0.08, 0.08))],
+    "saphirring": [("torus", "gold", (0, 0, 0), (0.25, 0.25, 0.25), (90, 0, 0)), ("sphere", "gem_blue", (0, -0.02, 0.31), (0.1, 0.1, 0.1))],
+    "wolfszahnkette": [("torus", "iron_dark", (0, 0, 0.12), (0.3, 0.3, 0.3), (90, 0, 0)),
+                       ("cone", "tooth", (0, -0.02, -0.28), (0.07, 0.07, 0.14), (180, 0, 0)),
+                       ("cone", "tooth", (-0.12, -0.02, -0.2), (0.04, 0.04, 0.09), (180, 0, 30)),
+                       ("cone", "tooth", (0.12, -0.02, -0.2), (0.04, 0.04, 0.09), (180, 0, -30))],
+}
+icon_only = {}
+for item, parts in ICON_ONLY.items():
+    objs = [L.shape(k, loc, sc, (rot[0] if rot else (0, 0, 0)), M[m], None, collection=scene.collection)
+            for k, m, loc, sc, *rot in parts]
+    o = L.join(objs, "ICON_" + item)
+    L.subdivide(o, 1)
+    L.add_outline(o, 0.012)
+    o.hide_render = True
+    icon_only[item] = o
+
+# ---------------- Icons (48 x 48), jedes Teil einzeln, Koerper ausgeblendet
 old_cam = scene.camera
 old_res = (r.resolution_x, r.resolution_y)
-cam_data = bpy.data.cameras.new("IconCamera"); cam_data.type = "ORTHO"
-icam = bpy.data.objects.new("IconCamera", cam_data); scene.collection.objects.link(icam)
+cd = bpy.data.cameras.new("IconCamera"); cd.type = "ORTHO"
+icam = bpy.data.objects.new("IconCamera", cd); scene.collection.objects.link(icam)
 scene.camera = icam
-r.resolution_x = r.resolution_y = 32
+r.resolution_x = r.resolution_y = ICON_SIZE
 body.hide_render = True
 VIEW = {"holzschwert": "right", "eisenschwert": "right", "eichenstab": "right", "holzschild": "left"}
 PAIRS = {"lederhandschuhe", "eisenhandschuhe", "lederstiefel", "eisenstiefel"}
-# Lange, duenne Teile fuellen das Icon staerker aus
-TIGHT = {"holzschwert": 0.9, "eisenschwert": 0.9, "eichenstab": 0.85}
-
+R90 = math.radians(90)
 icons = 0
-for item, obj in list(equip_objs.items()) + list(icon_objs.items()):
+for item, obj in list(equip.items()) + list(icon_only.items()):
     bpy.context.view_layer.update()
-    deps = bpy.context.evaluated_depsgraph_get()
-    ev = obj.evaluated_get(deps)
+    ev = obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    me = ev.to_mesh()
+    pts = [ev.matrix_world @ v.co for v in me.vertices]
+    ev.to_mesh_clear()
     if item in PAIRS:
-        # Paarweise Teile (Handschuhe, Stiefel): nur das rechte Teil ins Bild nehmen
-        me = ev.to_mesh()
-        pts = [ev.matrix_world @ v.co for v in me.vertices]
         pts = [p for p in pts if p.x > 0] or pts
-        ev.to_mesh_clear()
-    else:
-        pts = [ev.matrix_world @ Vector(c) for c in ev.bound_box]
     lo = Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts)))
     hi = Vector((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts)))
-    center = (lo + hi) / 2
-    size = hi - lo
+    c, size = (lo + hi) / 2, hi - lo
     view = VIEW.get(item, "front")
     if view == "front":
-        icam.location = (center.x, center.y - 10, center.z); icam.rotation_euler = (R90, 0, 0); span = max(size.x, size.z)
+        icam.location = (c.x, c.y - 10, c.z + 1.2); icam.rotation_euler = (math.radians(83), 0, 0); span = max(size.x, size.z)
     elif view == "right":
-        icam.location = (center.x + 10, center.y, center.z); icam.rotation_euler = (R90, 0, R90); span = max(size.y, size.z)
+        icam.location = (c.x + 10, c.y, c.z); icam.rotation_euler = (R90, 0, R90); span = max(size.y, size.z)
     else:
-        icam.location = (center.x - 10, center.y, center.z); icam.rotation_euler = (R90, 0, -R90); span = max(size.y, size.z)
-    cam_data.ortho_scale = max(0.2, span * TIGHT.get(item, 1.2))
+        icam.location = (c.x - 10, c.y, c.z); icam.rotation_euler = (R90, 0, -R90); span = max(size.y, size.z)
+    cd.ortho_scale = max(0.2, span * (0.95 if view == "right" else 1.2))
     obj.hide_render = False
-    r.filepath = os.path.join(ICON_DIR, f"Item_{item}.png")
-    bpy.ops.render.render(write_still=True, scene=scene.name)
+    L.render_still(scene, os.path.join(ICON_DIR, f"Item_{item}.png"))
     obj.hide_render = True
     icons += 1
 

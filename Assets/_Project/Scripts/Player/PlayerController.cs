@@ -15,6 +15,8 @@ namespace Reborn.Player
         public float dodgeDuration = 0.2f;
         public float dodgeCooldown = 0.6f;
         public float knockbackDuration = 0.15f;
+        /// <summary>So lange zeigt die Figur nach einem Treffer die Treffer-Animation</summary>
+        public float hurtDuration = 0.2f;
 
         public Vector2 FacingDirection { get; private set; } = Vector2.down;
         public bool IsDodging => _dodgeTimer > 0f;
@@ -48,6 +50,7 @@ namespace Reborn.Player
         float _dodgeTimer;
         float _cooldownTimer;
         float _knockbackTimer;
+        float _hurtTimer;
 
         void Awake()
         {
@@ -62,18 +65,40 @@ namespace Reborn.Player
         void OnEnable()
         {
             _map.Enable();
-            if (_health != null) _health.OnDamaged += HandleDamaged;
+            if (_health != null)
+            {
+                _health.OnDamaged += HandleDamaged;
+                _health.OnDied += HandleDied;
+            }
         }
 
         void OnDisable()
         {
-            if (_health != null) _health.OnDamaged -= HandleDamaged;
+            if (_health != null)
+            {
+                _health.OnDamaged -= HandleDamaged;
+                _health.OnDied -= HandleDied;
+            }
         }
 
         void HandleDamaged(int amount, Vector2 knockback)
         {
             _knockback = knockback;
             _knockbackTimer = knockbackDuration;
+            // Treffer-Animation (nicht beim Sterben, das uebernimmt HandleDied)
+            if (_health != null && !_health.IsDead && _animator != null)
+            {
+                _hurtTimer = hurtDuration;
+                _animator.Play("hurt", true);
+            }
+        }
+
+        /// <summary>Tod: Sterbe-Animation, letztes Bild bleibt stehen.</summary>
+        void HandleDied()
+        {
+            _hurtTimer = 0f;
+            _input = Vector2.zero;
+            if (_animator != null) _animator.Play("death", true);
         }
 
         void Update()
@@ -83,6 +108,7 @@ namespace Reborn.Player
                 _input = Vector2.zero;
                 return;
             }
+            if (_hurtTimer > 0f) _hurtTimer -= Time.deltaTime;
 
             if (_castTimer > 0f || Meditating)
             {
@@ -114,7 +140,7 @@ namespace Reborn.Player
                 FacingDirection = _input.normalized;
                 if (_animator != null) _animator.SetFacing(FacingDirection);
             }
-            if (_animator != null) _animator.Play(moving ? "walk" : "idle");
+            if (_animator != null && _hurtTimer <= 0f) _animator.Play(moving ? "walk" : "idle");
         }
 
         void StartDodge(Vector2 direction)

@@ -19,7 +19,8 @@ namespace Reborn.Enemies
         public float contactKnockback = 5f;
         public float hurtDuration = 0.25f;
         public int xpReward = 30;
-        public float despawnDelay = 0.3f;
+        /// <summary>Sterbe-Animation: 4 Bilder bei 12 Bildern/s = 0,33 s, danach kurz liegen bleiben</summary>
+        public float despawnDelay = 0.45f;
 
         State _state = State.Idle;
         Rigidbody2D _body;
@@ -88,7 +89,7 @@ namespace Reborn.Enemies
 
             if (_animator != null)
             {
-                _animator.Play("idle");
+                _animator.Play(_state == State.Chase ? "walk" : "idle");
                 if (_state == State.Chase) _animator.SetFacing(_player.position - transform.position);
             }
         }

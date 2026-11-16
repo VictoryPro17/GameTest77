@@ -31,6 +31,9 @@ namespace Reborn.EditorTools
         const string Root = "Assets/_Project";
         const string SpritesPlayer = Root + "/Sprites/Player";
         const string SpritesSlime = Root + "/Sprites/Slime";
+        const string SpritesWolf = Root + "/Sprites/Wolf";
+        const string SpritesSpider = Root + "/Sprites/Spider";
+        const string SpritesBoss = Root + "/Sprites/Boss";
         const string SpritesTiles = Root + "/Sprites/Tiles";
         const string SpritesItems = Root + "/Sprites/Items";
         const string SpritesProps = Root + "/Sprites/Props";
@@ -44,28 +47,52 @@ namespace Reborn.EditorTools
         const int LayerPlayer = 6, LayerEnemy = 7, LayerPickup = 8, LayerWalls = 9;
         static readonly string[] Directions = { "down", "up", "left", "right" };
 
+        /// <summary>Meilenstein 5: Blender-Sprites 128 px (Boss und Baeume 256 px) bei 128 Pixel pro Einheit</summary>
+        const float SpritePpu = 128f;
+        /// <summary>Fusspunkt aller Figuren und Gegenstaende im Bild (Kamera 45 Grad, aus reborn_lib.foot_pivot)</summary>
+        static readonly Vector2 FootPivot = new Vector2(0.5f, 0.2138f);
+
+        /// <summary>Clips der Spielfigur und der Ausruestungs-Ebenen (Name, Bilder/s, Schleife, Bilder)</summary>
+        static readonly (string, float, bool, int)[] PlayerClips =
+        {
+            ("idle", 4f, true, 4), ("walk", 12f, true, 8), ("attack", 20f, false, 5), ("dodge", 20f, false, 4),
+            ("cast", 20f, false, 5), ("hurt", 10f, false, 2), ("death", 8f, false, 4)
+        };
+        /// <summary>Clips von Schleim, Wolf und Spinne</summary>
+        static readonly (string, float, bool, int)[] CreatureClips =
+        {
+            ("idle", 6f, true, 4), ("walk", 10f, true, 6), ("attack", 12f, false, 5), ("hurt", 10f, false, 2), ("death", 12f, false, 4)
+        };
+        static readonly (string, float, bool, int)[] BossClips =
+        {
+            ("idle", 5f, true, 4), ("walk", 8f, true, 6), ("attack", 10f, false, 6), ("rootattack", 10f, false, 6),
+            ("roar", 6f, false, 4), ("hurt", 8f, false, 2), ("death", 8f, false, 6)
+        };
+
         [MenuItem("Reborn/Spiel neu bauen")]
         public static string BuildAll()
         {
             AssetDatabase.Refresh();
             ConfigureProject();
-            ConfigureSprites(SpritesPlayer, new Vector2(0.5f, 0.3f));
-            ConfigureSprites(SpritesSlime, new Vector2(0.5f, 0.41f));
-            ConfigureSprites(SpritesProps, new Vector2(0.5f, 0.25f));
+            foreach (var folder in new[] { SpritesPlayer, SpritesSlime, SpritesWolf, SpritesSpider, SpritesBoss, SpritesProps })
+                ConfigureSprites(folder, FootPivot, SpritePpu);
             var tiles = CreateTiles();
             var icons = CreateItemIcons();
             T = CreateTheme();
             var ui = CreateUiSprites();
-            var playerAnim = CreateAnimationSet("Player_Anim", SpritesPlayer,
-                ("idle", 3f, true, 2), ("walk", 8f, true, 4), ("attack", 12f, false, 3), ("dodge", 15f, false, 3), ("cast", 12f, false, 3));
+            var playerAnim = CreateAnimationSet("Player_Anim", SpritesPlayer, PlayerClips);
             var magic = CreateMagic();
             var equipSets = CreateEquipmentSets();
-            var slimeAnim = CreateAnimationSet("Slime_Anim", SpritesSlime,
-                ("idle", 6f, true, 4), ("hurt", 8f, false, 1), ("death", 10f, false, 3));
+            var slimeAnim = CreateAnimationSet("Slime_Anim", SpritesSlime, CreatureClips);
+            var wolfAnim = CreateAnimationSet("Wolf_Anim", SpritesWolf, CreatureClips);
+            var spiderAnim = CreateAnimationSet("Spider_Anim", SpritesSpider, CreatureClips);
+            var bossAnim = CreateAnimationSet("Boss_Anim", SpritesBoss, BossClips);
+            Shadow = CreateShadowSprite();
             var (items, database, lootTable) = CreateItems(icons, equipSets);
             var pickup = CreatePickupPrefab(icons["schleimgel"]);
             var player = CreatePlayerPrefab(playerAnim, database, magic);
             var slime = CreateSlimePrefab(slimeAnim, lootTable, pickup);
+            var showcase = new[] { (wolfAnim, 0.75f), (bossAnim, 1.6f), (spiderAnim, 0.8f) };
             var chest = CreateChestPrefab(pickup, "Chest", "room_test_truhe_1", new[]
             {
                 new TreasureChest.Content { item = items["holzschwert"], count = 1 },
@@ -83,10 +110,10 @@ namespace Reborn.EditorTools
             var hud = BuildThemedHud(AssetDatabase.LoadAssetAtPath<Sprite>($"{SpritesPlayer}/idle_down_0.png"));
             var mobile = CreateMobileControlsPrefab();
             var menu = CreateMenuPrefab(ui);
-            BuildScene(tiles, player, slime, hud, mobile, chest, chest2, menu);
+            BuildScene(tiles, player, slime, hud, mobile, chest, chest2, menu, showcase);
             ConfigureBuild();
             AssetDatabase.SaveAssets();
-            return "Meilenstein 4 gebaut: " + ScenePath + " (" + database.items.Count + " Gegenstaende, " + magic.spells.Length + " Zauber, "
+            return "Meilenstein 5 gebaut: " + ScenePath + " (" + database.items.Count + " Gegenstaende, " + magic.spells.Length + " Zauber, "
                 + equipSets.Count + " Ausruestungs-Ebenen)";
         }
 
@@ -117,8 +144,8 @@ namespace Reborn.EditorTools
             }
         }
 
-        /// <summary>Figuren-Sprites: 96 x 96 bei 96 Pixel pro Einheit (gleiche Weltgroesse wie frueher 64/64).</summary>
-        static void ConfigureSprites(string folder, Vector2 pivot, float ppu = 96f)
+        /// <summary>Sprites eines Ordners einstellen (Meilenstein 5: 128 px bei 128 Pixel pro Einheit = 1 Einheit).</summary>
+        static void ConfigureSprites(string folder, Vector2 pivot, float ppu = SpritePpu)
         {
             foreach (var guid in AssetDatabase.FindAssets("t:Texture2D", new[] { folder }))
             {
@@ -172,23 +199,67 @@ namespace Reborn.EditorTools
             return path;
         }
 
-        static Color32 Noise(Color32 a, Color32 b, int x, int y, int seed)
+        public class TileSet
         {
-            uint h = (uint)(x * 374761393 + y * 668265263 + seed * 2147483647);
-            h = (h ^ (h >> 13)) * 1274126177;
-            return (h & 7) == 0 ? b : a;
+            public Tile[] grass;
+            public Tile path;
+            public Tile wall;
         }
 
-        static (Tile ground, Tile wall) CreateTiles()
+        /// <summary>Bodenkacheln aus Blender (build_tiles.py): 64 px bei 64 Pixel pro Einheit, 4 Gras-Varianten, Weg, Mauer.</summary>
+        static TileSet CreateTiles()
         {
-            var groundPath = WritePng(SpritesTiles, "Ground_Grass", 32,
-                (x, y) => Noise(new Color32(74, 122, 58, 255), new Color32(92, 145, 70, 255), x, y, 1), 32);
-            var wallPath = WritePng(SpritesTiles, "Wall_Stone", 32, (x, y) =>
+            // Alte, im Builder gemalte Graskachel (Meilenstein 1-4) wird nicht mehr gebraucht
+            if (AssetDatabase.LoadAssetAtPath<Texture2D>($"{SpritesTiles}/Ground_Grass.png") != null)
+                AssetDatabase.DeleteAsset($"{SpritesTiles}/Ground_Grass.png");
+            string Png(string name)
             {
-                bool mortar = y % 16 == 0 || (x + (y / 16 % 2) * 8) % 16 == 0;
-                return mortar ? new Color32(52, 48, 58, 255) : Noise(new Color32(108, 104, 116, 255), new Color32(90, 86, 98, 255), x, y, 2);
-            }, 32);
-            return (CreateTile("Tile_Ground", groundPath), CreateTile("Tile_Wall", wallPath));
+                var path = $"{SpritesTiles}/{name}.png";
+                ConfigureTexture(path, 64f, new Vector2(0.5f, 0.5f));
+                return path;
+            }
+            var set = new TileSet
+            {
+                grass = Enumerable.Range(0, 4).Select(i => CreateTile(i == 0 ? "Tile_Ground" : "Tile_Ground_" + i, Png("Ground_Grass_" + i))).ToArray(),
+                path = CreateTile("Tile_Path", Png("Ground_Path")),
+                wall = CreateTile("Tile_Wall", Png("Wall_Stone"))
+            };
+            return set;
+        }
+
+        /// <summary>Weicher ovaler Schatten (schwarz, Rand weich), 64 px bei 128 Pixel pro Einheit = 0,5 Einheiten breit.</summary>
+        static Sprite Shadow;
+
+        static Sprite CreateShadowSprite()
+        {
+            const int size = 64;
+            var path = WritePng(SpritesFx, "FX_Shadow", size, (x, y) =>
+            {
+                float u = (x + 0.5f) / size * 2f - 1f, v = ((y + 0.5f) / size * 2f - 1f) * 2.2f;
+                float d = Mathf.Sqrt(u * u + v * v);
+                byte a = (byte)Mathf.RoundToInt(Mathf.Clamp01((1f - d) * 3f) * 255f);
+                return new Color32(0, 0, 0, a);
+            }, SpritePpu);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            if (importer.filterMode != FilterMode.Bilinear)
+            {
+                importer.filterMode = FilterMode.Bilinear;
+                importer.SaveAndReimport();
+            }
+            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        }
+
+        /// <summary>Schatten als Kind unter dem Fusspunkt; width in Einheiten.</summary>
+        static void AddShadow(Transform parent, float width, Vector2 offset = default)
+        {
+            var go = new GameObject("Shadow");
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = offset;
+            go.transform.localScale = Vector3.one * (width / 0.5f);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = Shadow;
+            sr.color = Color.black;
+            go.AddComponent<BlobShadow>();
         }
 
         static Tile CreateTile(string name, string spritePath)
@@ -304,8 +375,8 @@ namespace Reborn.EditorTools
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var file = Path.GetFileNameWithoutExtension(path);
                 if (!file.StartsWith("Item_")) continue;
-                // 32 px bei 64 Pixel pro Einheit = 0,5 Einheiten am Boden (wie bisher)
-                ConfigureTexture(path, 64, new Vector2(0.5f, 0.5f));
+                // 48 px bei 96 Pixel pro Einheit = 0,5 Einheiten am Boden (wie bisher)
+                ConfigureTexture(path, 96, new Vector2(0.5f, 0.5f));
                 icons[file.Substring(5)] = AssetDatabase.LoadAssetAtPath<Sprite>(path);
             }
             return icons;
@@ -533,6 +604,7 @@ namespace Reborn.EditorTools
             save.database = database;
             AddMagicToPlayer(go, magic, input);
             var visual = Visual(go.transform, anim);
+            AddShadow(go.transform, 0.55f);   // nach dem Visual, damit GetComponentInChildren<SpriteRenderer> den Koerper findet
             // Sichtbare Ausruestung: eine Ebene pro Platz ueber dem Koerper, als Gruppe sortiert
             visual.AddComponent<UnityEngine.Rendering.SortingGroup>();
             var layers = visual.AddComponent<EquipmentVisuals>();
@@ -557,9 +629,8 @@ namespace Reborn.EditorTools
             foreach (var folder in AssetDatabase.GetSubFolders(equipRoot))
             {
                 string id = Path.GetFileName(folder);
-                ConfigureSprites(folder, new Vector2(0.5f, 0.3f));
-                sets[id] = CreateAnimationSet("Equip_" + id, folder,
-                    ("idle", 3f, true, 2), ("walk", 8f, true, 4), ("attack", 12f, false, 3), ("dodge", 15f, false, 3), ("cast", 12f, false, 3));
+                ConfigureSprites(folder, FootPivot, SpritePpu);
+                sets[id] = CreateAnimationSet("Equip_" + id, folder, PlayerClips);
             }
             return sets;
         }
@@ -600,6 +671,7 @@ namespace Reborn.EditorTools
             dropper.table = table;
             dropper.pickupPrefab = pickup.GetComponent<Pickup>();
             Visual(go.transform, anim);
+            AddShadow(go.transform, 0.6f);
             return SavePrefab(go, "Slime");
         }
 
@@ -911,8 +983,8 @@ namespace Reborn.EditorTools
         }
 
         // ------------------------------------------------------------ Szene
-        static void BuildScene((Tile ground, Tile wall) tiles, GameObject player, GameObject slime, GameObject hud, GameObject mobile,
-            GameObject chest, GameObject chest2, GameObject menu)
+        static void BuildScene(TileSet tiles, GameObject player, GameObject slime, GameObject hud, GameObject mobile,
+            GameObject chest, GameObject chest2, GameObject menu, (SpriteAnimationSet set, float shadow)[] showcase)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
@@ -959,7 +1031,13 @@ namespace Reborn.EditorTools
                 {
                     bool border = x == -w / 2 || x == w / 2 - 1 || y == -h / 2 || y == h / 2 - 1;
                     if (border) wallMap.SetTile(new Vector3Int(x, y, 0), tiles.wall);
-                    else groundMap.SetTile(new Vector3Int(x, y, 0), tiles.ground);
+                    // Weg quer durch den Raum (Kachelzeile y = -2), sonst Gras-Varianten fest gemischt (immer gleiches Muster)
+                    else if (y == -2) groundMap.SetTile(new Vector3Int(x, y, 0), tiles.path);
+                    else
+                    {
+                        uint hash = (uint)((x + 50) * 73856093) ^ (uint)((y + 50) * 19349663);
+                        groundMap.SetTile(new Vector3Int(x, y, 0), tiles.grass[hash % (uint)tiles.grass.Length]);
+                    }
                 }
 
             // Mauer-Geometrie sofort erzeugen, sonst wird die Szene mit leerem Collider gespeichert
@@ -987,6 +1065,8 @@ namespace Reborn.EditorTools
             chestInstance.transform.position = new Vector3(-8f, 0f, 0f);
             var chest2Instance = (GameObject)PrefabUtility.InstantiatePrefab(chest2);
             chest2Instance.transform.position = new Vector3(8f, 3f, 0f);
+
+            BuildDecoration(showcase);
 
             PrefabUtility.InstantiatePrefab(hud);
             PrefabUtility.InstantiatePrefab(mobile);

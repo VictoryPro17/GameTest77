@@ -315,13 +315,78 @@ Truhe 2 steht bei (8, 3) in Room_Test.
 - Das Eisen-Set (außer Helm) und der große Manatrank haben noch keine Quelle.
 - Touch auf einem echten Handy ist noch nicht getestet.
 
+## Meilenstein 5: Blender-Grafik neu
+
+### Entscheidungen
+
+| # | Thema | Entscheidung |
+|---|---|---|
+| G1 | Stil | Comic-Look: Cel-Shading mit 3 harten Helligkeitsstufen und dunkler Kontur |
+| G2 | Formen | Echte modellierte Formen (Kugeln, Kegel, abgerundete Quader) statt Klötzchen |
+| G3 | Bildgröße | 128 × 128 bei 128 Pixel pro Einheit (gleiche Weltgröße); Boss und Bäume 256 px |
+| G4 | Animation | Mehr Bilder und neu „hurt“ (Treffer) und „death“ (Tod) |
+| G5 | Richtungen | 4 Richtungen wie bisher |
+| G6 | Schatten | Weicher ovaler Blob-Schatten unter jeder Figur |
+| G7 | Neue Gegner | Schattenwolf, Riesenspinne und Waldwächter (Boss) nur als Grafik; Kampf-Logik später |
+| G8 | Umgebung | Bodenkacheln und Deko kommen aus Blender |
+
+### Technik
+
+- `Art/Blender/Scripts/reborn_lib.py` ist die gemeinsame Bibliothek: Render-Setup, Kamera (45° von oben, orthografisch, 2,1 m pro 128 px), Comic-Material (`cel`), Kontur (Solidify mit umgedrehten Flächen), Formen per bmesh, Skelett, `Poser` für Schlüsselposen und das Rendern aller Animationen. Gespeichert wird mit Wiederholung, falls Unity eine Datei gerade importiert.
+- Fußpunkt aller Figuren und Gegenstände: (0,5 / 0,2138) im Bild.
+- `build_all.ps1` rendert alles in der richtigen Reihenfolge: Figur → Ausrüstung → Gegner → Boss → Gegenstände → Kacheln → Zauber (`-Only boss,spells` für einzelne Gruppen). `build_slime.py` ist durch `build_enemies.py` ersetzt.
+- Blender-Dateien: `Reborn_Characters.blend` (Figur, Ausrüstung), `Reborn_Enemies.blend` (Schleim, Wolf, Spinne), `Reborn_Boss.blend`, `Reborn_World.blend` (Gegenstände, Kacheln), `Reborn_Spells.blend`.
+
+| Gruppe | Animationen (Bilder je Richtung) | Bilder |
+|---|---|---|
+| Spieler und 14 Ausrüstungsteile | idle 4, walk 8, attack 5, dodge 4, cast 5, hurt 2, death 4 | 128 + 1792 |
+| Schleim, Wolf, Spinne | idle 4, walk 6, attack 5, hurt 2, death 4 | je 84 |
+| Waldwächter (256 px) | idle 4, walk 6, attack 6, rootattack 6, roar 4, hurt 2, death 6 | 136 |
+| Gegenstände | Truhe zu/offen, Eiche, Tanne, Fels, Busch, Grasbüschel, Fackel (2 Bilder) | 9 |
+| Kacheln (64 px) | Gras 4 Varianten, Weg, Steinmauer | 6 |
+| Zauber | Drachenkopf, Drachenkörper, Wasserkugel, Feuerball (2), 4 Icons (48 px) | 9 |
+| Item-Icons | 22 Icons, 48 px | 22 |
+
+### Unity
+
+- `RebornBuilder`: 128 Pixel pro Einheit und Fußpunkt für Spieler, Ausrüstung, Schleim, Wolf, Spinne, Boss und Gegenstände; neue Animationssets `Wolf_Anim`, `Spider_Anim`, `Boss_Anim`; Kacheln aus Blender (Gras-Varianten fest gemischt, Weg in Zeile y = −2); die alte gemalte Graskachel ist gelöscht.
+- `BlobShadow` (neu, `Scripts/World`): Schatten unter Spieler, Schleimen und Schaufenster-Figuren, sortiert unter allen Figuren, verblasst beim Tod.
+- `PlayerController` spielt bei Treffern „hurt“ (0,2 s) und beim Tod „death“; das letzte Sterbe-Bild bleibt stehen. Die Ausrüstungs-Ebenen folgen automatisch.
+- `SlimeAI` spielt beim Verfolgen „walk“.
+- `RebornBuilder.World.cs` (neu): Deko im Testraum abseits der Testwege (Eiche, Tanne, Fels, 2 Büsche, Grasbüschel, 2 flackernde Fackeln mit Licht) und ein Schaufenster oben in der Mitte mit Wolf, Waldwächter und Spinne (nur „idle“, ohne Collider).
+
+### Befunde
+
+- **Gesperrte Dateien beim Rendern:** Unity importiert neue PNGs, während Blender noch schreibt. Ein Render brach deshalb einmal ab. `render_still` versucht das Speichern jetzt bis zu 6-mal mit kurzer Pause. `build_all.ps1` wertet nur noch echte Abbrüche (`Traceback`) als Fehler.
+- **Sterbe-Animation aus dem Bild gefallen:** Die Figur kippte nach hinten um ihre Füße und lag dadurch zum Teil außerhalb des 128-px-Bildes. Die Tests merkten das nicht, weil sie nur Bildnamen prüfen. Lösung: Der Tod hat jetzt eine eigene Fassung pro Richtung (`Player_death_<richtung>`, Liste `dir_actions` in der .blend-Datei). Die Figur fällt immer quer zum Bildschirm und liegt mittig über dem Fußpunkt. `reborn_lib.edge_pixels` zählt sichtbare Pixel am Bildrand, und `build_player.py` meldet jede Berührung (jetzt 0).
+- **Nur einzelne Ebenen neu rendern:** `build_equipment.py -- <projekt> death` rendert nur die genannten Animationen (224 statt 1792 Bilder).
+- **Builder im Play-Modus:** Ich hatte den Builder einmal gestartet, während im Editor gespielt wurde. Er brach beim Neuaufbau der Szene ab, ohne Schaden. Den Play-Modus vorher prüfen und nie selbst beenden.
+
+### Abweichungen vom Plan
+
+- Die Sterbe-Animation hat eine eigene Fassung pro Richtung, statt einer für alle (siehe Befunde).
+- A5 schlug zuerst fehl, weil `lk_number.cs` (L5) beim selben Schleim `detectRadius = 0` setzt. `a_slime_go.cs` setzt den Wert wieder auf 5. Das Spiel selbst war richtig.
+- Die Zauber liegen in einer eigenen Datei `Reborn_Spells.blend` statt in `Reborn_Characters.blend`, damit sie parallel zur Ausrüstung gerendert werden können.
+
+### Tests
+
+`run_all.ps1` (look, magic, wall, m2, play, iframe, kb, hp0): 97 Prüfungen, 0 Fehler (16.11.2026). Neu im Aussehen-Test sind A1–A8: Bildanzahl, Größe und Fußpunkt von 19 Animationssets (2308 Bilder), Treffer- und Sterbe-Animation, letztes Sterbe-Bild bleibt, Schleim läuft beim Verfolgen, Schatten, Kacheln, Deko und Schaufenster.
+
+### Bekannte Grenzen
+
+- Wolf, Spinne und Waldwächter stehen nur im Schaufenster; Kampf-Logik und eigene Animationen im Kampf folgen später.
+- Die Tests prüfen Bilder nur über Namen und Größe; ob etwas abgeschnitten ist, zeigt die Randprüfung beim Rendern (bisher nur für die Spielfigur).
+- Ein kompletter Render aller Grafiken dauert rund 30 Minuten (davon die Ausrüstung über 20).
+
 ## Wichtige Dateien
 
-- `Art/Blender/Reborn_Characters.blend` – Spieler (Szene „Characters“) und Waldschleim (Szene „Slime“)
+- `Art/Blender/Reborn_Characters.blend` – Spieler und Ausrüstung (Szene „Characters“)
+- `Art/Blender/Reborn_Enemies.blend`, `Reborn_Boss.blend`, `Reborn_World.blend`, `Reborn_Spells.blend` – Gegner, Boss, Umgebung, Zauber
+- `Art/Blender/Scripts/build_all.ps1` – rendert alle Blender-Grafiken
 - `Assets/_Project/Scenes/Room_Test.unity` – Test-Raum
-- `Assets/_Project/Scripts/` – Spiel-Code (Player, Combat, Enemies, Loot, Progression, UI, Animation, Core)
+- `Assets/_Project/Scripts/` – Spiel-Code (Player, Combat, Enemies, Loot, Progression, UI, Animation, Core, World)
 - `Assets/_Project/Scripts/Editor/RebornBuilder.cs` – baut alles automatisch
-- `Art/Blender/Scripts/build_props.py` – Schatztruhe (Szene „Props“)
+- `Art/Blender/Scripts/build_props.py`, `build_tiles.py` – Gegenstände und Kacheln (Szenen „Props“, „Tiles“)
 - `Art/Blender/Scripts/build_spells.py` – Zauber-Grafik (Szene „Spells“)
 - `Assets/_Project/Scripts/Magic/` – Mana, Zauberbuch, Effekte
 - `Tools/PlayTests/` – automatische Play-Tests

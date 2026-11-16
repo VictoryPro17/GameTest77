@@ -24,7 +24,7 @@ Starte die Tests immer über `run_all.ps1`. Es sichert vorher deinen Spielstand 
 | `kb` | `kbtest.ps1` | Tastatur: D, J, Leertaste |
 | `magic` | `magictest.ps1` | Mana, 4 Zauber, Stufen, Meditieren, Speichern, Magie-Reiter |
 | `hp0` | `hp0test.ps1` | Mauern zur Laufzeit aus: kein Schaden, kein Tod |
-| `look` | `looktest.ps1` | Sichtbare Ausrüstung, Schadenszahlen, Manatrank, Truhe 2, Layout, Bilder |
+| `look` | `looktest.ps1` | Sichtbare Ausrüstung, Schadenszahlen, Manatrank, Truhe 2, Layout, Bilder; Blender-Grafik (A1–A8: Bildanzahl und Fußpunkt aller Sets, Treffer/Tod, Schleim läuft, Schatten, Kacheln, Deko, Schaufenster). Der Spieler stirbt am Ende absichtlich (A8). |
 | `diag` | `inputdiag.ps1` | Nur zur Fehlersuche, nicht verlässlich (siehe oben) |
 
 Jede Prüfung schreibt `OK` oder `FEHLER`, jeder Test am Ende `BESTANDEN` oder `NICHT BESTANDEN`. Screenshots landen in `Screenshots/`.

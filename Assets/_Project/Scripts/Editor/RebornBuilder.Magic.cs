@@ -133,7 +133,8 @@ namespace Reborn.EditorTools
         // ------------------------------------------------------------ Alles fuer die Magie
         static MagicAssets CreateMagic()
         {
-            ConfigureSprites(SpritesSpells, new Vector2(0.5f, 0.5f));
+            // Meilenstein 5: Zauber 128 px bei 128 Pixel pro Einheit (1 Einheit wie bisher 96/96), Icons 48 px
+            ConfigureSprites(SpritesSpells, new Vector2(0.5f, 0.5f), SpritePpu);
             var m = new MagicAssets();
             var soft = FxTexture("FX_Soft", 32, (u, v) => 1f - Mathf.Sqrt(u * u + v * v));
             var spark = FxTexture("FX_Spark", 32, (u, v) => 1f - (Mathf.Abs(u) + Mathf.Abs(v)) * 1.1f);
