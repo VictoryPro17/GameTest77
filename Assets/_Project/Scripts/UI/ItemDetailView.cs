@@ -68,6 +68,7 @@ namespace Reborn.UI
         {
             var sb = new StringBuilder();
             if (item.healAmount > 0) sb.AppendLine($"Heilt {item.healAmount} Leben");
+            if (item.manaAmount > 0) sb.AppendLine($"Füllt {item.manaAmount} Mana auf");
             var a = item.stats.ToArray();
             var b = compareTo != null ? compareTo.stats.ToArray() : new int[a.Length];
             for (int i = 0; i < a.Length; i++)

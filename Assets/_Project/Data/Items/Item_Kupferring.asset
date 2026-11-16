@@ -15,7 +15,7 @@ MonoBehaviour:
   id: kupferring
   itemName: Kupferring
   description: "Ein schlichter Ring. Man sagt, er bringt Gl\xFCck."
-  icon: {fileID: 21300000, guid: 189861c38edc26d45b7181d384ff0b1b, type: 3}
+  icon: {fileID: 21300000, guid: 9c767f4304cc63c4f9510633e88086fc, type: 3}
   rarity: 1
   category: 2
   equipSlot: 9
@@ -29,5 +29,7 @@ MonoBehaviour:
     intelligence: 0
     luck: 2
   healAmount: 0
+  manaAmount: 0
   sellValue: 25
   maxStack: 1
+  visual: {fileID: 0}

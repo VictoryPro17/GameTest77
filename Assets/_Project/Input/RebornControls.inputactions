@@ -55,7 +55,8 @@
                 { "name": "Spell2", "type": "Button", "id": "a1d2c3b4-0007-4e5f-8a9b-1c2d3e4f5a07", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false },
                 { "name": "Spell3", "type": "Button", "id": "a1d2c3b4-0008-4e5f-8a9b-1c2d3e4f5a08", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false },
                 { "name": "Spell4", "type": "Button", "id": "a1d2c3b4-0009-4e5f-8a9b-1c2d3e4f5a09", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false },
-                { "name": "Meditate", "type": "Button", "id": "a1d2c3b4-000a-4e5f-8a9b-1c2d3e4f5a0a", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false }
+                { "name": "Meditate", "type": "Button", "id": "a1d2c3b4-000a-4e5f-8a9b-1c2d3e4f5a0a", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false },
+                { "name": "UseManaPotion", "type": "Button", "id": "a1d2c3b4-000b-4e5f-8a9b-1c2d3e4f5a0b", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false }
             ],
             "bindings": [
                 { "name": "WASD", "id": "b0000001-0000-4000-8000-000000000001", "path": "2DVector", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": true, "isPartOfComposite": false },
@@ -90,7 +91,9 @@
                 { "name": "", "id": "b0000009-0000-4000-8000-000000000001", "path": "<Keyboard>/4", "interactions": "", "processors": "", "groups": "", "action": "Spell4", "isComposite": false, "isPartOfComposite": false },
                 { "name": "", "id": "b0000009-0000-4000-8000-000000000002", "path": "<Gamepad>/leftTrigger", "interactions": "", "processors": "", "groups": "", "action": "Spell4", "isComposite": false, "isPartOfComposite": false },
                 { "name": "", "id": "b000000a-0000-4000-8000-000000000001", "path": "<Keyboard>/m", "interactions": "", "processors": "", "groups": "", "action": "Meditate", "isComposite": false, "isPartOfComposite": false },
-                { "name": "", "id": "b000000a-0000-4000-8000-000000000002", "path": "<Gamepad>/buttonEast", "interactions": "", "processors": "", "groups": "", "action": "Meditate", "isComposite": false, "isPartOfComposite": false }
+                { "name": "", "id": "b000000a-0000-4000-8000-000000000002", "path": "<Gamepad>/buttonEast", "interactions": "", "processors": "", "groups": "", "action": "Meditate", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "b000000b-0000-4000-8000-000000000001", "path": "<Keyboard>/r", "interactions": "", "processors": "", "groups": "", "action": "UseManaPotion", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "b000000b-0000-4000-8000-000000000002", "path": "<Gamepad>/dpad/up", "interactions": "", "processors": "", "groups": "", "action": "UseManaPotion", "isComposite": false, "isPartOfComposite": false }
             ]
         }
     ],

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: heiltrank_klein
   itemName: Kleiner Heiltrank
   description: "Ein kleiner roter Trank aus Waldkr\xE4utern."
-  icon: {fileID: 21300000, guid: 8ab547e07114abb4f98b0fbe1dbb3d47, type: 3}
+  icon: {fileID: 21300000, guid: ec821d38a1498fd4d8b56d09dc34d730, type: 3}
   rarity: 0
   category: 1
   equipSlot: 0
@@ -29,5 +29,7 @@ MonoBehaviour:
     intelligence: 0
     luck: 0
   healAmount: 20
+  manaAmount: 0
   sellValue: 5
   maxStack: 10
+  visual: {fileID: 0}

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fbfd261b12dec2418e8d1fe4de388ef, type: 3}
+  m_Name: UiTheme
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.UI.UiTheme
+  headingFont: {fileID: 12800000, guid: d260af7e00cc8d24ea054c2d8bd35d6d, type: 3}
+  bodyFont: {fileID: 12800000, guid: 5d8ef2af03bbc544398d7ca9fd5c6c41, type: 3}
+  bodyBoldFont: {fileID: 12800000, guid: 3e9520660b50dcd468e6adb491e28a78, type: 3}
+  window: {fileID: 21300000, guid: 1b121a293e5fa6a41b09ff7982406b7c, type: 3}
+  inset: {fileID: 21300000, guid: 2256a7c465e7a814e840e97f8a03c38c, type: 3}
+  button: {fileID: 21300000, guid: d1eec1c6f21ea9c4d90e44c3eaca80dc, type: 3}
+  tab: {fileID: 21300000, guid: d1eec1c6f21ea9c4d90e44c3eaca80dc, type: 3}
+  slotEmpty: {fileID: 21300000, guid: 0b59c9e2239dbff4baf5093cd1be069d, type: 3}
+  slotRarity:
+  - {fileID: 21300000, guid: e596038e69a09cf448568894cb1bc810, type: 3}
+  - {fileID: 21300000, guid: 624194c03655f2c45a6ee56bc5661c0c, type: 3}
+  - {fileID: 21300000, guid: d96ea2160ff225e48a982ec937f34bea, type: 3}
+  - {fileID: 21300000, guid: 3d79ed4be8b72be4899461dd0bbeccc5, type: 3}
+  selection: {fileID: 21300000, guid: dfd86905fa2f33141b32a18772eaa215, type: 3}
+  barFrame: {fileID: 21300000, guid: 0444fc68f5bb42b44a268ed762ede273, type: 3}
+  barFill: {fileID: 21300000, guid: 00261d2000bf58a4c951dceeaa30f5ec, type: 3}
+  portrait: {fileID: 21300000, guid: 4ea1768498f5505418eba30da720d53c, type: 3}
+  badge: {fileID: 21300000, guid: 2f347538b5aaa1249a9817366ecdbc88, type: 3}
+  text: {r: 0.93, g: 0.9, b: 0.82, a: 1}
+  textDim: {r: 0.68, g: 0.65, b: 0.6, a: 1}
+  gold: {r: 0.96, g: 0.78, b: 0.35, a: 1}
+  health: {r: 0.86, g: 0.2, b: 0.22, a: 1}
+  mana: {r: 0.25, g: 0.55, b: 1, a: 1}
+  xp: {r: 0.95, g: 0.78, b: 0.25, a: 1}
+  buttonTint: {r: 1, g: 1, b: 1, a: 1}
+  tabInactive: {r: 0.62, g: 0.6, b: 0.62, a: 1}
+  danger: {r: 0.75, g: 0.28, b: 0.25, a: 1}
+  confirm: {r: 0.45, g: 0.75, b: 0.45, a: 1}

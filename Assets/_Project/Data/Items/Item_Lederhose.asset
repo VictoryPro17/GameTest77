@@ -15,7 +15,7 @@ MonoBehaviour:
   id: lederhose
   itemName: Lederhose
   description: "Bequem und widerstandsf\xE4hig."
-  icon: {fileID: 21300000, guid: 9900ba607972b0844bebbeb6bd8cafd7, type: 3}
+  icon: {fileID: 21300000, guid: 5aca4f57aa08b4a49b1396303c8b45d3, type: 3}
   rarity: 0
   category: 2
   equipSlot: 3
@@ -29,5 +29,7 @@ MonoBehaviour:
     intelligence: 0
     luck: 0
   healAmount: 0
+  manaAmount: 0
   sellValue: 8
   maxStack: 1
+  visual: {fileID: 11400000, guid: 0bc605bf3d414c6409e3036a2a415721, type: 2}

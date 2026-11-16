@@ -16,6 +16,8 @@ namespace Reborn.UI
         public Image potionIcon;
         public Text potionCountText;
         public Text pointsHint;
+        public Image manaPotionIcon;
+        public Text manaPotionCountText;
         public Image manaFill;
         public Text manaText;
         /// <summary>4 Zauber-Plaetze: Icon, Abklingzeit-Schatten, Stufe</summary>
@@ -122,6 +124,13 @@ namespace Reborn.UI
                     if (potion != null) potionIcon.sprite = potion.icon;
                 }
                 if (potionCountText != null) potionCountText.text = potion != null ? _potions.PotionCount.ToString() : "0";
+                var manaPotion = _potions.NextManaPotion;
+                if (manaPotionIcon != null)
+                {
+                    manaPotionIcon.enabled = manaPotion != null && manaPotion.icon != null;
+                    if (manaPotion != null) manaPotionIcon.sprite = manaPotion.icon;
+                }
+                if (manaPotionCountText != null) manaPotionCountText.text = manaPotion != null ? _potions.ManaPotionCount.ToString() : "0";
             }
         }
     }

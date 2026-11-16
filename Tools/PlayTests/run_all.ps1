@@ -8,7 +8,9 @@
 #
 # Ablauf: Spielstand sichern -> Tests -> aufraeumen -> Spielstand zurueckspielen und Pruefsumme vergleichen.
 # Das Zurueckspielen passiert auch dann, wenn ein Test abbricht.
-param([string[]]$Tests = @('wall', 'm2', 'play', 'iframe', 'kb'))
+param([string[]]$Tests = @('look', 'magic', 'wall', 'm2', 'play', 'iframe', 'kb', 'hp0'))
+# "-Tests a,b" kommt bei "powershell -File" als ein Text an: hier wieder aufteilen
+$Tests = @($Tests | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 
 . "$PSScriptRoot\lib.ps1"
 $global:RebornChecks = 0
@@ -16,7 +18,7 @@ $global:RebornFails = 0
 $global:RebornShotSize = $null
 $global:RebornTestSession = $false
 $log = Join-Path $TmpDir 'last_run.log'
-$scripts = @{ wall = 'walltest.ps1'; m2 = 'm2test.ps1'; play = 'playtest.ps1'; iframe = 'iframetest.ps1'; kb = 'kbtest.ps1'; hp0 = 'hp0test.ps1'; magic = 'magictest.ps1' }
+$scripts = @{ wall = 'walltest.ps1'; m2 = 'm2test.ps1'; play = 'playtest.ps1'; iframe = 'iframetest.ps1'; kb = 'kbtest.ps1'; hp0 = 'hp0test.ps1'; magic = 'magictest.ps1'; look = 'looktest.ps1'; diag = 'inputdiag.ps1' }
 
 & {
     "=== RE:BORN Play-Tests: $($Tests -join ', ') ==="
@@ -28,6 +30,11 @@ $scripts = @{ wall = 'walltest.ps1'; m2 = 'm2test.ps1'; play = 'playtest.ps1'; i
     try { $playMode = ($statusRaw | ConvertFrom-Json).data.result.playMode } catch {}
     if (-not $playMode) { throw 'Unity-Editor nicht erreichbar. Ist das Projekt in Unity geoeffnet?' }
     if ($playMode -ne 'stopped') { throw 'Unity ist gerade im Play-Modus. Bitte erst den Play-Modus beenden, dann die Tests neu starten.' }
+
+    # 1b. Game-Ansicht sichtbar? Sonst gehen simulierte Eingaben verloren und die Tests melden falsche Fehler.
+    $gv = Eval 't_gameview_visible.cs'
+    # Nur Hinweis: Die Pruefung hat sich als unzuverlaessig erwiesen (meldet manchmal 'unsichtbar', obwohl der Reiter vorne ist)
+    if ($gv -ne 'sichtbar') { "Hinweis: Game-Ansicht laut Unity '$gv'. Falls Eingabe-Tests scheitern: Unity-Fenster wiederherstellen und Reiter 'Game' zeigen." }
 
     # 2. Spielstand sichern
     $savePath = Eval 't2_savepath.cs'

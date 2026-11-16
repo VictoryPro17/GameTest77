@@ -46,7 +46,10 @@ namespace Reborn.Magic
         protected bool Hit(Health target, int damage, Vector2 knockback, bool countXp)
         {
             if (target == null || target.IsDead) return false;
-            if (!target.TakeDamage(damage, knockback)) return false;
+            UI.DamageNumbers.PendingColor = SpellData.ElementColor(Cast.data.element);
+            bool hit = target.TakeDamage(damage, knockback);
+            UI.DamageNumbers.PendingColor = null;
+            if (!hit) return false;
             if (countXp && Cast.book != null) Cast.book.RegisterHit(Cast.slot);
             SpawnHit(target.transform.position + new Vector3(0f, 0.25f, 0f), 1f);
             return true;

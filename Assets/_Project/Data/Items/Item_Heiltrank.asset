@@ -15,7 +15,7 @@ MonoBehaviour:
   id: heiltrank
   itemName: Heiltrank
   description: "Ein kr\xE4ftiger Trank aus seltenen Kr\xE4utern."
-  icon: {fileID: 21300000, guid: 7434fb653e1d6dc4a82fdd1f6bffd3e5, type: 3}
+  icon: {fileID: 21300000, guid: 1d415dde8399c9b4db18aec1644049c1, type: 3}
   rarity: 1
   category: 1
   equipSlot: 0
@@ -29,5 +29,7 @@ MonoBehaviour:
     intelligence: 0
     luck: 0
   healAmount: 40
+  manaAmount: 0
   sellValue: 15
   maxStack: 10
+  visual: {fileID: 0}

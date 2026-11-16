@@ -51,9 +51,12 @@ namespace Reborn.Combat
 
         IEnumerator Flash(Color color, float time)
         {
+            var layers = GetComponent<Reborn.Animation.EquipmentVisuals>();
             _renderer.color = color;
+            if (layers != null) layers.SyncColor();
             yield return new WaitForSecondsRealtime(time);
             _renderer.color = _normal;
+            if (layers != null) layers.SyncColor();
         }
     }
 }

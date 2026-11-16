@@ -15,7 +15,7 @@ MonoBehaviour:
   id: lederstiefel
   itemName: Lederstiefel
   description: "Leichte Stiefel f\xFCr schnelle Schritte."
-  icon: {fileID: 21300000, guid: 4200aa42d2d549a4cac2abf246742716, type: 3}
+  icon: {fileID: 21300000, guid: 6af8e7b87b7431a48aa0dc8efdecfa9a, type: 3}
   rarity: 0
   category: 2
   equipSlot: 4
@@ -29,5 +29,7 @@ MonoBehaviour:
     intelligence: 0
     luck: 0
   healAmount: 0
+  manaAmount: 0
   sellValue: 8
   maxStack: 1
+  visual: {fileID: 11400000, guid: 675454548998f604f8ff882a46dae16c, type: 2}

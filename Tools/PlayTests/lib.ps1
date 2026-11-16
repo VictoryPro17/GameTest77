@@ -50,6 +50,9 @@ function StopPlay {
 # Sorgt dafuer, dass das Spiel auch ohne Fokus weiterlaeuft, und prueft, dass wirklich Frames laufen.
 function StartPlay([switch]$KeepSave) {
     StopPlay
+    # Das Projekt laedt beim Play-Start den Code nicht neu: alte Test-Geraete nehmen dann keine Eingaben mehr an.
+    # Deshalb vor jedem Start entfernen; die Setup-Schnipsel legen sie frisch an.
+    [void](Eval 't2_cleanup.cs')
     if (-not $KeepSave) { [void](Eval 't2_delsave.cs') }
     unity command editor set_auto_tick @U 2>$null | Out-Null
     unity command editor.playmode set_run_in_background @U 2>$null | Out-Null

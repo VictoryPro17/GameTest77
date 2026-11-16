@@ -15,7 +15,7 @@ MonoBehaviour:
   id: lederkappe
   itemName: Lederkappe
   description: "Sch\xFCtzt den Kopf vor \xC4sten und Schleim."
-  icon: {fileID: 21300000, guid: 6797a416d5e2c31498db113e150b39c2, type: 3}
+  icon: {fileID: 21300000, guid: c33f15b1a6eb0294080762c90a2d0c51, type: 3}
   rarity: 0
   category: 2
   equipSlot: 1
@@ -29,5 +29,7 @@ MonoBehaviour:
     intelligence: 0
     luck: 0
   healAmount: 0
+  manaAmount: 0
   sellValue: 6
   maxStack: 1
+  visual: {fileID: 11400000, guid: 9bf20e45780602a46b975da24f9054e7, type: 2}

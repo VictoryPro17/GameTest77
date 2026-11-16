@@ -29,6 +29,7 @@ Stand: 2026-11-05 · Meilenstein 1 („Mini-Spiel“)
 "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" -b Art/Blender/Reborn_Characters.blend --python Art/Blender/Scripts/build_slime.py -- D:\GameTest77
 "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" -b Art/Blender/Reborn_Characters.blend --python Art/Blender/Scripts/build_props.py -- D:\GameTest77
 "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" -b Art/Blender/Reborn_Characters.blend --python Art/Blender/Scripts/build_spells.py -- D:\GameTest77
+"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" -b Art/Blender/Reborn_Characters.blend --python Art/Blender/Scripts/build_equipment.py -- D:\GameTest77
 ```
 
 Hinweis: `build_player.py` legt die .blend-Datei neu an. Danach immer Schleim, Truhe und Zauber erneut rendern.
@@ -244,6 +245,75 @@ Version 2 speichert zusätzlich Stufe und Erfahrung je Zauber, Mana-Stufe, Mana-
 - Auf den Screenshots sind Wasserkugel, Drache und Feuerball oft schon vorbei, weil das Bild verzögert aufgenommen wird.
 - Untertitel des großen Banners und Ausruf über dem Kopf überlappen sich (wird mit der neuen Oberfläche in Meilenstein 4 behoben).
 - Touch auf einem echten Handy noch nicht getestet.
+
+## Meilenstein 4: Neues Aussehen
+
+### Entscheidungen
+
+| # | Thema | Entscheidung |
+|---|---|---|
+| U1 | Stil | Dunkles Fantasy: Stein, Bronze, Gold, Edelstein in der Seltenheitsfarbe |
+| U2 | Schrift | Cinzel (Überschriften) und Alegreya Sans (Text), SIL Open Font License 1.1, Lizenztexte in `Assets/_Project/Fonts` |
+| U3 | Bildgröße | Figuren, Ausrüstung, Schleim, Truhe und Zauber in 96 × 96 bei 96 Pixel pro Einheit (gleiche Weltgröße) |
+| U4 | Rüstung sichtbar | Ja, als Bildebenen (siehe Technik) |
+| U5 | Grundfigur | Ohne Waffe; das Schwert erscheint erst angelegt |
+| U6 | Schadenszahlen | Weiß, bei Zaubern in der Elementfarbe, beim Spieler rot |
+| U7 | Manatränke | Taste R / Steuerkreuz oben, eigener HUD-Platz |
+| U8 | Reihenfolge | Aussehen jetzt; Dungeon, Gegner, Boss und Geister später |
+
+### Oberfläche
+
+- `UiTheme` (ScriptableObject) mit Schriften, Farben und 9-teiligen Rahmen. Die Rahmen erzeugt `RebornBuilder.Theme.cs` per Code (Pixel-Stil, 50 Pixel pro Einheit = doppelte Pixelgröße).
+- HUD: Porträt mit Level, Leisten für Leben, Mana und Erfahrung, Aktionsleiste unten (Zauber 1–4, Heiltrank Q, Manatrank R), Ausruf, Banner, Schadenszahlen.
+- Menü im gleichen Stil; die Namen der bedienbaren Teile sind gleich geblieben, damit die Tests weiterlaufen.
+
+### Sichtbare Ausrüstung (Technik)
+
+- `build_player.py` baut die detailliertere Grundfigur ohne Waffe. `build_equipment.py` baut 14 Teile am selben Skelett und rendert jedes Teil in allen Animationen und 4 Richtungen als eigene Bildebene (840 Bilder). Der Körper ist dabei „Holdout“: unsichtbar, verdeckt aber das Teil, damit vorne/hinten stimmt.
+- In Unity zeigt `EquipmentVisuals` eine Ebene pro Platz über dem Körper (Reihenfolge Hose, Schuhe, Brust, Handschuhe, Helm, Nebenhand, Hauptwaffe) und folgt dem Ereignis `OnFrameChanged` des Körpers. Eine `SortingGroup` hält Körper und Ebenen zusammen.
+- Alle 22 Item-Icons kommen aus Blender (`Sprites/Items/Item_<id>.png`, 32 px); die alten Pixel-Icons aus Code sind entfernt.
+
+### Neue Beute
+
+| ID | Name | Platz | Seltenheit | Werte | Quelle |
+|---|---|---|---|---|---|
+| `lederhandschuhe` | Lederhandschuhe | Handschuhe | Gewöhnlich | Verteidigung +1 | Schleim 6 % |
+| `eisenhelm` | Eisenhelm | Helm | Selten | Verteidigung +3 | Truhe 2 |
+| `eisenbrust` | Eisenbrustplatte | Brust | Selten | Verteidigung +4, Leben +10 | später |
+| `eisenhose` | Eisenbeinschienen | Hose | Selten | Verteidigung +3 | später |
+| `eisenstiefel` | Eisenstiefel | Schuhe | Selten | Verteidigung +2 | später |
+| `eisenhandschuhe` | Eisenhandschuhe | Handschuhe | Selten | Verteidigung +2, Stärke +1 | später |
+| `eichenstab` | Eichenstab | Hauptwaffe | Selten | Angriff +1, Intelligenz +3 | Truhe 2 |
+| `manatrank_klein` | Kleiner Manatrank | Verbrauch | Gewöhnlich | +20 Mana | Schleim 20 %, Truhe 2 (×2) |
+| `manatrank` | Manatrank | Verbrauch | Selten | +40 Mana | später |
+| `saphirring` | Saphirring | Ring | Episch | Intelligenz +2, Glück +1 | Truhe 2 |
+
+Truhe 2 steht bei (8, 3) in Room_Test.
+
+### Befunde
+
+- **Builder zu langsam:** Bei rund 1000 Sprites lief der Builder in die 30-s-Grenze der CLI. `ConfigureTexture` importiert jetzt nur noch neu, wenn sich die Einstellungen geändert haben.
+- **Zwei Truhen:** Tests suchen Truhen über ihre ID (`chestById`), nicht mehr „irgendeine“.
+- **Kurze Animationen im Test:** Angriff (L3) und Ausweichen (Tastatur-Test) werden über `OnFrameChanged` gezählt statt mit einem einzelnen Blick geprüft.
+- **Simulierte Eingaben:** Am 16.11. kamen sie in zwei Gesamtläufen zeitweise nicht an. Später, mit Unity im Vordergrund, liefen alle 89 Prüfungen. Die genaue Ursache ist nicht bewiesen (wahrscheinlich Fensterfokus). Der dafür gebaute Test `diag` hat sich als nicht verlässlich erwiesen (er liest den Editor-Zustand statt des Spiels). Das Projekt lädt beim Play-Start den Code nicht neu; Tests legen ihre Test-Geräte deshalb bei jedem Start frisch an.
+- **Spielstand:** Bei der Fehlersuche hat ein Diagnose-Skript außerhalb von `run_all.ps1` einmal den Spielstand überschrieben, weil es ohne Sicherung weiterlief. Er wurde aus einer Sicherung wiederhergestellt (Prüfsumme gleich). Seitdem laufen Diagnosen nur noch über `run_all.ps1`.
+
+### Abweichungen vom Plan
+
+- `run_all.ps1` teilt `-Tests a,b` jetzt selbst auf (bei `powershell -File` kam die Liste als ein Text an) und hat eine neue Standardliste mit allen Tests außer `diag`.
+- Die Sichtbarkeitsprüfung der Game-Ansicht ist nur ein Hinweis, weil sie unzuverlässig ist.
+- Die alten Rahmen `Frame_*` und die Code-Icons `Icon_*` wurden gelöscht.
+
+### Tests
+
+`run_all.ps1` (look, magic, wall, m2, play, iframe, kb, hp0): 89 Prüfungen, 0 Fehler (16.11.2026).
+
+### Bekannte Grenzen
+
+- Der Filter-Knopf „Ausrüstung“ ist für die neue Schrift zu schmal; der Text bricht um.
+- Die Schwert- und Stab-Icons sind sehr dünn.
+- Das Eisen-Set (außer Helm) und der große Manatrank haben noch keine Quelle.
+- Touch auf einem echten Handy ist noch nicht getestet.
 
 ## Wichtige Dateien
 

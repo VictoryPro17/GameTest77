@@ -54,24 +54,40 @@ namespace Reborn.EditorTools
             ConfigureSprites(SpritesProps, new Vector2(0.5f, 0.25f));
             var tiles = CreateTiles();
             var icons = CreateItemIcons();
+            T = CreateTheme();
             var ui = CreateUiSprites();
             var playerAnim = CreateAnimationSet("Player_Anim", SpritesPlayer,
                 ("idle", 3f, true, 2), ("walk", 8f, true, 4), ("attack", 12f, false, 3), ("dodge", 15f, false, 3), ("cast", 12f, false, 3));
             var magic = CreateMagic();
+            var equipSets = CreateEquipmentSets();
             var slimeAnim = CreateAnimationSet("Slime_Anim", SpritesSlime,
                 ("idle", 6f, true, 4), ("hurt", 8f, false, 1), ("death", 10f, false, 3));
-            var (items, database, lootTable) = CreateItems(icons);
+            var (items, database, lootTable) = CreateItems(icons, equipSets);
             var pickup = CreatePickupPrefab(icons["schleimgel"]);
             var player = CreatePlayerPrefab(playerAnim, database, magic);
             var slime = CreateSlimePrefab(slimeAnim, lootTable, pickup);
-            var chest = CreateChestPrefab(pickup, items);
-            var hud = CreateHudPrefab(ui);
+            var chest = CreateChestPrefab(pickup, "Chest", "room_test_truhe_1", new[]
+            {
+                new TreasureChest.Content { item = items["holzschwert"], count = 1 },
+                new TreasureChest.Content { item = items["lederweste"], count = 1 },
+                new TreasureChest.Content { item = items["holzschild"], count = 1 },
+                new TreasureChest.Content { item = items["heiltrank_klein"], count = 2 },
+            });
+            var chest2 = CreateChestPrefab(pickup, "Chest_2", "room_test_truhe_2", new[]
+            {
+                new TreasureChest.Content { item = items["eichenstab"], count = 1 },
+                new TreasureChest.Content { item = items["eisenhelm"], count = 1 },
+                new TreasureChest.Content { item = items["saphirring"], count = 1 },
+                new TreasureChest.Content { item = items["manatrank_klein"], count = 2 },
+            });
+            var hud = BuildThemedHud(AssetDatabase.LoadAssetAtPath<Sprite>($"{SpritesPlayer}/idle_down_0.png"));
             var mobile = CreateMobileControlsPrefab();
             var menu = CreateMenuPrefab(ui);
-            BuildScene(tiles, player, slime, hud, mobile, chest, menu);
+            BuildScene(tiles, player, slime, hud, mobile, chest, chest2, menu);
             ConfigureBuild();
             AssetDatabase.SaveAssets();
-            return "Meilenstein 3 gebaut: " + ScenePath + " (" + database.items.Count + " Gegenstaende, " + magic.spells.Length + " Zauber)";
+            return "Meilenstein 4 gebaut: " + ScenePath + " (" + database.items.Count + " Gegenstaende, " + magic.spells.Length + " Zauber, "
+                + equipSets.Count + " Ausruestungs-Ebenen)";
         }
 
         // ------------------------------------------------------------ Projekt
@@ -101,12 +117,13 @@ namespace Reborn.EditorTools
             }
         }
 
-        static void ConfigureSprites(string folder, Vector2 pivot)
+        /// <summary>Figuren-Sprites: 96 x 96 bei 96 Pixel pro Einheit (gleiche Weltgroesse wie frueher 64/64).</summary>
+        static void ConfigureSprites(string folder, Vector2 pivot, float ppu = 96f)
         {
             foreach (var guid in AssetDatabase.FindAssets("t:Texture2D", new[] { folder }))
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
-                ConfigureTexture(path, 64, pivot);
+                ConfigureTexture(path, ppu, pivot);
             }
         }
 
@@ -114,6 +131,15 @@ namespace Reborn.EditorTools
         {
             var importer = (TextureImporter)AssetImporter.GetAtPath(path);
             if (importer == null) return;
+            // Schon richtig eingestellt? Dann nicht neu importieren (spart bei ~1000 Sprites viel Zeit)
+            var current = new TextureImporterSettings();
+            importer.ReadTextureSettings(current);
+            if (importer.textureType == TextureImporterType.Sprite && importer.spriteImportMode == SpriteImportMode.Single
+                && Mathf.Approximately(importer.spritePixelsPerUnit, ppu) && importer.filterMode == FilterMode.Point
+                && importer.textureCompression == TextureImporterCompression.Uncompressed && !importer.mipmapEnabled
+                && current.spriteAlignment == (int)SpriteAlignment.Custom && current.spritePivot == pivot
+                && current.spriteMeshType == SpriteMeshType.FullRect)
+                return;
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
             importer.spritePixelsPerUnit = ppu;
@@ -269,37 +295,21 @@ namespace Reborn.EditorTools
             }, 32);
         }
 
+        /// <summary>Item-Icons aus Blender (build_equipment.py): Sprites/Items/Item_&lt;id&gt;.png, 32 px.</summary>
         static Dictionary<string, Sprite> CreateItemIcons()
         {
             var icons = new Dictionary<string, Sprite>();
-            var (gel, potion) = CreateBaseItemIcons();
-            icons["schleimgel"] = gel;
-            icons["heiltrank_klein"] = potion;
-
-            var leather = new Dictionary<char, Color32> { ['l'] = C(140, 90, 50), ['h'] = C(185, 130, 80), ['d'] = C(95, 60, 35) };
-            void Icon(string id, string file, string[] map, Dictionary<char, Color32> palette)
+            foreach (var guid in AssetDatabase.FindAssets("Item_ t:Texture2D", new[] { SpritesItems }))
             {
-                icons[id] = AssetDatabase.LoadAssetAtPath<Sprite>(WritePixelMap(SpritesItems, file, map, palette));
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var file = Path.GetFileNameWithoutExtension(path);
+                if (!file.StartsWith("Item_")) continue;
+                // 32 px bei 64 Pixel pro Einheit = 0,5 Einheiten am Boden (wie bisher)
+                ConfigureTexture(path, 64, new Vector2(0.5f, 0.5f));
+                icons[file.Substring(5)] = AssetDatabase.LoadAssetAtPath<Sprite>(path);
             }
-            Icon("heiltrank", "Icon_HeiltrankGross", MapBigPotion,
-                new Dictionary<char, Color32> { ['p'] = C(150, 110, 70), ['w'] = C(200, 220, 230), ['r'] = C(200, 30, 60), ['h'] = C(255, 170, 180) });
-            Icon("holzschwert", "Icon_Holzschwert", MapSword,
-                new Dictionary<char, Color32> { ['w'] = C(190, 140, 80), ['g'] = C(110, 70, 40), ['h'] = C(80, 50, 30) });
-            Icon("eisenschwert", "Icon_Eisenschwert", MapSword,
-                new Dictionary<char, Color32> { ['w'] = C(205, 210, 220), ['g'] = C(200, 160, 50), ['h'] = C(90, 60, 40) });
-            Icon("holzschild", "Icon_Holzschild", MapShield,
-                new Dictionary<char, Color32> { ['w'] = C(150, 100, 55), ['m'] = C(170, 170, 180) });
-            Icon("lederkappe", "Icon_Lederkappe", MapCap, leather);
-            Icon("lederweste", "Icon_Lederweste", MapVest, leather);
-            Icon("lederhose", "Icon_Lederhose", MapPants, leather);
-            Icon("lederstiefel", "Icon_Lederstiefel", MapBoots, leather);
-            Icon("kupferring", "Icon_Kupferring", MapRing,
-                new Dictionary<char, Color32> { ['c'] = C(200, 120, 60), ['g'] = C(60, 180, 200), ['w'] = C(230, 250, 255) });
-            Icon("wolfszahnkette", "Icon_Wolfszahnkette", MapNecklace,
-                new Dictionary<char, Color32> { ['c'] = C(170, 170, 180), ['t'] = C(235, 230, 210) });
             return icons;
         }
-
         public class UiSprites
         {
             public Sprite emptyFrame;
@@ -312,20 +322,6 @@ namespace Reborn.EditorTools
         static UiSprites CreateUiSprites()
         {
             var ui = new UiSprites();
-            Sprite Frame(string name, Color32 border, Color32 inner)
-            {
-                var path = WritePng(SpritesUI, name, 32, (x, y) =>
-                {
-                    bool edge = x < 2 || y < 2 || x > 29 || y > 29;
-                    return edge ? border : inner;
-                }, 32);
-                return AssetDatabase.LoadAssetAtPath<Sprite>(path);
-            }
-            var inner = new Color32(20, 18, 26, 230);
-            ui.emptyFrame = Frame("Frame_Leer", new Color32(70, 66, 80, 255), inner);
-            string[] names = { "Frame_Gewoehnlich", "Frame_Selten", "Frame_Episch", "Frame_Legendaer" };
-            for (int i = 0; i < 4; i++) ui.rarityFrames[i] = Frame(names[i], ItemData.RarityColor((ItemRarity)i), inner);
-            ui.selection = Frame("Frame_Auswahl", new Color32(255, 235, 120, 255), new Color32(255, 255, 255, 0));
 
             var mono = new Color32(255, 255, 255, 70);
             Sprite Silhouette(string name, string[] map) => AssetDatabase.LoadAssetAtPath<Sprite>(WritePixelMap(SpritesUI, name, map, null, mono));
@@ -339,30 +335,11 @@ namespace Reborn.EditorTools
             var kette = Silhouette("Slot_Halskette", MapNecklace);
             var ring = Silhouette("Slot_Ring", MapRing);
             ui.slotIcons = new[] { helm, brust, hose, schuhe, hand, waffe, neben, kette, ring, ring };
+            // Plaetze im Theme-Stil (Stein mit Edelstein in der Seltenheitsfarbe)
+            ui.emptyFrame = T.slotEmpty;
+            ui.rarityFrames = (Sprite[])T.slotRarity.Clone();
+            ui.selection = T.selection;
             return ui;
-        }
-
-        static (Sprite gel, Sprite potion) CreateBaseItemIcons()
-        {
-            Color32 clear = new Color32(0, 0, 0, 0);
-            var gelPath = WritePng(SpritesItems, "Icon_Schleimgel", 16, (x, y) =>
-            {
-                float dx = x - 7.5f, dy = (y - 6f) * 1.3f;
-                float d = dx * dx + dy * dy;
-                if (d > 42f) return clear;
-                if (d > 30f) return new Color32(25, 70, 20, 255);
-                return (x == 5 && y == 8) || (x == 6 && y == 9) ? new Color32(220, 255, 210, 255) : new Color32(70, 170, 60, 255);
-            }, 32);
-            var potionPath = WritePng(SpritesItems, "Icon_Heiltrank", 16, (x, y) =>
-            {
-                if (y >= 11 && y <= 13 && x >= 6 && x <= 9) return new Color32(150, 110, 70, 255);
-                float dx = x - 7.5f, dy = y - 5.5f;
-                float d = dx * dx + dy * dy;
-                if (d > 30f) return clear;
-                if (d > 22f) return new Color32(70, 20, 30, 255);
-                return (x == 5 && y == 7) ? new Color32(255, 220, 220, 255) : new Color32(210, 40, 60, 255);
-            }, 32);
-            return (AssetDatabase.LoadAssetAtPath<Sprite>(gelPath), AssetDatabase.LoadAssetAtPath<Sprite>(potionPath));
         }
 
         // ------------------------------------------------------------ Animationen + Daten
@@ -398,11 +375,12 @@ namespace Reborn.EditorTools
             return asset;
         }
 
-        static (Dictionary<string, ItemData> items, ItemDatabase database, LootTable table) CreateItems(Dictionary<string, Sprite> icons)
+        static (Dictionary<string, ItemData> items, ItemDatabase database, LootTable table) CreateItems(Dictionary<string, Sprite> icons,
+            Dictionary<string, SpriteAnimationSet> equipSets)
         {
             var items = new Dictionary<string, ItemData>();
             ItemData Item(string id, string file, string name, string description, ItemRarity rarity, ItemCategory category,
-                EquipSlot slot, StatBlock stats, int heal, int sell, int stack)
+                EquipSlot slot, StatBlock stats, int heal, int sell, int stack, int mana = 0)
             {
                 var item = LoadOrCreate<ItemData>($"{DataItems}/{file}.asset");
                 item.id = id;
@@ -414,8 +392,10 @@ namespace Reborn.EditorTools
                 item.equipSlot = slot;
                 item.stats = stats;
                 item.healAmount = heal;
+                item.manaAmount = mana;
                 item.sellValue = sell;
                 item.maxStack = stack;
+                item.visual = equipSets.TryGetValue(id, out var set) ? set : null;
                 EditorUtility.SetDirty(item);
                 items[id] = item;
                 return item;
@@ -449,6 +429,28 @@ namespace Reborn.EditorTools
             Item("wolfszahnkette", "Item_Wolfszahnkette", "Wolfszahnkette", "Kette aus den Zähnen eines Schattenwolfs.",
                 E, Gear, EquipSlot.Halskette, new StatBlock { strength = 2, attack = 1 }, 0, 60, 1);
 
+            // ---- Meilenstein 4: neue Beute
+            Item("lederhandschuhe", "Item_Lederhandschuhe", "Lederhandschuhe", "Weiche Handschuhe mit festem Griff.",
+                G, Gear, EquipSlot.Handschuhe, new StatBlock { defense = 1 }, 0, 6, 1);
+            Item("eisenhelm", "Item_Eisenhelm", "Eisenhelm", "Ein schwerer Helm mit Nasenschutz und rotem Kamm.",
+                S, Gear, EquipSlot.Helm, new StatBlock { defense = 3 }, 0, 35, 1);
+            Item("eisenbrust", "Item_Eisenbrustplatte", "Eisenbrustplatte", "Geschmiedete Platte mit Schulterschutz.",
+                S, Gear, EquipSlot.Brust, new StatBlock { defense = 4, maxHealth = 10 }, 0, 60, 1);
+            Item("eisenhose", "Item_Eisenbeinschienen", "Eisenbeinschienen", "Beinschienen mit Kniekacheln.",
+                S, Gear, EquipSlot.Hose, new StatBlock { defense = 3 }, 0, 40, 1);
+            Item("eisenstiefel", "Item_Eisenstiefel", "Eisenstiefel", "Schwer, aber unverwüstlich.",
+                S, Gear, EquipSlot.Schuhe, new StatBlock { defense = 2 }, 0, 30, 1);
+            Item("eisenhandschuhe", "Item_Eisenhandschuhe", "Eisenhandschuhe", "Panzerhandschuhe für kräftige Schläge.",
+                S, Gear, EquipSlot.Handschuhe, new StatBlock { defense = 2, strength = 1 }, 0, 30, 1);
+            Item("eichenstab", "Item_Eichenstab", "Eichenstab", "Ein Zauberstab mit leuchtendem Kristall.",
+                S, Gear, EquipSlot.Hauptwaffe, new StatBlock { attack = 1, intelligence = 3 }, 0, 45, 1);
+            Item("manatrank_klein", "Item_KleinerManatrank", "Kleiner Manatrank", "Ein kleiner blauer Trank, der nach Minze duftet.",
+                G, Use, EquipSlot.None, none, 0, 6, 10, 20);
+            Item("manatrank", "Item_Manatrank", "Manatrank", "Ein kräftiger blauer Trank aus Mondblüten.",
+                S, Use, EquipSlot.None, none, 0, 18, 10, 40);
+            Item("saphirring", "Item_Saphirring", "Saphirring", "Ein goldener Ring mit tiefblauem Saphir.",
+                E, Gear, EquipSlot.Ring, new StatBlock { intelligence = 2, luck = 1 }, 0, 80, 1);
+
             var database = LoadOrCreate<ItemDatabase>($"{DataItems}/ItemDatabase.asset");
             database.items = items.Values.ToList();
             EditorUtility.SetDirty(database);
@@ -462,6 +464,8 @@ namespace Reborn.EditorTools
                 new LootTable.Entry { item = items["lederhose"], dropChance = 0.06f, min = 1, max = 1 },
                 new LootTable.Entry { item = items["lederstiefel"], dropChance = 0.06f, min = 1, max = 1 },
                 new LootTable.Entry { item = items["kupferring"], dropChance = 0.03f, min = 1, max = 1 },
+                new LootTable.Entry { item = items["lederhandschuhe"], dropChance = 0.06f, min = 1, max = 1 },
+                new LootTable.Entry { item = items["manatrank_klein"], dropChance = 0.2f, min = 1, max = 1 },
             };
             EditorUtility.SetDirty(table);
             return (items, database, table);
@@ -528,13 +532,41 @@ namespace Reborn.EditorTools
             var save = go.AddComponent<SaveSystem>();
             save.database = database;
             AddMagicToPlayer(go, magic, input);
-            Visual(go.transform, anim);
+            var visual = Visual(go.transform, anim);
+            // Sichtbare Ausruestung: eine Ebene pro Platz ueber dem Koerper, als Gruppe sortiert
+            visual.AddComponent<UnityEngine.Rendering.SortingGroup>();
+            var layers = visual.AddComponent<EquipmentVisuals>();
+            layers.layers = new SpriteRenderer[EquipmentVisuals.LayerOrder.Length];
+            for (int i = 0; i < layers.layers.Length; i++)
+            {
+                var layer = new GameObject("Layer_" + EquipmentVisuals.LayerOrder[i]);
+                layer.transform.SetParent(visual.transform, false);
+                var sr = layer.AddComponent<SpriteRenderer>();
+                sr.sortingOrder = i + 1;
+                layers.layers[i] = sr;
+            }
             return SavePrefab(go, "Player");
         }
 
-        static GameObject CreateChestPrefab(GameObject pickup, Dictionary<string, ItemData> items)
+        /// <summary>Animationssets der sichtbaren Ausruestung (Sprites/Equipment/&lt;id&gt;, gleiche Clips wie der Spieler).</summary>
+        static Dictionary<string, SpriteAnimationSet> CreateEquipmentSets()
         {
-            var go = new GameObject("Chest");
+            var sets = new Dictionary<string, SpriteAnimationSet>();
+            string equipRoot = Root + "/Sprites/Equipment";
+            if (!AssetDatabase.IsValidFolder(equipRoot)) return sets;
+            foreach (var folder in AssetDatabase.GetSubFolders(equipRoot))
+            {
+                string id = Path.GetFileName(folder);
+                ConfigureSprites(folder, new Vector2(0.5f, 0.3f));
+                sets[id] = CreateAnimationSet("Equip_" + id, folder,
+                    ("idle", 3f, true, 2), ("walk", 8f, true, 4), ("attack", 12f, false, 3), ("dodge", 15f, false, 3), ("cast", 12f, false, 3));
+            }
+            return sets;
+        }
+
+        static GameObject CreateChestPrefab(GameObject pickup, string prefabName, string chestId, TreasureChest.Content[] contents)
+        {
+            var go = new GameObject(prefabName);
             var rb = go.AddComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Static;
             var col = go.AddComponent<BoxCollider2D>();
@@ -545,19 +577,13 @@ namespace Reborn.EditorTools
             var sr = visual.AddComponent<SpriteRenderer>();
             sr.spriteSortPoint = SpriteSortPoint.Pivot;
             var chest = go.AddComponent<TreasureChest>();
-            chest.chestId = "room_test_truhe_1";
+            chest.chestId = chestId;
             chest.closedSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{SpritesProps}/chest_closed.png");
             chest.openSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{SpritesProps}/chest_open.png");
             sr.sprite = chest.closedSprite;
             chest.pickupPrefab = pickup.GetComponent<Pickup>();
-            chest.contents = new[]
-            {
-                new TreasureChest.Content { item = items["holzschwert"], count = 1 },
-                new TreasureChest.Content { item = items["lederweste"], count = 1 },
-                new TreasureChest.Content { item = items["holzschild"], count = 1 },
-                new TreasureChest.Content { item = items["heiltrank_klein"], count = 2 },
-            };
-            return SavePrefab(go, "Chest");
+            chest.contents = contents;
+            return SavePrefab(go, prefabName);
         }
 
         static GameObject CreateSlimePrefab(SpriteAnimationSet anim, LootTable table, GameObject pickup)
@@ -638,38 +664,14 @@ namespace Reborn.EditorTools
         static Text Label(string name, Transform parent, Vector2 anchor, Vector2 pos, Vector2 size, int fontSize, TextAnchor align)
         {
             var text = Rect(name, parent, anchor, pos, size).gameObject.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.font = T != null && T.bodyFont != null ? T.bodyFont : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.fontSize = fontSize;
             text.alignment = align;
-            text.color = Color.white;
+            text.color = T != null ? T.text : Color.white;
             var outline = text.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(0, 0, 0, 0.8f);
+            outline.effectColor = new Color(0, 0, 0, 0.75f);
+            outline.effectDistance = new Vector2(1.5f, -1.5f);
             return text;
-        }
-
-        static GameObject CreateHudPrefab(UiSprites ui)
-        {
-            var canvas = NewCanvas("HUD", 10);
-            var hud = canvas.gameObject.AddComponent<HUD>();
-            hud.healthFill = Bar("HealthBar", canvas.transform, new Vector2(30, -30), new Vector2(420, 36), new Color(0.85f, 0.2f, 0.25f));
-            hud.xpFill = Bar("XPBar", canvas.transform, new Vector2(30, -74), new Vector2(420, 18), new Color(0.95f, 0.8f, 0.25f));
-            hud.healthText = Label("HealthText", hud.healthFill.transform.parent, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(420, 36), 22, TextAnchor.MiddleCenter);
-            hud.levelText = Label("LevelText", canvas.transform, new Vector2(0, 1), new Vector2(465, -30), new Vector2(140, 40), 30, TextAnchor.MiddleLeft);
-            hud.pointsHint = Label("PointsHint", canvas.transform, new Vector2(0, 1), new Vector2(560, -26), new Vector2(260, 48), 28, TextAnchor.MiddleLeft);
-            hud.pointsHint.color = new Color(1f, 0.85f, 0.3f);
-            hud.pointsHint.text = "";
-
-            // Trank-Platz unter den Balken
-            var frame = Rect("PotionSlot", canvas.transform, new Vector2(0, 1), new Vector2(30, -128), new Vector2(84, 84)).gameObject.AddComponent<Image>();
-            frame.sprite = ui.emptyFrame;
-            hud.potionIcon = Rect("PotionIcon", frame.transform, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(64, 64)).gameObject.AddComponent<Image>();
-            hud.potionIcon.preserveAspect = true;
-            hud.potionIcon.enabled = false;
-            hud.potionCountText = Label("PotionCount", frame.transform, new Vector2(1, 0), new Vector2(-6, 2), new Vector2(60, 34), 26, TextAnchor.LowerRight);
-            hud.potionCountText.text = "0";
-            Label("PotionKey", frame.transform, new Vector2(0, 1), new Vector2(6, -2), new Vector2(40, 30), 20, TextAnchor.UpperLeft).text = "Q";
-            AddMagicHud(canvas, hud, ui);
-            return SavePrefab(canvas.gameObject, "HUD");
         }
 
         static GameObject CreateMobileControlsPrefab()
@@ -718,12 +720,19 @@ namespace Reborn.EditorTools
         }
 
         // ------------------------------------------------------------ Menue (Inventar + Charakter)
-        static Image Panel(string name, Transform parent, Vector2 pos, Vector2 size, Color color)
+        /// <summary>Fenster, eingelassener Kasten oder Knopf im Theme-Stil. color faerbt nur Knoepfe (Holz wird getoent).</summary>
+        static Image Panel(string name, Transform parent, Vector2 pos, Vector2 size, Color color, PanelStyle style = PanelStyle.Inset)
         {
             var img = Rect(name, parent, new Vector2(0.5f, 0.5f), pos, size).gameObject.AddComponent<Image>();
-            img.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
             img.type = Image.Type.Sliced;
-            img.color = color;
+            if (T == null)
+            {
+                img.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+                img.color = color;
+                return img;
+            }
+            img.sprite = style == PanelStyle.Window ? T.window : style == PanelStyle.Button ? T.button : T.inset;
+            img.color = style == PanelStyle.Button ? Color.Lerp(Color.white, new Color(color.r, color.g, color.b, 1f), 0.45f) : Color.white;
             return img;
         }
 
@@ -748,7 +757,7 @@ namespace Reborn.EditorTools
 
         static Button MenuButton(string name, Transform parent, Vector2 pos, Vector2 size, string label, int fontSize, Color color)
         {
-            var img = Panel(name, parent, pos, size, color);
+            var img = Panel(name, parent, pos, size, color, PanelStyle.Button);
             var button = img.gameObject.AddComponent<Button>();
             button.targetGraphic = img;
             var colors = button.colors;
@@ -756,7 +765,8 @@ namespace Reborn.EditorTools
             colors.selectedColor = new Color(1f, 0.92f, 0.55f);
             colors.pressedColor = new Color(0.8f, 0.8f, 0.8f);
             button.colors = colors;
-            MenuText("Label", img.transform, Vector2.zero, size, fontSize, TextAnchor.MiddleCenter, label);
+            var text = MenuText("Label", img.transform, Vector2.zero, size, fontSize, TextAnchor.MiddleCenter, label);
+            if (T != null && T.headingFont != null) text.font = T.headingFont;
             return button;
         }
 
@@ -764,6 +774,7 @@ namespace Reborn.EditorTools
         {
             var frame = Rect(name, parent, new Vector2(0.5f, 0.5f), pos, new Vector2(size, size)).gameObject.AddComponent<Image>();
             frame.sprite = ui.emptyFrame;
+            frame.type = Image.Type.Sliced;
             var view = frame.gameObject.AddComponent<ItemSlotView>();
             view.transition = Selectable.Transition.None;
             view.targetGraphic = frame;
@@ -802,7 +813,7 @@ namespace Reborn.EditorTools
             dim.color = new Color(0f, 0f, 0f, 0.55f);
             menu.root = root.gameObject;
 
-            var panel = Panel("Panel", root, Vector2.zero, new Vector2(1760, 960), new Color(0.11f, 0.1f, 0.14f, 0.97f)).transform;
+            var panel = Panel("Panel", root, Vector2.zero, new Vector2(1760, 960), new Color(0.11f, 0.1f, 0.14f, 0.97f), PanelStyle.Window).transform;
             var tabColor = new Color(0.25f, 0.23f, 0.3f, 1f);
             menu.inventoryTabButton = MenuButton("TabInventar", panel, new Vector2(-760, 425), new Vector2(200, 62), "Inventar", 30, tabColor);
             menu.characterTabButton = MenuButton("TabCharakter", panel, new Vector2(-545, 425), new Vector2(200, 62), "Charakter", 30, tabColor);
@@ -901,7 +912,7 @@ namespace Reborn.EditorTools
 
         // ------------------------------------------------------------ Szene
         static void BuildScene((Tile ground, Tile wall) tiles, GameObject player, GameObject slime, GameObject hud, GameObject mobile,
-            GameObject chest, GameObject menu)
+            GameObject chest, GameObject chest2, GameObject menu)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
@@ -974,6 +985,8 @@ namespace Reborn.EditorTools
 
             var chestInstance = (GameObject)PrefabUtility.InstantiatePrefab(chest);
             chestInstance.transform.position = new Vector3(-8f, 0f, 0f);
+            var chest2Instance = (GameObject)PrefabUtility.InstantiatePrefab(chest2);
+            chest2Instance.transform.position = new Vector3(8f, 3f, 0f);
 
             PrefabUtility.InstantiatePrefab(hud);
             PrefabUtility.InstantiatePrefab(mobile);

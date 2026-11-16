@@ -15,7 +15,7 @@ MonoBehaviour:
   id: holzschild
   itemName: Holzschild
   description: Ein leichter Schild aus Brettern mit Eisenrand.
-  icon: {fileID: 21300000, guid: 35c07838e76660f45b2f32be0b79d493, type: 3}
+  icon: {fileID: 21300000, guid: ae5bf0fd11263574ba23b3d1675379da, type: 3}
   rarity: 0
   category: 2
   equipSlot: 7
@@ -29,5 +29,7 @@ MonoBehaviour:
     intelligence: 0
     luck: 0
   healAmount: 0
+  manaAmount: 0
   sellValue: 10
   maxStack: 1
+  visual: {fileID: 11400000, guid: 008334ccd2ddc184ea4b34ce13e265d7, type: 2}

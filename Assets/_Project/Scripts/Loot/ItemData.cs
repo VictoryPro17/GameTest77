@@ -17,11 +17,17 @@ namespace Reborn.Loot
         public StatBlock stats;
         /// <summary>Heilung beim Benutzen (nur Verbrauchsgegenstaende).</summary>
         public int healAmount;
+        /// <summary>Mana beim Benutzen (Manatraenke)</summary>
+        public int manaAmount;
         public int sellValue;
         public int maxStack = 99;
+        /// <summary>Bildebene an der Figur (nur sichtbare Ausruestung)</summary>
+        public Animation.SpriteAnimationSet visual;
 
         public bool IsEquipment => category == ItemCategory.Ausruestung && equipSlot != EquipSlot.None;
-        public bool IsUsable => category == ItemCategory.Verbrauch && healAmount > 0;
+        public bool IsUsable => category == ItemCategory.Verbrauch && (healAmount > 0 || manaAmount > 0);
+        public bool IsHealPotion => category == ItemCategory.Verbrauch && healAmount > 0;
+        public bool IsManaPotion => category == ItemCategory.Verbrauch && manaAmount > 0;
 
         public string CategoryLabel
         {

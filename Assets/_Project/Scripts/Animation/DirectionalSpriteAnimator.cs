@@ -11,9 +11,13 @@ namespace Reborn.Animation
         public string startClip = "idle";
 
         public event Action<string> OnClipFinished;
+        /// <summary>Neues Bild: Animation, Richtung, Bildnummer (fuer Rüstungsebenen)</summary>
+        public event Action<string, Facing, int> OnFrameChanged;
 
         public Facing Facing { get; private set; } = Facing.Down;
         public string CurrentClip => _clip != null ? _clip.name : null;
+        /// <summary>Gerade gezeigte Bildnummer</summary>
+        public int FrameIndex { get; private set; }
 
         SpriteRenderer _renderer;
         SpriteAnimationSet.Clip _clip;
@@ -77,7 +81,10 @@ namespace Reborn.Animation
             var frames = _clip.Get(Facing);
             if (frames == null || frames.Length == 0) return;
             index = _clip.loop ? index % frames.Length : Mathf.Clamp(index, 0, frames.Length - 1);
+            bool changed = _renderer.sprite != frames[index] || index != FrameIndex;
             _renderer.sprite = frames[index];
+            FrameIndex = index;
+            if (changed) OnFrameChanged?.Invoke(_clip.name, Facing, index);
         }
     }
 }

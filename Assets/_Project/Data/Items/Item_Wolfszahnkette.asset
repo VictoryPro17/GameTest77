@@ -15,7 +15,7 @@ MonoBehaviour:
   id: wolfszahnkette
   itemName: Wolfszahnkette
   description: "Kette aus den Z\xE4hnen eines Schattenwolfs."
-  icon: {fileID: 21300000, guid: bf0b817df27be4a4698d805306c503ff, type: 3}
+  icon: {fileID: 21300000, guid: 39b4294c332de2d46bb296b43bfe1ee5, type: 3}
   rarity: 2
   category: 2
   equipSlot: 8
@@ -29,5 +29,7 @@ MonoBehaviour:
     intelligence: 0
     luck: 0
   healAmount: 0
+  manaAmount: 0
   sellValue: 60
   maxStack: 1
+  visual: {fileID: 0}

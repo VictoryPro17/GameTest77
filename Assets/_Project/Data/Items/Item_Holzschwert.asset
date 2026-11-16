@@ -15,7 +15,7 @@ MonoBehaviour:
   id: holzschwert
   itemName: Holzschwert
   description: "Ein einfaches \xDCbungsschwert aus Eichenholz."
-  icon: {fileID: 21300000, guid: 780c5a6ddea2c0246a7e871419eff6de, type: 3}
+  icon: {fileID: 21300000, guid: 925e88d81fd5b9f4e8134c063920b76b, type: 3}
   rarity: 0
   category: 2
   equipSlot: 6
@@ -29,5 +29,7 @@ MonoBehaviour:
     intelligence: 0
     luck: 0
   healAmount: 0
+  manaAmount: 0
   sellValue: 10
   maxStack: 1
+  visual: {fileID: 11400000, guid: 74c12166b731177439f15ba55a572d02, type: 2}

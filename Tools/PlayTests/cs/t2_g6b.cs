@@ -1,7 +1,7 @@
 //#HEADER
 inv.Clear();
 int rest = inv.Add(db.Get("eisenschwert"), 24);
-var chest = UnityEngine.Object.FindAnyObjectByType<Reborn.World.TreasureChest>();
+var chest = chestById("room_test_truhe_1");
 var pk = Reborn.Loot.LootDropper.Spawn(chest.pickupPrefab, rb.position + new UnityEngine.Vector2(2f, 0f), 0f, db.Get("kupferring"), 1);
 pk.name = "TestPickupVoll";
 rb.position = pk.transform.position;

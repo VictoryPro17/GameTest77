@@ -17,8 +17,8 @@ namespace Reborn.UI
         /// <summary>Alle, Ausruestung, Verbrauch, Material</summary>
         public Button[] filterButtons = new Button[4];
         public Text messageText;
-        public Color filterActive = new Color(0.85f, 0.7f, 0.3f, 1f);
-        public Color filterInactive = new Color(0.25f, 0.23f, 0.3f, 1f);
+        public Color filterActive = new Color(1f, 0.93f, 0.72f, 1f);
+        public Color filterInactive = new Color(0.5f, 0.48f, 0.5f, 1f);
 
         public int Filter { get; private set; }
 

@@ -24,9 +24,10 @@ Check 'J: Angriffs-Animation' (Eval 't_kb_check_attack.cs') 'clip=attack'
 Wait 600
 
 '3) Ausweichen mit Leertaste:'
+[void](Eval 't_kb_watch.cs')
 '  ' + (Eval 't_kb_space.cs')
-Wait 50
-Check 'Leertaste: Ausweichen' (Eval 't_kb_check_dodge.cs') '(dodging=True|clip=dodge)'
+Wait 400
+Check 'Leertaste: Ausweichen (mindestens 1 Ausweich-Bild)' (Eval 't_kb_watch_check.cs') '^Ausweich-Bilder=[1-9]\d*$'
 [void](Eval 't_kb_release.cs')
 
 '  ' + (Eval 't_kb_remove.cs')

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: schleimgel
   itemName: Schleimgel
   description: Klebriges Material eines Waldschleims. Wird zum Herstellen gebraucht.
-  icon: {fileID: 21300000, guid: 42aaabc1d48167147a17703a4cb4d7b5, type: 3}
+  icon: {fileID: 21300000, guid: 8ab369ac2203a3546a3a24ef6556c6f6, type: 3}
   rarity: 0
   category: 0
   equipSlot: 0
@@ -29,5 +29,7 @@ MonoBehaviour:
     intelligence: 0
     luck: 0
   healAmount: 0
+  manaAmount: 0
   sellValue: 2
   maxStack: 99
+  visual: {fileID: 0}

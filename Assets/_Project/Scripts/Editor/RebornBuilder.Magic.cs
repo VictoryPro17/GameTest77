@@ -288,53 +288,12 @@ namespace Reborn.EditorTools
             book.castFlash = m.castFlash;
         }
 
-        /// <summary>Mana-Leiste, 4 Zauber-Plaetze, Ausruf und grosses Banner im HUD.</summary>
-        static void AddMagicHud(Canvas canvas, HUD hud, UiSprites ui)
-        {
-            hud.manaFill = Bar("ManaBar", canvas.transform, new Vector2(30, -98), new Vector2(420, 20), new Color(0.25f, 0.55f, 1f));
-            hud.manaText = Label("ManaText", hud.manaFill.transform.parent, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(420, 20), 16, TextAnchor.MiddleCenter);
-
-            string[] keys = { "1", "2", "3", "4" };
-            hud.spellIcons = new Image[SpellBook.SlotCount];
-            hud.spellCooldowns = new Image[SpellBook.SlotCount];
-            hud.spellLevels = new Text[SpellBook.SlotCount];
-            for (int i = 0; i < SpellBook.SlotCount; i++)
-            {
-                var frame = Rect($"SpellSlot_{i}", canvas.transform, new Vector2(0.5f, 0f), new Vector2(-165 + i * 110, 20), new Vector2(96, 96)).gameObject.AddComponent<Image>();
-                frame.sprite = ui.emptyFrame;
-                var icon = Rect("Icon", frame.transform, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(80, 80)).gameObject.AddComponent<Image>();
-                icon.preserveAspect = true;
-                hud.spellIcons[i] = icon;
-                var cd = Rect("Cooldown", frame.transform, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(88, 88)).gameObject.AddComponent<Image>();
-                cd.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
-                cd.color = new Color(0f, 0f, 0f, 0.65f);
-                cd.type = Image.Type.Filled;
-                cd.fillMethod = Image.FillMethod.Radial360;
-                cd.fillOrigin = (int)Image.Origin360.Top;
-                cd.fillClockwise = false;
-                cd.fillAmount = 0f;
-                hud.spellCooldowns[i] = cd;
-                Label("Key", frame.transform, new Vector2(0, 1), new Vector2(6, -2), new Vector2(40, 30), 22, TextAnchor.UpperLeft).text = keys[i];
-                hud.spellLevels[i] = Label("Level", frame.transform, new Vector2(1, 0), new Vector2(-6, 2), new Vector2(70, 28), 20, TextAnchor.LowerRight);
-            }
-
-            var chantText = Label("ChantText", canvas.transform, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1100, 50), 30, TextAnchor.MiddleCenter);
-            chantText.horizontalOverflow = HorizontalWrapMode.Overflow;
-            var chant = canvas.gameObject.AddComponent<ChantText>();
-            chant.text = chantText;
-
-            var banner = canvas.gameObject.AddComponent<CastBanner>();
-            banner.title = Label("BannerTitle", canvas.transform, new Vector2(0.5f, 0.5f), new Vector2(0, 260), new Vector2(1600, 120), 84, TextAnchor.MiddleCenter);
-            banner.title.horizontalOverflow = HorizontalWrapMode.Overflow;
-            banner.subtitle = Label("BannerSubtitle", canvas.transform, new Vector2(0.5f, 0.5f), new Vector2(0, 180), new Vector2(1600, 50), 32, TextAnchor.MiddleCenter);
-            banner.subtitle.horizontalOverflow = HorizontalWrapMode.Overflow;
-        }
-
         static Image MenuBar(string name, Transform parent, Vector2 pos, Vector2 size, Color fill)
         {
             var bg = Panel(name, parent, pos, size, new Color(0.08f, 0.07f, 0.1f, 1f));
-            var img = Rect("Fill", bg.transform, new Vector2(0f, 0.5f), new Vector2(2, 0), size - new Vector2(4, 4)).gameObject.AddComponent<Image>();
-            img.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
+            if (T != null) bg.sprite = T.barFrame;
+            var img = Rect("Fill", bg.transform, new Vector2(0f, 0.5f), new Vector2(4, 0), size - new Vector2(8, Mathf.Min(8, size.y - 4))).gameObject.AddComponent<Image>();
+            img.sprite = T != null ? T.barFill : AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
             img.type = Image.Type.Filled;
             img.fillMethod = Image.FillMethod.Horizontal;
             img.color = fill;

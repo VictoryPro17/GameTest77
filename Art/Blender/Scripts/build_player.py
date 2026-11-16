@@ -1,7 +1,8 @@
-"""RE:BORN - Hauptcharakter (Platzhalter v1)
+"""RE:BORN - Hauptcharakter (v2, Meilenstein 4)
 
-Baut Modell + Skelett, legt die Animationen idle/walk/attack/dodge an
-und rendert jede Animation in 4 Richtungen als 64x64-Pixel-Sprites.
+Baut die detaillierte Grundfigur (ohne Waffe) + Skelett, legt die Animationen
+idle/walk/attack/dodge/cast an und rendert jede Animation in 4 Richtungen als 96x96-Pixel-Sprites.
+Die Ausruestung (sichtbare Ebenen) baut build_equipment.py am selben Skelett.
 
 Aufruf (im Hintergrund):
   blender.exe -b --factory-startup --python build_player.py -- <projektordner>
@@ -19,7 +20,7 @@ OUT_DIR = os.path.join(PROJECT, "Assets", "_Project", "Sprites", "Player")
 BLEND_PATH = os.path.join(PROJECT, "Art", "Blender", "Reborn_Characters.blend")
 os.makedirs(OUT_DIR, exist_ok=True)
 
-SPRITE_SIZE = 64
+SPRITE_SIZE = 96
 DIRECTIONS = {"down": 0.0, "right": 90.0, "up": 180.0, "left": -90.0}
 
 # ---------------------------------------------------------------- Szene leeren
@@ -82,14 +83,19 @@ def mat(name, rgb):
 
 M = {
     "skin": mat("Haut", (0.93, 0.72, 0.58)),
-    "hair": mat("Haare", (0.22, 0.13, 0.08)),
+    "skin_dark": mat("HautSchatten", (0.80, 0.56, 0.44)),
+    "hair": mat("Haare", (0.30, 0.17, 0.09)),
+    "hair_light": mat("HaareHell", (0.45, 0.27, 0.13)),
     "tunic": mat("Tunika", (0.20, 0.36, 0.62)),
-    "pants": mat("Hose", (0.28, 0.22, 0.17)),
-    "boots": mat("Stiefel", (0.15, 0.10, 0.07)),
+    "tunic_dark": mat("TunikaDunkel", (0.13, 0.24, 0.45)),
+    "pants": mat("Hose", (0.30, 0.24, 0.18)),
+    "boots": mat("Schuhe", (0.20, 0.13, 0.08)),
     "belt": mat("Guertel", (0.45, 0.30, 0.12)),
-    "eyes": mat("Augen", (0.05, 0.05, 0.08)),
-    "blade": mat("Klinge", (0.80, 0.84, 0.90)),
-    "hilt": mat("Griff", (0.55, 0.40, 0.10)),
+    "gold": mat("Gold", (0.95, 0.72, 0.25)),
+    "cloak": mat("Umhang", (0.50, 0.13, 0.13)),
+    "eye_white": mat("Augenweiss", (0.96, 0.96, 0.94)),
+    "eyes": mat("Augen", (0.10, 0.22, 0.45)),
+    "mouth": mat("Mund", (0.45, 0.18, 0.16)),
 }
 
 # ---------------------------------------------------------------- Skelett
@@ -137,26 +143,47 @@ def add(kind, bone, material, loc, scale=(1, 1, 1), rot=(0, 0, 0), **kw):
     parts.append(o)
     return o
 
-# Beine + Stiefel
+# Beine: Oberschenkel, Unterschenkel, einfache Schuhe (Stiefel kommen als Ausruestung)
 for side, x in (("L", -0.12), ("R", 0.12)):
-    add("cyl", f"leg.{side}", M["pants"], (x, 0, 0.47), (0.085, 0.085, 0.36))
-    add("cube", f"leg.{side}", M["boots"], (x, -0.03, 0.07), (0.09, 0.13, 0.07))
-# Koerper
-add("cyl", "spine", M["tunic"], (0, 0, 1.10), (0.24, 0.17, 0.26))
-add("cyl", "hips", M["tunic"], (0, 0, 0.86), (0.25, 0.18, 0.08))
-add("cyl", "hips", M["belt"], (0, 0, 0.95), (0.255, 0.185, 0.03))
-# Kopf
-add("sphere", "head", M["skin"], (0, 0, 1.55), (0.22, 0.21, 0.22))
-add("sphere", "head", M["hair"], (0, 0.07, 1.66), (0.23, 0.19, 0.15))
-for x in (-0.08, 0.08):
-    add("sphere", "head", M["eyes"], (x, -0.2, 1.52), (0.04, 0.025, 0.05))
-# Arme + Haende
-for side, x in (("L", -0.32), ("R", 0.32)):
-    add("cyl", f"arm.{side}", M["tunic"], (x, 0, 1.13), (0.07, 0.07, 0.18))
-    add("sphere", f"arm.{side}", M["skin"], (x, 0, 0.92), (0.075, 0.075, 0.075))
-# Schwert in der rechten Hand (zeigt nach vorne oben)
-add("cube", "arm.R", M["hilt"], (0.32, -0.02, 0.92), (0.03, 0.10, 0.03))
-add("cube", "arm.R", M["blade"], (0.32, -0.33, 1.08), (0.025, 0.02, 0.30), rot=(math.radians(-60), 0, 0))
+    add("cyl", f"leg.{side}", M["pants"], (x, 0, 0.62), (0.092, 0.092, 0.2))
+    add("cyl", f"leg.{side}", M["pants"], (x, 0, 0.3), (0.078, 0.078, 0.2))
+    add("cube", f"leg.{side}", M["boots"], (x, -0.035, 0.06), (0.085, 0.13, 0.06))
+# Huefte, Oberkoerper mit runden Schultern, Kragen, Guertel mit Schnalle und Tasche, Umhang
+add("cyl", "hips", M["pants"], (0, 0, 0.86), (0.24, 0.17, 0.09))
+add("cyl", "spine", M["tunic"], (0, 0, 1.11), (0.23, 0.16, 0.21))
+add("sphere", "spine", M["tunic"], (0, 0, 1.25), (0.255, 0.17, 0.12))
+add("cyl", "spine", M["tunic_dark"], (0, 0, 1.335), (0.115, 0.095, 0.03))
+add("cube", "spine", M["tunic_dark"], (0, -0.165, 1.12), (0.012, 0.005, 0.15))
+add("cyl", "hips", M["belt"], (0, 0, 0.965), (0.245, 0.175, 0.035))
+add("cube", "hips", M["gold"], (0, -0.18, 0.965), (0.045, 0.012, 0.032))
+add("cube", "hips", M["belt"], (0.17, -0.12, 0.9), (0.05, 0.03, 0.055))
+add("cube", "spine", M["cloak"], (0, 0.175, 1.02), (0.25, 0.022, 0.32))
+add("cube", "spine", M["cloak"], (0, 0.14, 1.33), (0.2, 0.06, 0.03))
+# Hals und Kopf: Ohren, Augen mit Pupille, Brauen, Nase, Mund
+add("cyl", "head", M["skin_dark"], (0, 0, 1.37), (0.07, 0.07, 0.05))
+add("sphere", "head", M["skin"], (0, 0, 1.56), (0.23, 0.22, 0.23))
+for x in (-0.225, 0.225):
+    add("sphere", "head", M["skin_dark"], (x, 0.01, 1.55), (0.03, 0.04, 0.055))
+for x in (-0.085, 0.085):
+    add("sphere", "head", M["eye_white"], (x, -0.2, 1.55), (0.05, 0.02, 0.055))
+    add("sphere", "head", M["eyes"], (x, -0.218, 1.545), (0.03, 0.012, 0.038))
+    add("cube", "head", M["hair"], (x, -0.212, 1.625), (0.045, 0.01, 0.012), rot=(0, 0, math.radians(10 if x < 0 else -10)))
+add("sphere", "head", M["skin_dark"], (0, -0.226, 1.505), (0.022, 0.02, 0.026))
+add("cube", "head", M["mouth"], (0, -0.214, 1.455), (0.035, 0.006, 0.007))
+# Haare: Kappe, Hinterkopf, Strähnen in der Stirn, Seiten
+add("sphere", "head", M["hair"], (0, 0.03, 1.68), (0.248, 0.238, 0.15))
+add("sphere", "head", M["hair"], (0, 0.12, 1.56), (0.225, 0.13, 0.2))
+for x, y, z, s in ((-0.11, -0.17, 1.68, 0.09), (0.01, -0.195, 1.7, 0.1), (0.12, -0.165, 1.67, 0.08)):
+    add("sphere", "head", M["hair_light"] if x == 0.01 else M["hair"], (x, y, z), (s, 0.06, 0.065))
+for x in (-0.205, 0.205):
+    add("sphere", "head", M["hair"], (x, -0.03, 1.6), (0.05, 0.08, 0.1))
+# Arme: Aermel, Unterarm, Hand mit Daumen
+for side, x in (("L", -0.31), ("R", 0.31)):
+    s = -1 if side == "L" else 1
+    add("cyl", f"arm.{side}", M["tunic"], (x, 0, 1.2), (0.072, 0.072, 0.1))
+    add("cyl", f"arm.{side}", M["skin"], (x, 0, 1.02), (0.06, 0.06, 0.1))
+    add("sphere", f"arm.{side}", M["skin"], (x, 0, 0.9), (0.066, 0.06, 0.072))
+    add("sphere", f"arm.{side}", M["skin_dark"], (x - 0.045 * s, -0.04, 0.915), (0.026, 0.026, 0.036))
 
 bpy.ops.object.select_all(action="DESELECT")
 for o in parts:
@@ -269,6 +296,8 @@ for anim, frames in ANIMS.items():
 
 rig.rotation_euler = (0, 0, 0)
 rig.animation_data.action = bpy.data.actions["Player_idle"]
+# Fuer build_equipment.py: Liste der Animationen und Bildzahlen im Blend speichern
+scene["anim_frames"] = {k: len(v) for k, v in ANIMS.items()}
 bpy.ops.object.mode_set(mode="OBJECT")
 scene.frame_set(1)
 bpy.ops.wm.save_as_mainfile(filepath=BLEND_PATH)

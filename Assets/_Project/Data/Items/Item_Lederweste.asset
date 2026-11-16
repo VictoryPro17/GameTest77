@@ -15,7 +15,7 @@ MonoBehaviour:
   id: lederweste
   itemName: Lederweste
   description: Robuste Weste aus gegerbtem Leder.
-  icon: {fileID: 21300000, guid: 8fb50cb64ddaa3e4193f42910de6014a, type: 3}
+  icon: {fileID: 21300000, guid: 545d0dc9972d0744e83cddf55652531c, type: 3}
   rarity: 0
   category: 2
   equipSlot: 2
@@ -29,5 +29,7 @@ MonoBehaviour:
     intelligence: 0
     luck: 0
   healAmount: 0
+  manaAmount: 0
   sellValue: 12
   maxStack: 1
+  visual: {fileID: 11400000, guid: cf4e15d191730a448b50f16a1b60a7b6, type: 2}

@@ -17,6 +17,8 @@ namespace Reborn.Combat
 
         /// <summary>Schaden, Rueckstoss-Geschwindigkeit</summary>
         public event Action<int, Vector2> OnDamaged;
+        /// <summary>Jeder Treffer an irgendeiner Figur (fuer Schadenszahlen)</summary>
+        public static event Action<Health, int> OnAnyDamaged;
         public event Action OnDied;
         public event Action OnChanged;
         /// <summary>Tatsaechlich geheilte Menge</summary>
@@ -45,6 +47,7 @@ namespace Reborn.Combat
             Current = Mathf.Max(0, Current - amount);
             _hitTimer = hitInvulnerability;
             OnDamaged?.Invoke(amount, knockback);
+            OnAnyDamaged?.Invoke(this, amount);
             OnChanged?.Invoke();
             if (Current == 0) OnDied?.Invoke();
             return true;

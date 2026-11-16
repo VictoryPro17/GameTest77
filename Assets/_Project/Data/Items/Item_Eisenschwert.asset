@@ -15,7 +15,7 @@ MonoBehaviour:
   id: eisenschwert
   itemName: Eisenschwert
   description: Solide geschmiedete Klinge aus Eisen.
-  icon: {fileID: 21300000, guid: 83a6040f3034ab44a8ee276d78fcd04b, type: 3}
+  icon: {fileID: 21300000, guid: 2ff06c0cccafa804ebf172b458698477, type: 3}
   rarity: 1
   category: 2
   equipSlot: 6
@@ -29,5 +29,7 @@ MonoBehaviour:
     intelligence: 0
     luck: 0
   healAmount: 0
+  manaAmount: 0
   sellValue: 40
   maxStack: 1
+  visual: {fileID: 11400000, guid: 4aa16a314a3bf7c42878edd7f5e6703d, type: 2}

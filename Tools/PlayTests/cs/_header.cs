@@ -11,3 +11,4 @@ var pad = UnityEngine.InputSystem.InputSystem.GetDevice("TestPad") as UnityEngin
 var kb = UnityEngine.InputSystem.InputSystem.GetDevice("TestKeyboard") as UnityEngine.InputSystem.Keyboard;
 var ic = System.Globalization.CultureInfo.InvariantCulture;
 var es = UnityEngine.EventSystems.EventSystem.current;
+System.Func<string, Reborn.World.TreasureChest> chestById = id => { foreach (var c in UnityEngine.Object.FindObjectsByType<Reborn.World.TreasureChest>()) if (c.chestId == id) return c; return null; };

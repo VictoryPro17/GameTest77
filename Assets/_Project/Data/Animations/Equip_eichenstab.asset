@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f19c041d762bfc4ca578cb8be6a1d1b, type: 3}
+  m_Name: Equip_eichenstab
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Animation.SpriteAnimationSet
+  clips:
+  - name: idle
+    fps: 3
+    loop: 1
+    down:
+    - {fileID: 21300000, guid: f5d6e6472c987d74ebac8f47a91693f4, type: 3}
+    - {fileID: 21300000, guid: 8edc8b0c03e3e294587ca58bd9d97cc9, type: 3}
+    up:
+    - {fileID: 21300000, guid: 667e7d750ba23ee46974ba597d93d80a, type: 3}
+    - {fileID: 21300000, guid: c7022f30198bf5c4f90549cf41832cd6, type: 3}
+    left:
+    - {fileID: 21300000, guid: 605ba8f6c66ea554ea9cf3bbf83d6ed7, type: 3}
+    - {fileID: 21300000, guid: 49294f4af580d544da7a6d9ae4d0be89, type: 3}
+    right:
+    - {fileID: 21300000, guid: ce10c54f8f65790498828a59e8eed7b2, type: 3}
+    - {fileID: 21300000, guid: ea052619ee7533e45aff16fda9ce047e, type: 3}
+  - name: walk
+    fps: 8
+    loop: 1
+    down:
+    - {fileID: 21300000, guid: 7750fb9fb8bc5954a95c8bde1b15120b, type: 3}
+    - {fileID: 21300000, guid: b97ae7a23065782499c07a41833ade43, type: 3}
+    - {fileID: 21300000, guid: 7d15aae7682c6bc46a9ee03a025d70f3, type: 3}
+    - {fileID: 21300000, guid: 444a5f38ea3e46b46a797dbb8ed7634e, type: 3}
+    up:
+    - {fileID: 21300000, guid: ce2d4f51063891b4991f98a06b617fac, type: 3}
+    - {fileID: 21300000, guid: 60756b57dc6bb1049b81c19dc21ad6f6, type: 3}
+    - {fileID: 21300000, guid: bd4276b742ef57c4c89cd18eaf84176d, type: 3}
+    - {fileID: 21300000, guid: 58c694e780a43d447b7184be61acb7f2, type: 3}
+    left:
+    - {fileID: 21300000, guid: 4be9c33eabe66464588e3143e7596517, type: 3}
+    - {fileID: 21300000, guid: 0f23c0c2920e0784bae29d8e678f3a07, type: 3}
+    - {fileID: 21300000, guid: 6620df276d5f9f4479960d89ff03e5c7, type: 3}
+    - {fileID: 21300000, guid: 948877553c23f024a8c4f67bd624b843, type: 3}
+    right:
+    - {fileID: 21300000, guid: 1c6ec487755d1c24b9ebf3508b13e444, type: 3}
+    - {fileID: 21300000, guid: 88dec7125928c674dba797fac3505ee1, type: 3}
+    - {fileID: 21300000, guid: 5930113d582655b4ebbdc6d06b7d5bcf, type: 3}
+    - {fileID: 21300000, guid: 0f92f031520eada4fb86f7128d74a347, type: 3}
+  - name: attack
+    fps: 12
+    loop: 0
+    down:
+    - {fileID: 21300000, guid: 01c0a0b83731e474a8425221469f5f33, type: 3}
+    - {fileID: 21300000, guid: 38bca4ea9093f65458acaa6bc877e560, type: 3}
+    - {fileID: 21300000, guid: 3de145a3764097545963519d6cc8320e, type: 3}
+    up:
+    - {fileID: 21300000, guid: 590bd0a697f2338409bab55b8c7d4a91, type: 3}
+    - {fileID: 21300000, guid: 1a95049a60a9b1448a288f254d091f72, type: 3}
+    - {fileID: 21300000, guid: 117f7e7281c4b7d458e3510c63d2bea6, type: 3}
+    left:
+    - {fileID: 21300000, guid: 6cf84978d09387047aa92f4acd935d00, type: 3}
+    - {fileID: 21300000, guid: 92976e574ca760a40aab4cbfb26057aa, type: 3}
+    - {fileID: 21300000, guid: 0aa3b74797597984aab0adde042a4c78, type: 3}
+    right:
+    - {fileID: 21300000, guid: b30857e0305959841b1fdacec36d2b29, type: 3}
+    - {fileID: 21300000, guid: 26906ab4accbb434fb77864ecd450937, type: 3}
+    - {fileID: 21300000, guid: 8d4ebc3cb13739e468bae11e7dd858a7, type: 3}
+  - name: dodge
+    fps: 15
+    loop: 0
+    down:
+    - {fileID: 21300000, guid: be04dfb6f07bcf6449ae1c020e58a457, type: 3}
+    - {fileID: 21300000, guid: 274175160b985d54c8b1bcd465035f31, type: 3}
+    - {fileID: 21300000, guid: 03a78186d38034343b39411be7eea016, type: 3}
+    up:
+    - {fileID: 21300000, guid: cd423d95d8037124d967f8c5106106e9, type: 3}
+    - {fileID: 21300000, guid: 97ea4b5f697a50b499ff12395fc9a02b, type: 3}
+    - {fileID: 21300000, guid: 0394b74a90043e648b439f30985981fe, type: 3}
+    left:
+    - {fileID: 21300000, guid: 02f17f267d29700419e8d2be74987118, type: 3}
+    - {fileID: 21300000, guid: dd25ee4aaee611642acc73ac6c026ba5, type: 3}
+    - {fileID: 21300000, guid: a60d74d789886124fad1b7bd0067b8db, type: 3}
+    right:
+    - {fileID: 21300000, guid: f1d8852357645924aae751336961d604, type: 3}
+    - {fileID: 21300000, guid: 999cd3b06c72b054a9bf7b411cd0a7ba, type: 3}
+    - {fileID: 21300000, guid: ce46bcc74aa47a4469a16b5afab817c7, type: 3}
+  - name: cast
+    fps: 12
+    loop: 0
+    down:
+    - {fileID: 21300000, guid: e36fd57f3ef7b104d875d8f15b453b25, type: 3}
+    - {fileID: 21300000, guid: 2c19c743a2d0aa543a24611dede0aff0, type: 3}
+    - {fileID: 21300000, guid: ff7d6d30187bd4a4d9e343a0b419df9a, type: 3}
+    up:
+    - {fileID: 21300000, guid: 40eb35ac876081740b9195dded4144e6, type: 3}
+    - {fileID: 21300000, guid: 143a996b0f5f3084488ed05d3bd5398f, type: 3}
+    - {fileID: 21300000, guid: 480b74c383564b34dbbb0533bfe89f63, type: 3}
+    left:
+    - {fileID: 21300000, guid: 8182bdd33e98aef498c79e86e9472911, type: 3}
+    - {fileID: 21300000, guid: 760935de484253e49bf052169c3451a0, type: 3}
+    - {fileID: 21300000, guid: 8edf9c27a6c0c024e89a553533b463af, type: 3}
+    right:
+    - {fileID: 21300000, guid: 86af7d9d62f08474fb1dbdea9983558b, type: 3}
+    - {fileID: 21300000, guid: 3d742f852573fab44a5b87bf19232a9f, type: 3}
+    - {fileID: 21300000, guid: 7fcc4ec9f918c324aa746d0f2409dfb4, type: 3}

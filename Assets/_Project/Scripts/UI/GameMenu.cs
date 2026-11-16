@@ -22,8 +22,8 @@ namespace Reborn.UI
         public Button closeButton;
         public InventoryView inventoryView;
         public CharacterView characterView;
-        public Color tabActive = new Color(0.85f, 0.7f, 0.3f, 1f);
-        public Color tabInactive = new Color(0.25f, 0.23f, 0.3f, 1f);
+        public Color tabActive = new Color(1f, 0.93f, 0.72f, 1f);
+        public Color tabInactive = new Color(0.5f, 0.48f, 0.5f, 1f);
 
         public static bool IsOpen { get; private set; }
         public static event Action OnOpened;
@@ -31,7 +31,7 @@ namespace Reborn.UI
 
         public int Page { get; private set; }
 
-        static readonly string[] BlockedActions = { "Move", "Attack", "Dodge", "UsePotion", "Spell1", "Spell2", "Spell3", "Spell4", "Meditate" };
+        static readonly string[] BlockedActions = { "Move", "Attack", "Dodge", "UsePotion", "Spell1", "Spell2", "Spell3", "Spell4", "Meditate", "UseManaPotion" };
 
         InputAction _menu;
         readonly List<InputAction> _blocked = new List<InputAction>();

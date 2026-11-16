@@ -1,8 +1,8 @@
-"""RE:BORN - Zauber-Grafik (Platzhalter v1)
+﻿"""RE:BORN - Zauber-Grafik (Platzhalter v1)
 
 Fuegt der Datei Reborn_Characters.blend eine Szene "Spells" hinzu und rendert:
   spell_dragon_head.png, spell_dragon_body.png, spell_waterball.png,
-  spell_fireball_0.png, spell_fireball_1.png   (64 x 64, Seitenansicht, zeigt nach rechts)
+  spell_fireball_0.png, spell_fireball_1.png   (96 x 96, Seitenansicht, zeigt nach rechts)
   icon_wasserkugel.png, icon_wasserdrache.png, icon_feuerball.png, icon_flammenring.png (32 x 32)
 
 Aufruf:  blender.exe -b <Reborn_Characters.blend> --python build_spells.py -- <projektordner>
@@ -206,10 +206,10 @@ def render(path, size, ortho):
 
 rendered = 0
 for name, file in (("head", "spell_dragon_head.png"), ("body", "spell_dragon_body.png"), ("waterball", "spell_waterball.png")):
-    show(name); render(file, 64, 1.6); rendered += 1
+    show(name); render(file, 96, 1.6); rendered += 1
 for i, angle in enumerate((0, 25)):
     fb_root.rotation_euler = (math.radians(angle), 0, 0)
-    show("fireball"); render(f"spell_fireball_{i}.png", 64, 1.6); rendered += 1
+    show("fireball"); render(f"spell_fireball_{i}.png", 96, 1.6); rendered += 1
 fb_root.rotation_euler = (0, 0, 0)
 
 for name, bg, file, ortho in (("waterball", "bg_water", "icon_wasserkugel.png", 1.5),
