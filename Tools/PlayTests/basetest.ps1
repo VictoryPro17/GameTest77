@@ -1,4 +1,4 @@
-# Basis-Test (Meilenstein 6): Start in der Basis, friedlich, Mauer, Haendler (Kaufen, Verkaufen, Gold, Inventar voll),
+# Basis-Test (Meilenstein 6, ab 7a in der Stadt): Start in der Basis, friedlich, Mauer, Haendler (Kaufen, Verkaufen, Gold, Inventar voll),
 # Schmied (Verbessern mit Gold und Schleimgel), Speichern/Laden, Portal hin und zurueck, Tod -> Basis mit -10 % Gold,
 # alter Spielstand (Version 2), Bedienung mit Tastatur (E, Esc) und Controller (Steuerkreuz unten).
 # Start ueber run_all.ps1 (schuetzt den Spielstand).
@@ -11,7 +11,7 @@ StartPlay -Scene 'Base'
 '  ' + (Eval 't2_setup.cs')
 
 'B1) Start in der Basis'
-Check 'B1 Basis, Startpunkt, friedlich, 2 NPCs, Portal, Mauer, Boden' (Eval 'b_start.cs') '^Szene=Base Pos=\(0\.0,-2\.0\) friedlich=True Gold=0 NPCs=2 Portal=Portal_Kampf>Room_Test Mauer=[1-9]\d* Boden=[1-9]\d* Mauerkacheln=[1-9]\d*$'
+Check 'B1 Stadt, Startpunkt, friedlich, 5 NPCs, Portal, Mauer, Boden' (Eval 'b_start.cs') '^Szene=Base Pos=\(0\.0,-2\.0\) friedlich=True Gold=0 NPCs=5 Portal=Portal_Kampf>Room_Test Mauer=[1-9]\d* Boden=[1-9]\d* Mauerkacheln=[1-9]\d*$'
 
 'B2) Kein Kampf in der Basis'
 Check 'B2 kein Zauber' (Eval 'b_cast.cs') '^gezaubert=False Grund=friedlich$'
@@ -20,8 +20,8 @@ Check 'B2 kein Angriff (J)' (Eval 'a_clip.cs') '^clip=idle '
 [void](Eval 'b_keyup.cs'); Wait 200
 
 'B3) Mauer'
-[void](Eval 'w_walk.cs' @{ PX = '-6.5'; PY = '0'; SX = '-1'; SY = '0' }); Wait 1200
-CheckRange 'B3 Mauer links haelt' (Eval 'w_pos.cs') 'x' -6.85 -6.65
+[void](Eval 'w_walk.cs' @{ PX = '-21'; PY = '0'; SX = '-1'; SY = '0' }); Wait 1200
+CheckRange 'B3 Stadtmauer links haelt' (Eval 'w_pos.cs') 'x' -21.85 -21.65
 
 'B4) Haendler ansprechen (E)'
 [void](Eval 'b_goto.cs' @{ X = '-0.5'; Y = '-2.4' }); Wait 300
@@ -70,7 +70,7 @@ Check 'B10 Laden stellt Gold und Stufe her' (Eval 'b_reload.cs') "^geladen=True 
 [void](Eval 'b_close.cs')
 
 'B11) Portal in den Kampfraum'
-[void](Eval 'b_goto.cs' @{ X = '4.5'; Y = '0.9' }); Wait 300
+[void](Eval 'b_goto.cs' @{ X = '-18.5'; Y = '9.3' }); Wait 300
 Shot 'm6_portal'
 [void](Eval 'b_portal_go.cs' @{ NAME = 'Portal_Kampf' }); Wait 2500; WaitReady
 Check 'B11 Kampfraum, Ankunftspunkt, Gold und Stufe mitgenommen' (Eval 'b_state.cs') "^Szene=Room_Test Pos=\(.*\) Gold=340 Stufe=3 Angriff=$($a0 + 3) .* Reisen=1 reist=False Ankunft=Ankunft$"
@@ -78,7 +78,7 @@ Check 'B11 Kampfraum, Ankunftspunkt, Gold und Stufe mitgenommen' (Eval 'b_state.
 
 'B12) Rueckkehr-Portal'
 [void](Eval 'b_portal_go.cs' @{ NAME = 'Portal_Basis' }); Wait 2500; WaitReady
-Check 'B12 zurueck in der Basis am Portal' (Eval 'b_state.cs') '^Szene=Base Pos=\(4\.6,0\.9\) Gold=340 Stufe=3 .* Reisen=2 reist=False Ankunft=Portal$'
+Check 'B12 zurueck in der Stadt vor der Hoehle' (Eval 'b_state.cs') '^Szene=Base Pos=\(-18\.5,9\.3\) Gold=340 Stufe=3 .* Reisen=2 reist=False Ankunft=Portal$'
 '  ' + (Eval 't2_setup.cs')
 [void](Eval 'lk_zoom.cs' @{ SIZE = '3.5'; X = '0'; Y = '-1' }); Wait 400
 Shot 'm6_basis'

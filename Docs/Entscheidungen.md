@@ -443,6 +443,62 @@ Version 3 speichert zusätzlich Gold, die Stufen beim Schmied und die Szene. Ges
 - Touch auf einem echten Handy ist noch nicht getestet.
 - Der Händler hat unbegrenzte Waren und kauft zum festen Preis.
 
+## Meilenstein 7: Stadt & Gilden
+
+Wunsch: große, schöne Stadt mit Stadtmauer und Soldaten, mehr Häuser und NPCs, Einkaufen und Verkaufen, drei Gilden (Magier, Krieger, Assassinen) mit begehbaren Gebäuden und Quests, das Portal in einer Höhle. Aufgeteilt in 7a (Stadt), 7b (begehbare Räume) und 7c (Gilden und Quests).
+
+### Entscheidungen
+
+| # | Thema | Entscheidung |
+|---|---|---|
+| Q1 | Gilden | Man tritt nur **einer** Gilde bei (Wechsel kostet Gold) |
+| Q2 | Gilden-Vorteile | Magier Intelligenz +2 und Gildenstab, Krieger Stärke +2 und Gildenschwert, Assassine Geschick +2 und Dolche; mit jedem Rang etwas mehr |
+| Q3 | Quests | 3 pro Gilde (9), danach Rang-Aufstieg |
+| Q4 | Gegner für Quests | Wolf und Spinne bekommen in 7c eine Kampf-Logik |
+| Q5 | Begehbar | Die 3 Gildenhallen und die Portal-Höhle; Läden bedient man von außen |
+| Q6 | Soldaten | Nur Deko, nicht angreifbar |
+| Q7 | Bewohner | Laufen umher; Sätze beim Ansprechen folgen später |
+| Q8 | Reihenfolge | Erst Meilenstein 6 committen, dann 7a, 7b, 7c, jeweils mit Tests und Commit |
+
+## Meilenstein 7a: Stadt
+
+### Was gebaut ist
+
+- Die Szene `Base` ist jetzt eine Stadt mit 48 × 36 Kacheln (`RebornBuilder.Town.cs`). Startpunkt, Händler und Schmied stehen an denselben Stellen wie in der Basis aus Meilenstein 6.
+- **Stadtmauer** rundum: Norden und Süden als Mauerbild mit Zinnen, Westen und Osten als Wehrgang (2 Kacheln), 4 Ecktürme, 4 Mauertürme, Stadttor im Süden (geschlossen). Die Kollision sind feste Kästen.
+- **Soldaten:** 5 patrouillieren auf der Mauer (vor der Mauer gezeichnet), 2 Wachen stehen am Tor, 1 Wache läuft die Hauptstraße ab.
+- **Marktplatz** mit Pflaster und Springbrunnen (2 Bilder), Händlerstand, Schmiede mit Esse, Rauch und Lichtschein, Rathaus, Gasthaus, Bänke, Laternen mit Licht, Blumenkästen, Brunnen, Karren.
+- **Ladenstraße** im Süden: Waffenhändler (Holzschwert, Eisenschwert, Eichenstab, Holzschild), Rüstungshändler (Leder- und Eisen-Set), Alchemistin (4 Tränke), Gemischtwarenladen. Jeder Händler nutzt das Handelsfenster aus Meilenstein 6.
+- **Wohnviertel** West, Ost und Süd: 15 Häuser in 6 Varianten (auch zweistöckig und breit), Gärten mit Zäunen und Heu, Teich mit Steg und 2 Fischern.
+- **Gildenviertel** im Norden: Kriegerhalle, Magierturm, Assassinenhaus (1,5-mal so groß wie normale Häuser). Betreten folgt in 7b.
+- **Höhle** im Nordwesten: Felsen mit Höhleneingang. Im Eingang liegt das Portal zum Kampfraum (das sichtbare Portal ist entfernt, nur das Leuchten bleibt). Rückkehr aus dem Kampfraum: vor der Höhle.
+- **Bewohner:** 10 Figuren laufen zwischen festen Wegpunkten (`Wanderer.cs`, ohne Collider, damit sie niemanden einsperren).
+- Freie Grasflächen bekommen Bäume, Büsche und Grasbüschel nach festem Muster; Laufwege und Teststrecken bleiben frei.
+
+### Grafik (Blender)
+
+- `build_town.py` (Szene „Town“, `Reborn_Town.blend`): 43 Bilder. Rathaus, Gasthaus, Schmiede, Tor, Eckturm, Felsen mit Höhle (384 px); Gildenhäuser (768 px); Läden und Häuser (256/384 px); Mauerstück, Hecke und Zaun (128 px, nahtlos alle 1 Einheit); Kleinzeug; Rauch (3 Bilder); Kacheln (64 px): Pflaster (3), Pflaster mit Grasrand (wird für die anderen Seiten gedreht), Wasser (2), Steg.
+- `build_villagers.py`: 11 Figuren auf Basis der Spielfigur (Bäuerin, Wache, Gelehrter, Soldat, Bauer, Edeldame, Barde, Fischer, Waffenhändler, Rüstungshändler, Alchemistin), je „idle“ (4) und „walk“ (8) in 4 Richtungen, 528 Bilder. `Reborn_Characters.blend` wird nicht gespeichert.
+- `build_all.ps1` hat die neuen Gruppen `town` und `villagers`.
+
+### Befunde
+
+- **Dächer verkehrt herum:** Die Dachflächen waren nach innen statt nach außen geneigt und sahen deshalb flach aus. In `build_town.py` behoben (mit Ziegelreihen und First). Das Haus der alten Basis (`build_base.py`) hat den Fehler noch, wird aber nicht mehr benutzt.
+- **Schwarze Erdwege:** Die Stadt benutzte die Weg-Kachel aus dem ersten Szenenbau, die nach dem Szenenwechsel ungültig war (gleiche Ursache wie der leere Boden in Meilenstein 6). Die Stadt lädt alle Kacheln jetzt nach dem Szenenwechsel.
+- **Am Magierturm vorbei:** Die Kollision war schmaler als Sockel und Kristallsäulen; jetzt 2 m statt 1,5 m halbe Breite.
+
+### Tests
+
+`run_all.ps1` (look, magic, wall, m2, play, iframe, kb, hp0, base, town): 137 Prüfungen, 0 Fehler (17.11.2026). Neu ist der Stadt-Test T1–T6; der Basis-Test läuft jetzt in der Stadt (5 NPCs, Stadtmauer, Rückkehr vor der Höhle).
+
+### Bekannte Grenzen
+
+- Gildenhäuser und Höhle sind von außen fertig, aber noch nicht begehbar (7b). Gilden und Quests folgen in 7c.
+- Bewohner sagen noch nichts; Soldaten und Wachen stehen nur.
+- Das Wasser des Teichs ist nicht animiert (die Kachel-Animation braucht ein weiteres Paket).
+- Das Stadttor ist zu; außerhalb der Mauer gibt es nichts.
+- Häuser und Läden kann man nicht betreten.
+
 ## Wichtige Dateien
 
 - `Art/Blender/Reborn_Characters.blend` – Spieler und Ausrüstung (Szene „Characters“)
@@ -451,6 +507,8 @@ Version 3 speichert zusätzlich Gold, die Stufen beim Schmied und die Szene. Ges
 - `Assets/_Project/Scenes/Base.unity` – Basis (Startszene), `Assets/_Project/Scenes/Room_Test.unity` – Kampfraum
 - `Art/Blender/Reborn_Base.blend`, `Art/Blender/Scripts/build_base.py`, `build_npcs.py` – Grafik der Basis und der NPCs
 - `Assets/_Project/Scripts/Economy/` – Gold, Händler-Waren, Schmiede-Stufen
+- `Assets/_Project/Scripts/Editor/RebornBuilder.Town.cs` – baut die Stadt (Szene `Base`), `Assets/_Project/Scripts/World/Wanderer.cs` – laufende Bewohner
+- `Art/Blender/Reborn_Town.blend`, `Art/Blender/Scripts/build_town.py`, `build_villagers.py` – Grafik der Stadt und der Stadtfiguren
 - `Assets/_Project/Scripts/` – Spiel-Code (Player, Combat, Enemies, Loot, Progression, UI, Animation, Core, World)
 - `Assets/_Project/Scripts/Editor/RebornBuilder.cs` – baut alles automatisch
 - `Art/Blender/Scripts/build_props.py`, `build_tiles.py` – Gegenstände und Kacheln (Szenen „Props“, „Tiles“)

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcb670ecba72c1447ad536a3fc3977ce, type: 3}
+  m_Name: Shop_Traenke
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Economy.ShopData
+  items:
+  - {fileID: 11400000, guid: b70b3feb68d969f4b863f3b3d0ad0dd5, type: 2}
+  - {fileID: 11400000, guid: 9855541b58097bb4aa33265a889f6e36, type: 2}
+  - {fileID: 11400000, guid: 3047ab767a1d9d241867d2185e0c7ce3, type: 2}
+  - {fileID: 11400000, guid: 161f1987b0e10b840b61fbd0210341f2, type: 2}

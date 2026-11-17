@@ -116,10 +116,11 @@ namespace Reborn.EditorTools
             var portal = CreatePortalPrefab();
             var trade = CreateTradeWindowPrefab(ui, items["schleimgel"]);
             BuildScene(tiles, player, slime, hud, mobile, chest, chest2, menu, showcase, portal, trade);
-            BuildBaseScene(tiles, player, hud, mobile, menu, trade, portal, shop);
+            // Meilenstein 7a: Die Basis ist jetzt eine Stadt (gleiche Szene "Base", siehe RebornBuilder.Town.cs)
+            BuildTownScene(tiles, player, hud, mobile, menu, trade, portal, shop, items);
             ConfigureBuild();
             AssetDatabase.SaveAssets();
-            return "Meilenstein 6 gebaut: " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
+            return "Meilenstein 7a gebaut (Stadt): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
                 + magic.spells.Length + " Zauber, " + equipSets.Count + " Ausruestungs-Ebenen, " + shop.items.Count + " Waren)";
         }
 
