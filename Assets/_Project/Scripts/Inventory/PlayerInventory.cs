@@ -161,6 +161,27 @@ namespace Reborn.Inventory
             return total;
         }
 
+        /// <summary>Entfernt eine Menge eines Gegenstands aus beliebigen Plaetzen (hinten zuerst).</summary>
+        /// <returns>true, wenn genug da war (sonst wird nichts entfernt)</returns>
+        public bool Remove(ItemData item, int count)
+        {
+            EnsureSlots();
+            if (item == null || count <= 0) return true;
+            if (Count(item) < count) return false;
+            int rest = count;
+            for (int i = Size - 1; i >= 0 && rest > 0; i--)
+            {
+                var slot = slots[i];
+                if (slot.IsEmpty || slot.item != item) continue;
+                int take = Mathf.Min(rest, slot.count);
+                slot.count -= take;
+                rest -= take;
+                if (slot.count <= 0) { slot.item = null; slot.count = 0; }
+            }
+            OnChanged?.Invoke();
+            return true;
+        }
+
         public int IndexOf(ItemData item)
         {
             EnsureSlots();

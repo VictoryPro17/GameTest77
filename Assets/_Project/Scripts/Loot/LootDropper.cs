@@ -8,6 +8,8 @@ namespace Reborn.Loot
     {
         public LootTable table;
         public Pickup pickupPrefab;
+        /// <summary>Gold am Boden (Muenz-Bild), Meilenstein 6</summary>
+        public Pickup goldPickupPrefab;
         public float scatterRadius = 0.5f;
 
         public void Drop()
@@ -24,6 +26,16 @@ namespace Reborn.Loot
                 if (Random.value > Mathf.Min(1f, entry.dropChance * multiplier)) continue;
                 int amount = Random.Range(entry.min, entry.max + 1);
                 Spawn(pickupPrefab, transform.position, scatterRadius, entry.item, amount);
+            }
+
+            if (goldPickupPrefab != null && table.goldMax > 0)
+            {
+                int gold = Random.Range(table.goldMin, table.goldMax + 1);
+                if (gold > 0)
+                {
+                    var pickup = Instantiate(goldPickupPrefab, (Vector2)transform.position + Random.insideUnitCircle * scatterRadius, Quaternion.identity);
+                    pickup.SetupGold(gold);
+                }
             }
         }
 

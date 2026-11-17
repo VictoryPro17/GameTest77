@@ -17,6 +17,8 @@ namespace Reborn.UI
         /// <summary>Alle, Ausruestung, Verbrauch, Material</summary>
         public Button[] filterButtons = new Button[4];
         public Text messageText;
+        /// <summary>Gold (Meilenstein 6)</summary>
+        public Text goldText;
         public Color filterActive = new Color(1f, 0.93f, 0.72f, 1f);
         public Color filterInactive = new Color(0.5f, 0.48f, 0.5f, 1f);
 
@@ -113,6 +115,11 @@ namespace Reborn.UI
         public void Refresh()
         {
             if (_inventory == null) return;
+            if (goldText != null)
+            {
+                var wallet = _inventory.GetComponent<Economy.PlayerWallet>();
+                goldText.text = "Gold: " + (wallet != null ? wallet.Gold : 0);
+            }
             _viewToIndex.Clear();
             if (Filter == 0)
             {

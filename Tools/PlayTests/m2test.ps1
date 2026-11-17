@@ -93,10 +93,12 @@ Check 'G9 Rueckfrage' (Eval 't2_g9_confirm.cs') 'Rueckfrage offen=True Auswahl=N
 Press 't2_pad_south.cs'
 Wait 1500
 WaitReady
-Check 'G9 geloescht und frei' (Eval 't2_g9_state.cs') 'Datei vorhanden=False Menue offen=False timeScale=1 MoveAktiv=True'
-Check 'G9 Startwerte' (Eval 't2_summary.cs') '^Lv1 XP0 Attr\[1,1,1,1,1\] frei0 HP50/50 \| Inv \| Ausr \| Truhe offen=False$'
+Check 'G9 geloescht und frei' (Eval 't2_g9_state.cs') 'Datei vorhanden=False Menue offen=False timeScale=1 MoveAktiv=True Szene=Base$'
+# Meilenstein 6: Neustart nach dem Loeschen immer in der Basis (dort gibt es keine Truhe)
+Check 'G9 Startwerte' (Eval 't2_summary.cs') '^Lv1 XP0 Attr\[1,1,1,1,1\] frei0 HP50/50 \| Inv \| Ausr \| Truhe offen=keine$'
 
 'G10) Bilder'
+StartPlay -KeepSave   # Meilenstein 6: zurueck in den Kampfraum (Truhe)
 '  ' + (Eval 't2_setup.cs')
 [void](Eval 't2_chestshot.cs'); Wait 500
 Shot 'm2_truhe'

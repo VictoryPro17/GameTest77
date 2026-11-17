@@ -24,6 +24,10 @@ namespace Reborn.UI
         public Image[] spellIcons = new Image[Magic.SpellBook.SlotCount];
         public Image[] spellCooldowns = new Image[Magic.SpellBook.SlotCount];
         public Text[] spellLevels = new Text[Magic.SpellBook.SlotCount];
+        /// <summary>Gold (Meilenstein 6)</summary>
+        public Text goldText;
+
+        Economy.PlayerWallet _wallet;
 
         Magic.SpellBook _book;
         Magic.PlayerMana _mana;
@@ -53,11 +57,16 @@ namespace Reborn.UI
             if (_progression != null) _progression.OnChanged += Refresh;
             if (_stats != null) _stats.OnChanged += Refresh;
             if (_inventory != null) _inventory.OnChanged += Refresh;
+            _wallet = player.GetComponent<Economy.PlayerWallet>();
+            if (_wallet != null) _wallet.OnChanged += HandleGold;
             Refresh();
         }
 
+        void HandleGold(int gold) => Refresh();
+
         void OnDestroy()
         {
+            if (_wallet != null) _wallet.OnChanged -= HandleGold;
             if (_health != null) _health.OnChanged -= Refresh;
             if (_progression != null) _progression.OnChanged -= Refresh;
             if (_stats != null) _stats.OnChanged -= Refresh;
@@ -114,6 +123,7 @@ namespace Reborn.UI
                 if (xpFill != null) xpFill.fillAmount = (float)_progression.XP / _progression.XPToNextLevel;
                 if (levelText != null) levelText.text = $"Lv {_progression.Level}";
             }
+            if (goldText != null) goldText.text = _wallet != null ? _wallet.Gold.ToString() : "0";
             if (pointsHint != null) pointsHint.text = _stats != null && _stats.UnspentPoints > 0 ? $"+{_stats.UnspentPoints} Punkte" : "";
             if (_potions != null)
             {

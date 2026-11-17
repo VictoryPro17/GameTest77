@@ -378,12 +378,79 @@ Truhe 2 steht bei (8, 3) in Room_Test.
 - Die Tests prüfen Bilder nur über Namen und Größe; ob etwas abgeschnitten ist, zeigt die Randprüfung beim Rendern (bisher nur für die Spielfigur).
 - Ein kompletter Render aller Grafiken dauert rund 30 Minuten (davon die Ausrüstung über 20).
 
+## Meilenstein 6: Basis
+
+### Entscheidungen
+
+| # | Thema | Entscheidung |
+|---|---|---|
+| B1 | Währung | Gold, Start 0. Schleime lassen 2–4 Gold fallen (aufsammeln wie Beute), Verkaufen bringt Gold. Anzeige im HUD und im Menü |
+| B2 | Preise | Kaufpreis `buyValue` = 4 × Verkaufswert. Der Händler verkauft Tränke und das Eisen-Set und kauft alles, was nicht getragen wird |
+| B3 | Verbessern | Stufe +1 bis +5 je Gegenstandsart (alle Stücke einer Art gleich). Waffe: Angriff +1 pro Stufe, Rüstung und Schild: Verteidigung +1 pro Stufe. Kosten: Verkaufswert × Stufe × 3 Gold, ab Stufe 3 zusätzlich Stufe × 2 Schleimgel. Klappt immer. Schmuck wird nicht verbessert |
+| B4 | Aufbau | Eigene Szene `Base.unity` als Startszene (Build-Index 0); `Room_Test` bleibt der Kampfraum |
+| B5 | Portal | Hineinlaufen → speichern → 0,4 s abdunkeln → andere Szene. Das Rückkehr-Portal ist immer offen, Gegner erscheinen bei jedem Betreten neu, Truhen bleiben offen |
+| B6 | Händler- und Schmiede-Fenster | Fenster im Menü-Stil; Händler mit den Reitern „Kaufen“ und „Verkaufen“, Schmied mit Liste, Stufe, Kosten und dem Knopf „Verbessern“ |
+| B7 | Steuerung | Neue Aktion „Sprechen“ (`Interact`): E, Enter, Steuerkreuz unten. Auf dem Handy erscheint der Knopf „Sprechen“ nur nahe am NPC. In der Basis sind Angriff und Zauber aus |
+| B8 | Tod | Text „Du wurdest besiegt“, danach zurück in die Basis mit vollem Leben und Mana; −10 % Gold, Gegenstände und Erfahrung bleiben |
+| B9 | Schmied | Eigener NPC am Amboss |
+
+### Werte
+
+| Ware | Kaufpreis | Verkaufswert |
+|---|---|---|
+| Kleiner Heiltrank / Heiltrank | 20 / 60 | 5 / 15 |
+| Kleiner Manatrank / Manatrank | 24 / 72 | 6 / 18 |
+| Eisenschwert | 160 | 40 |
+| Eisenbrustplatte / Eisenbeinschienen | 240 / 160 | 60 / 40 |
+| Eisenstiefel / Eisenhandschuhe | 120 / 120 | 30 / 30 |
+
+- Gold: Schleim 2–4 Gold (eigenes Münz-Bild, wird beim Berühren eingesammelt). Tod: −10 % Gold, abgerundet.
+- Verbessern, Beispiel Holzschwert (Verkaufswert 10): +1 = 30 Gold, +2 = 60, +3 = 90 und 6 Schleimgel, +4 = 120 und 8, +5 = 150 und 10.
+- Basis (16 × 12 Kacheln): Start (0 / −2), Händler (−1,4 / −2,75), Schmied (3,3 / −3,0), Portal (4,5 / 2,2), Rückkehr am Portal (4,6 / 0,9). Im Kampfraum: Rückkehr-Portal (−5,8 / −4,4), Ankunft (−4,6 / −3,1).
+- Ansprechen ab 1,5 Einheiten Abstand.
+
+### Steuerung (neu)
+
+| Aktion | Tastatur | Controller | Handy |
+|---|---|---|---|
+| Sprechen (Händler, Schmied) | E, Enter | Steuerkreuz unten | Knopf „Sprechen“ (nur nahe am NPC) |
+| Fenster schließen | Tab, Esc, I | Start | Knopf „X“ |
+
+### Speichern
+
+Version 3 speichert zusätzlich Gold, die Stufen beim Schmied und die Szene. Gespeichert wird zusätzlich beim Kaufen, Verkaufen, Verbessern, beim Schließen des Handelsfensters und vor jedem Szenenwechsel. Spielstände der Version 2 laden weiter (Gold 0, keine Stufen). Das Spiel startet immer in der Basis; „Spielstand löschen“ startet ebenfalls dort neu.
+
+### Abweichungen vom Plan
+
+- „Sprechen“ liegt beim Controller auf dem Steuerkreuz unten statt auf der Süd-Taste, weil die Süd-Taste schon Ausweichen ist.
+- Haus, Portal, Stand, Amboss, Fass, Kiste und Gold-Icon kommen aus einer eigenen Datei `Reborn_Base.blend` (`build_base.py`). Händler und Schmied sind die umgefärbte Spielfigur mit Zubehör (`build_npcs.py`); `Reborn_Characters.blend` wird dabei nicht gespeichert.
+- Die Mauer der Basis hat feste Kästen statt der Kachel-Kollision: Unity erzeugt für die 2. Szene im selben Builder-Lauf keine Kachel-Geometrie.
+- Zusätzliche Dateien: `SceneTravel.cs` (Abdunkeln und Szenenwechsel), `SceneRules.cs` (friedliche Szene), `TradeWindow.cs` (gemeinsames Fenster für Händler und Schmied), `SpawnPoint.LastArrival` für die Tests.
+
+### Befunde
+
+- **Basis ohne Boden:** Der Builder hat die Basis zweimal ohne Boden- und Mauerkacheln gespeichert (schwarzer Boden). Ursache: Eine neue Szene gibt nicht benutzte Assets frei, die Kacheln aus dem ersten Szenenbau waren danach ungültig, und `SetTile` setzte still nichts. Die Tests merkten es nicht, weil die Mauer aus festen Kästen besteht. Behoben: `NewWorldScene` lädt die Kacheln nach dem Szenenwechsel frisch und bricht ab, wenn Boden oder Mauer leer sind. Der Basis-Test prüft die Kacheln jetzt mit (B1).
+- **Fehler aus der Code-Durchsicht:** „Spielstand löschen“ startete im Kampfraum neu statt in der Basis; der Schmied zeigte nur 12 von 14 Ausrüstungsarten (jetzt 18 Plätze). Beides behoben.
+- **Testfehler:** Der Basis-Test erwartete, dass das erste Verbessern am Gold scheitert, der Spieler hatte aber genug. Jetzt setzt der Test vorher 20 Gold. Im Kampfraum stoßen die Schleime den Spieler sofort weg; der Test prüft dort deshalb den benutzten Ankunftspunkt statt der Position.
+
+### Tests
+
+`run_all.ps1` (look, magic, wall, m2, play, iframe, kb, hp0, base): 125 Prüfungen, 0 Fehler (17.11.2026). Neu ist der Basis-Test B1–B14: Start, friedliche Basis, Mauer und Kacheln, Händler (Kaufen, Verkaufen, zu wenig Gold, Inventar voll), E und Esc, Schmied mit Steuerkreuz und allen Stufen bis +3, Speichern Version 3, beide Portale, Tod mit −10 % Gold, alter Spielstand (Version 2).
+
+### Bekannte Grenzen
+
+- Das Haus der Basis hat verkehrt herum geneigte Dachflächen (sieht flach aus). Die Basis wird in Meilenstein 7a durch die Stadt ersetzt.
+- Touch auf einem echten Handy ist noch nicht getestet.
+- Der Händler hat unbegrenzte Waren und kauft zum festen Preis.
+
 ## Wichtige Dateien
 
 - `Art/Blender/Reborn_Characters.blend` – Spieler und Ausrüstung (Szene „Characters“)
 - `Art/Blender/Reborn_Enemies.blend`, `Reborn_Boss.blend`, `Reborn_World.blend`, `Reborn_Spells.blend` – Gegner, Boss, Umgebung, Zauber
 - `Art/Blender/Scripts/build_all.ps1` – rendert alle Blender-Grafiken
-- `Assets/_Project/Scenes/Room_Test.unity` – Test-Raum
+- `Assets/_Project/Scenes/Base.unity` – Basis (Startszene), `Assets/_Project/Scenes/Room_Test.unity` – Kampfraum
+- `Art/Blender/Reborn_Base.blend`, `Art/Blender/Scripts/build_base.py`, `build_npcs.py` – Grafik der Basis und der NPCs
+- `Assets/_Project/Scripts/Economy/` – Gold, Händler-Waren, Schmiede-Stufen
 - `Assets/_Project/Scripts/` – Spiel-Code (Player, Combat, Enemies, Loot, Progression, UI, Animation, Core, World)
 - `Assets/_Project/Scripts/Editor/RebornBuilder.cs` – baut alles automatisch
 - `Art/Blender/Scripts/build_props.py`, `build_tiles.py` – Gegenstände und Kacheln (Szenen „Props“, „Tiles“)

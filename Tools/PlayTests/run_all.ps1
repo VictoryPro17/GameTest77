@@ -4,11 +4,11 @@
 #   powershell -File Tools\PlayTests\run_all.ps1 -Tests wall,kb  nur einzelne Tests
 #
 # Tests: wall (Mauern), m2 (Inventar, Ausruestung, Menue, Speichern), play (Laufen, Kampf, Beute),
-#        iframe (Schutzzeit nach Treffer), kb (Tastatur)
+#        iframe (Schutzzeit nach Treffer), kb (Tastatur), base (Basis: Haendler, Schmied, Portal, Tod)
 #
 # Ablauf: Spielstand sichern -> Tests -> aufraeumen -> Spielstand zurueckspielen und Pruefsumme vergleichen.
 # Das Zurueckspielen passiert auch dann, wenn ein Test abbricht.
-param([string[]]$Tests = @('look', 'magic', 'wall', 'm2', 'play', 'iframe', 'kb', 'hp0'))
+param([string[]]$Tests = @('look', 'magic', 'wall', 'm2', 'play', 'iframe', 'kb', 'hp0', 'base'))
 # "-Tests a,b" kommt bei "powershell -File" als ein Text an: hier wieder aufteilen
 $Tests = @($Tests | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 
@@ -18,7 +18,7 @@ $global:RebornFails = 0
 $global:RebornShotSize = $null
 $global:RebornTestSession = $false
 $log = Join-Path $TmpDir 'last_run.log'
-$scripts = @{ wall = 'walltest.ps1'; m2 = 'm2test.ps1'; play = 'playtest.ps1'; iframe = 'iframetest.ps1'; kb = 'kbtest.ps1'; hp0 = 'hp0test.ps1'; magic = 'magictest.ps1'; look = 'looktest.ps1'; diag = 'inputdiag.ps1' }
+$scripts = @{ wall = 'walltest.ps1'; m2 = 'm2test.ps1'; play = 'playtest.ps1'; iframe = 'iframetest.ps1'; kb = 'kbtest.ps1'; hp0 = 'hp0test.ps1'; magic = 'magictest.ps1'; look = 'looktest.ps1'; base = 'basetest.ps1'; diag = 'inputdiag.ps1' }
 
 & {
     "=== RE:BORN Play-Tests: $($Tests -join ', ') ==="

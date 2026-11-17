@@ -17,5 +17,9 @@ namespace Reborn.Loot
         }
 
         public Entry[] entries = Array.Empty<Entry>();
+
+        /// <summary>Gold-Beute (Meilenstein 6), jedes Mal zwischen goldMin und goldMax; 0 = kein Gold</summary>
+        public int goldMin;
+        public int goldMax;
     }
 }

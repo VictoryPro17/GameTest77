@@ -5,5 +5,5 @@ for (int i = 0; i < Reborn.Inventory.PlayerInventory.Size; i++) { var sl = inv.s
 sb.Append("| Ausr ");
 for (int i = 0; i < Reborn.Inventory.PlayerEquipment.SlotCount; i++) { var it = eq.Get(i); if (it != null) sb.Append(i + ":" + it.id + " "); }
 var chest = chestById("room_test_truhe_1");
-sb.Append("| Truhe offen=" + chest.IsOpen);
+sb.Append("| Truhe offen=" + (chest != null ? chest.IsOpen.ToString() : "keine"));   // Basis (Meilenstein 6): keine Truhe
 return sb.ToString();

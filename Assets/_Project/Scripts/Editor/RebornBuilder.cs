@@ -88,10 +88,13 @@ namespace Reborn.EditorTools
             var spiderAnim = CreateAnimationSet("Spider_Anim", SpritesSpider, CreatureClips);
             var bossAnim = CreateAnimationSet("Boss_Anim", SpritesBoss, BossClips);
             Shadow = CreateShadowSprite();
+            var goldSprite = ConfigureBaseSprites();
             var (items, database, lootTable) = CreateItems(icons, equipSets);
             var pickup = CreatePickupPrefab(icons["schleimgel"]);
+            var goldPickup = CreateGoldPickupPrefab(goldSprite);
+            var shop = CreateShop(items);
             var player = CreatePlayerPrefab(playerAnim, database, magic);
-            var slime = CreateSlimePrefab(slimeAnim, lootTable, pickup);
+            var slime = CreateSlimePrefab(slimeAnim, lootTable, pickup, goldPickup);
             var showcase = new[] { (wolfAnim, 0.75f), (bossAnim, 1.6f), (spiderAnim, 0.8f) };
             var chest = CreateChestPrefab(pickup, "Chest", "room_test_truhe_1", new[]
             {
@@ -107,14 +110,17 @@ namespace Reborn.EditorTools
                 new TreasureChest.Content { item = items["saphirring"], count = 1 },
                 new TreasureChest.Content { item = items["manatrank_klein"], count = 2 },
             });
-            var hud = BuildThemedHud(AssetDatabase.LoadAssetAtPath<Sprite>($"{SpritesPlayer}/idle_down_0.png"));
+            var hud = BuildThemedHud(AssetDatabase.LoadAssetAtPath<Sprite>($"{SpritesPlayer}/idle_down_0.png"), goldSprite);
             var mobile = CreateMobileControlsPrefab();
             var menu = CreateMenuPrefab(ui);
-            BuildScene(tiles, player, slime, hud, mobile, chest, chest2, menu, showcase);
+            var portal = CreatePortalPrefab();
+            var trade = CreateTradeWindowPrefab(ui, items["schleimgel"]);
+            BuildScene(tiles, player, slime, hud, mobile, chest, chest2, menu, showcase, portal, trade);
+            BuildBaseScene(tiles, player, hud, mobile, menu, trade, portal, shop);
             ConfigureBuild();
             AssetDatabase.SaveAssets();
-            return "Meilenstein 5 gebaut: " + ScenePath + " (" + database.items.Count + " Gegenstaende, " + magic.spells.Length + " Zauber, "
-                + equipSets.Count + " Ausruestungs-Ebenen)";
+            return "Meilenstein 6 gebaut: " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
+                + magic.spells.Length + " Zauber, " + equipSets.Count + " Ausruestungs-Ebenen, " + shop.items.Count + " Waren)";
         }
 
         // ------------------------------------------------------------ Projekt
@@ -225,6 +231,23 @@ namespace Reborn.EditorTools
                 wall = CreateTile("Tile_Wall", Png("Wall_Stone"))
             };
             return set;
+        }
+
+        /// <summary>Die Kacheln aus CreateTiles frisch von der Platte laden (nach einem Szenenwechsel).</summary>
+        static TileSet ReloadTiles()
+        {
+            Tile Load(string name)
+            {
+                var tile = AssetDatabase.LoadAssetAtPath<Tile>($"{SpritesTiles}/{name}.asset");
+                if (tile == null || tile.sprite == null) throw new System.InvalidOperationException("Kachel fehlt: " + name);
+                return tile;
+            }
+            return new TileSet
+            {
+                grass = Enumerable.Range(0, 4).Select(i => Load(i == 0 ? "Tile_Ground" : "Tile_Ground_" + i)).ToArray(),
+                path = Load("Tile_Path"),
+                wall = Load("Tile_Wall")
+            };
         }
 
         /// <summary>Weicher ovaler Schatten (schwarz, Rand weich), 64 px bei 128 Pixel pro Einheit = 0,5 Einheiten breit.</summary>
@@ -465,6 +488,7 @@ namespace Reborn.EditorTools
                 item.healAmount = heal;
                 item.manaAmount = mana;
                 item.sellValue = sell;
+                item.buyValue = sell * 4;   // Meilenstein 6 (B2): Kaufpreis beim Haendler
                 item.maxStack = stack;
                 item.visual = equipSets.TryGetValue(id, out var set) ? set : null;
                 EditorUtility.SetDirty(item);
@@ -538,6 +562,8 @@ namespace Reborn.EditorTools
                 new LootTable.Entry { item = items["lederhandschuhe"], dropChance = 0.06f, min = 1, max = 1 },
                 new LootTable.Entry { item = items["manatrank_klein"], dropChance = 0.2f, min = 1, max = 1 },
             };
+            table.goldMin = 2;   // Meilenstein 6 (B1): Schleim gibt 2-4 Gold
+            table.goldMax = 4;
             EditorUtility.SetDirty(table);
             return (items, database, table);
         }
@@ -598,6 +624,9 @@ namespace Reborn.EditorTools
             go.AddComponent<PlayerInventory>();
             go.AddComponent<PlayerEquipment>();
             go.AddComponent<PlayerStats>();
+            go.AddComponent<Economy.PlayerWallet>();     // Meilenstein 6: Gold
+            go.AddComponent<Economy.UpgradeBook>();      // Meilenstein 6: Schmiede-Stufen
+            go.AddComponent<DeathHandler>();             // Meilenstein 6: Tod -> zurueck in die Basis
             var potions = go.AddComponent<PotionUser>();
             potions.actions = input;
             var save = go.AddComponent<SaveSystem>();
@@ -657,7 +686,7 @@ namespace Reborn.EditorTools
             return SavePrefab(go, prefabName);
         }
 
-        static GameObject CreateSlimePrefab(SpriteAnimationSet anim, LootTable table, GameObject pickup)
+        static GameObject CreateSlimePrefab(SpriteAnimationSet anim, LootTable table, GameObject pickup, GameObject goldPickup)
         {
             var go = new GameObject("Slime") { layer = LayerEnemy };
             TopDownBody(go, 0.6f);
@@ -670,6 +699,7 @@ namespace Reborn.EditorTools
             var dropper = go.AddComponent<LootDropper>();
             dropper.table = table;
             dropper.pickupPrefab = pickup.GetComponent<Pickup>();
+            dropper.goldPickupPrefab = goldPickup.GetComponent<Pickup>();
             Visual(go.transform, anim);
             AddShadow(go.transform, 0.6f);
             return SavePrefab(go, "Slime");
@@ -768,7 +798,7 @@ namespace Reborn.EditorTools
             onScreenStick.movementRange = 90f;
             onScreenStick.controlPath = "<Gamepad>/leftStick";
 
-            void Button(string name, string label, Vector2 pos, float size, Color color, string path, Vector2? anchor = null)
+            GameObject Button(string name, string label, Vector2 pos, float size, Color color, string path, Vector2? anchor = null)
             {
                 var rt = Rect(name, root, anchor ?? new Vector2(1, 0), pos, new Vector2(size, size));
                 var img = rt.gameObject.AddComponent<Image>();
@@ -777,17 +807,21 @@ namespace Reborn.EditorTools
                 var btn = rt.gameObject.AddComponent<OnScreenButton>();
                 btn.controlPath = path;
                 Label("Label", rt, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(size, size), 28, TextAnchor.MiddleCenter).text = label;
+                return rt.gameObject;
             }
-            Button("AttackButton", "Angriff", new Vector2(-110, 110), 200, new Color(0.9f, 0.3f, 0.3f, 0.6f), "<Gamepad>/buttonWest");
+            var attack = Button("AttackButton", "Angriff", new Vector2(-110, 110), 200, new Color(0.9f, 0.3f, 0.3f, 0.6f), "<Gamepad>/buttonWest");
             Button("DodgeButton", "Ausw.", new Vector2(-330, 70), 150, new Color(0.3f, 0.6f, 0.9f, 0.6f), "<Gamepad>/buttonSouth");
             Button("PotionButton", "Trank", new Vector2(-145, 340), 130, new Color(0.3f, 0.8f, 0.4f, 0.6f), "<Gamepad>/buttonNorth");
             Button("MenuButton", "Menü", new Vector2(-30, -30), 120, new Color(0.85f, 0.7f, 0.3f, 0.6f), "<Gamepad>/start", new Vector2(1, 1));
             var spellColor = new Color(0.45f, 0.5f, 1f, 0.6f);
-            Button("Spell1Button", "Z1", new Vector2(-330, 240), 100, spellColor, "<Gamepad>/rightShoulder");
-            Button("Spell2Button", "Z2", new Vector2(-440, 240), 100, spellColor, "<Gamepad>/rightTrigger");
-            Button("Spell3Button", "Z3", new Vector2(-330, 350), 100, spellColor, "<Gamepad>/leftShoulder");
-            Button("Spell4Button", "Z4", new Vector2(-440, 350), 100, spellColor, "<Gamepad>/leftTrigger");
-            Button("MeditateButton", "Medit.", new Vector2(-145, 490), 100, new Color(0.3f, 0.75f, 0.9f, 0.6f), "<Gamepad>/buttonEast");
+            var s1 = Button("Spell1Button", "Z1", new Vector2(-330, 240), 100, spellColor, "<Gamepad>/rightShoulder");
+            var s2 = Button("Spell2Button", "Z2", new Vector2(-440, 240), 100, spellColor, "<Gamepad>/rightTrigger");
+            var s3 = Button("Spell3Button", "Z3", new Vector2(-330, 350), 100, spellColor, "<Gamepad>/leftShoulder");
+            var s4 = Button("Spell4Button", "Z4", new Vector2(-440, 350), 100, spellColor, "<Gamepad>/leftTrigger");
+            var med = Button("MeditateButton", "Medit.", new Vector2(-145, 490), 100, new Color(0.3f, 0.75f, 0.9f, 0.6f), "<Gamepad>/buttonEast");
+            // Meilenstein 6: "Sprechen" (nur nahe am NPC sichtbar); Kampfknoepfe in der Basis aus
+            toggle.talkButton = Button("TalkButton", "Spre-\nchen", new Vector2(-110, 110), 200, new Color(0.95f, 0.8f, 0.35f, 0.7f), "<Gamepad>/dpad/down");
+            toggle.combatButtons = new[] { attack, s1, s2, s3, s4, med };
             return SavePrefab(canvas.gameObject, "MobileControls");
         }
 
@@ -927,6 +961,9 @@ namespace Reborn.EditorTools
             }
             inv.messageText = MenuText("Message", invPage, new Vector2(-20, -200), new Vector2(650, 50), 26, TextAnchor.MiddleCenter);
             inv.messageText.color = new Color(1f, 0.85f, 0.4f);
+            inv.goldText = MenuText("Gold", invPage, new Vector2(-20, -260), new Vector2(650, 50), 30, TextAnchor.MiddleCenter, "Gold: 0");
+            inv.goldText.color = new Color(1f, 0.82f, 0.3f);
+            if (T != null && T.headingFont != null) inv.goldText.font = T.headingFont;
             MenuText("Hint", invPage, new Vector2(-20, -420), new Vector2(1400, 40), 22, TextAnchor.MiddleCenter,
                 "<color=#BBBBBB>Enter / Süd-Taste: Anlegen · Benutzen · Ablegen      Tab / Esc / Start: Menü schließen</color>");
 
@@ -984,9 +1021,54 @@ namespace Reborn.EditorTools
 
         // ------------------------------------------------------------ Szene
         static void BuildScene(TileSet tiles, GameObject player, GameObject slime, GameObject hud, GameObject mobile,
-            GameObject chest, GameObject chest2, GameObject menu, (SpriteAnimationSet set, float shadow)[] showcase)
+            GameObject chest, GameObject chest2, GameObject menu, (SpriteAnimationSet set, float shadow)[] showcase,
+            GameObject portal, GameObject trade)
         {
+            var (scene, camGo) = NewWorldScene(tiles, 20, 12, -2);
+
+            var playerInstance = (GameObject)PrefabUtility.InstantiatePrefab(player);
+            playerInstance.transform.position = Vector3.zero;
+            camGo.GetComponent<CameraFollow>().target = playerInstance.transform;
+
+            Vector2[] slimePositions = { new(-6, 3), new(6, 3), new(-6, -3), new(6, -3), new(4, -4) };
+            var enemies = new GameObject("Enemies").transform;
+            foreach (var p in slimePositions)
+            {
+                var s = (GameObject)PrefabUtility.InstantiatePrefab(slime, enemies);
+                s.transform.position = p;
+            }
+
+            var chestInstance = (GameObject)PrefabUtility.InstantiatePrefab(chest);
+            chestInstance.transform.position = new Vector3(-8f, 0f, 0f);
+            var chest2Instance = (GameObject)PrefabUtility.InstantiatePrefab(chest2);
+            chest2Instance.transform.position = new Vector3(8f, 3f, 0f);
+
+            BuildDecoration(showcase);
+
+            // Meilenstein 6: Rueckkehr-Portal unten links (abseits der Testwege) und Ankunftspunkt darueber
+            new GameObject("SceneRules").AddComponent<SceneRules>().peaceful = false;
+            var back = (GameObject)PrefabUtility.InstantiatePrefab(portal);
+            back.name = "Portal_Basis";
+            back.transform.position = new Vector3(-5.8f, -4.4f, 0f);
+            var backPortal = back.GetComponent<Portal>();
+            backPortal.targetScene = SceneTravel.BaseScene;
+            backPortal.targetSpawn = "Portal";
+            PrefabUtility.RecordPrefabInstancePropertyModifications(backPortal);
+            AddSpawn("Ankunft", new Vector2(-4.6f, -3.1f));
+
+            AddCommonUi(hud, mobile, menu, trade);
+            EditorSceneManager.SaveScene(scene, ScenePath);
+        }
+
+        /// <summary>Neue Szene mit Kamera, Licht, Boden und Mauerrand (w x h Kacheln, Weg in Kachelzeile pathRow).</summary>
+        static (UnityEngine.SceneManagement.Scene scene, GameObject camera) NewWorldScene(TileSet tiles, int w, int h, int pathRow,
+            bool requireTilemapCollider = true)
+        {
+            // Kacheln nach dem Szenenwechsel frisch laden: NewScene (Single) gibt nicht benutzte Assets frei. Beim 2. Szenenbau
+            // waren die Tile-Referenzen aus CreateTiles dadurch ungueltig, und SetTile setzte still nichts (Meilenstein 6).
+            // Kein SaveAssets davor: gespeicherte (nicht mehr geaenderte) Assets gibt NewScene sonst ebenfalls frei.
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            tiles = ReloadTiles();
 
             var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
             var cam = camGo.AddComponent<Camera>();
@@ -1025,14 +1107,13 @@ namespace Reborn.EditorTools
             }
             var groundMap = NewMap("Ground", -10, false);
             var wallMap = NewMap("Walls", -5, true);
-            const int w = 20, h = 12;
             for (int x = -w / 2; x < w / 2; x++)
                 for (int y = -h / 2; y < h / 2; y++)
                 {
                     bool border = x == -w / 2 || x == w / 2 - 1 || y == -h / 2 || y == h / 2 - 1;
                     if (border) wallMap.SetTile(new Vector3Int(x, y, 0), tiles.wall);
-                    // Weg quer durch den Raum (Kachelzeile y = -2), sonst Gras-Varianten fest gemischt (immer gleiches Muster)
-                    else if (y == -2) groundMap.SetTile(new Vector3Int(x, y, 0), tiles.path);
+                    // Weg quer durch den Raum (Kachelzeile pathRow), sonst Gras-Varianten fest gemischt (immer gleiches Muster)
+                    else if (y == pathRow) groundMap.SetTile(new Vector3Int(x, y, 0), tiles.path);
                     else
                     {
                         uint hash = (uint)((x + 50) * 73856093) ^ (uint)((y + 50) * 19349663);
@@ -1041,49 +1122,69 @@ namespace Reborn.EditorTools
                 }
 
             // Mauer-Geometrie sofort erzeugen, sonst wird die Szene mit leerem Collider gespeichert
+            groundMap.CompressBounds();
+            if (groundMap.GetUsedTilesCount() == 0 || wallMap.GetUsedTilesCount() == 0)
+                throw new System.InvalidOperationException("Boden- oder Mauerkacheln fehlen in " + scene.name + ". Szene wird nicht gespeichert.");
             wallMap.CompressBounds();
             wallMap.GetComponent<TilemapCollider2D>().ProcessTilemapChanges();
             var wallComposite = wallMap.GetComponent<CompositeCollider2D>();
             wallComposite.GenerateGeometry();
+            // Meilenstein 6: Nach dem ersten SaveScene erzeugt Unity in derselben Editor-Sitzung fuer neue Szenen
+            // keine Tilemap-Geometrie mehr. Dann bekommt die Szene stattdessen 4 feste Boxen entlang des Mauerrands.
+            if (wallComposite.shapeCount == 0 && !requireTilemapCollider)
+            {
+                Object.DestroyImmediate(wallMap.GetComponent<TilemapCollider2D>());
+                Object.DestroyImmediate(wallComposite);
+                var body = wallMap.GetComponent<Rigidbody2D>();
+                if (body != null) Object.DestroyImmediate(body);
+                var bounds = new GameObject("WallBounds") { layer = LayerWalls };
+                bounds.transform.SetParent(wallMap.transform, false);
+                bounds.AddComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+                float left = -w / 2, right = w / 2, bottom = -h / 2, top = h / 2;
+                void Box(Vector2 center, Vector2 size)
+                {
+                    var box = bounds.AddComponent<BoxCollider2D>();
+                    box.offset = center;
+                    box.size = size;
+                }
+                Box(new Vector2(left + 0.5f, 0f), new Vector2(1f, h));
+                Box(new Vector2(right - 0.5f, 0f), new Vector2(1f, h));
+                Box(new Vector2(0f, bottom + 0.5f), new Vector2(w, 1f));
+                Box(new Vector2(0f, top - 0.5f), new Vector2(w, 1f));
+                return (scene, camGo);
+            }
             if (wallComposite.shapeCount == 0)
                 throw new System.InvalidOperationException("Mauer-Collider ist leer. Szene wird nicht gespeichert.");
             wallMap.gameObject.AddComponent<WallColliderGuard>();
+            return (scene, camGo);
+        }
 
-            var playerInstance = (GameObject)PrefabUtility.InstantiatePrefab(player);
-            playerInstance.transform.position = Vector3.zero;
-            camGo.GetComponent<CameraFollow>().target = playerInstance.transform;
-
-            Vector2[] slimePositions = { new(-6, 3), new(6, 3), new(-6, -3), new(6, -3), new(4, -4) };
-            var enemies = new GameObject("Enemies").transform;
-            foreach (var p in slimePositions)
-            {
-                var s = (GameObject)PrefabUtility.InstantiatePrefab(slime, enemies);
-                s.transform.position = p;
-            }
-
-            var chestInstance = (GameObject)PrefabUtility.InstantiatePrefab(chest);
-            chestInstance.transform.position = new Vector3(-8f, 0f, 0f);
-            var chest2Instance = (GameObject)PrefabUtility.InstantiatePrefab(chest2);
-            chest2Instance.transform.position = new Vector3(8f, 3f, 0f);
-
-            BuildDecoration(showcase);
-
+        /// <summary>HUD, Handy-Steuerung, Menue, Handelsfenster (optional) und EventSystem in die offene Szene.</summary>
+        static void AddCommonUi(GameObject hud, GameObject mobile, GameObject menu, GameObject trade)
+        {
             PrefabUtility.InstantiatePrefab(hud);
             PrefabUtility.InstantiatePrefab(mobile);
             PrefabUtility.InstantiatePrefab(menu);
+            if (trade != null) PrefabUtility.InstantiatePrefab(trade);
 
             var es = new GameObject("EventSystem");
             es.AddComponent<EventSystem>();
             var module = es.AddComponent<InputSystemUIInputModule>();
             module.AssignDefaultActions();
             module.deselectOnBackgroundClick = false;
+        }
 
-            EditorSceneManager.SaveScene(scene, ScenePath);
+        static void AddSpawn(string id, Vector2 position)
+        {
+            var go = new GameObject("Spawn_" + id);
+            go.transform.position = position;
+            go.AddComponent<SpawnPoint>().id = id;
         }
 
         static void ConfigureBuild()
         {
-            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
+            // Meilenstein 6: Spielstart in der Basis, Kampfraum als zweite Szene
+            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(BaseScenePath, true), new EditorBuildSettingsScene(ScenePath, true) };
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;

@@ -258,6 +258,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Reborn.Loot.LootDropper
   table: {fileID: 11400000, guid: b3070479ad85695419f9cab9e5936923, type: 2}
   pickupPrefab: {fileID: 5242966620883833140, guid: 4234c4ddda0cbb4498c0010a26afd950, type: 3}
+  goldPickupPrefab: {fileID: 3128560095238232595, guid: 56378e51a6277dc4da17981f9ecc3e9f, type: 3}
   scatterRadius: 0.5
 --- !u!1 &9196984211709048449
 GameObject:

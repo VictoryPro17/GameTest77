@@ -70,6 +70,8 @@ namespace Reborn.UI
 
         void Update()
         {
+            // Haendler-/Schmiede-Fenster offen oder gerade mit derselben Taste geschlossen: Menue nicht oeffnen
+            if (TradeWindow.IsOpen || TradeWindow.ClosedFrame == Time.frameCount) return;
             if (_menu.WasPressedThisFrame()) Toggle();
         }
 

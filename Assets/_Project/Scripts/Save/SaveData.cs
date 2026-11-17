@@ -5,13 +5,14 @@ namespace Reborn.Save
 {
     /// <summary>
     /// Inhalt der Spielstand-Datei (JSON).
-    /// Version 2 (Meilenstein 3): Zauber-Stufen und Mana. Aeltere Dateien laden weiter;
+    /// Version 2 (Meilenstein 3): Zauber-Stufen und Mana. Version 3 (Meilenstein 6): Gold, Schmiede-Stufen, Szene.
+    /// Aeltere Dateien laden weiter;
     /// fehlende Felder behalten ihre Startwerte.
     /// </summary>
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
 
         public int version = CurrentVersion;
         public int level = 1;
@@ -29,6 +30,19 @@ namespace Reborn.Save
         /// <summary>-1 = voll</summary>
         public float currentMana = -1f;
         public List<SpellSave> spells = new List<SpellSave>();
+
+        // ---- ab Version 3 (Meilenstein 6: Basis)
+        public int gold;
+        public List<UpgradeSave> upgrades = new List<UpgradeSave>();
+        /// <summary>Szene beim Speichern (nur Info; das Spiel startet immer in der Basis)</summary>
+        public string lastScene = "";
+
+        [Serializable]
+        public class UpgradeSave
+        {
+            public string id;
+            public int level;
+        }
 
         [Serializable]
         public class SlotData

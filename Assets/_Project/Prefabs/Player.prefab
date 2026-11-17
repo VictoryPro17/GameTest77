@@ -2500,6 +2500,9 @@ GameObject:
   - component: {fileID: 287365394593654940}
   - component: {fileID: 4698138938897190451}
   - component: {fileID: 2360383358188620112}
+  - component: {fileID: 7797383863851124783}
+  - component: {fileID: 4046714092043187451}
+  - component: {fileID: 8773094992820224141}
   - component: {fileID: 6222677361809108153}
   - component: {fileID: 5238043546220141973}
   - component: {fileID: 644921633537114008}
@@ -2761,6 +2764,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Reborn.Progression.PlayerStats
   pointsPerLevel: 3
   baseAttributes: 0100000001000000010000000100000001000000i
+--- !u!114 &7797383863851124783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396621224206838731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46ed06c79d356364f9c7647916a579be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Economy.PlayerWallet
+--- !u!114 &4046714092043187451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396621224206838731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29fb86c09cb89fd4c82d0a90e28f2a69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Economy.UpgradeBook
+--- !u!114 &8773094992820224141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396621224206838731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f690eeb4882fd84f9ee822324a17deb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Combat.DeathHandler
+  goldLoss: 0.1
+  messageTime: 2
 --- !u!114 &6222677361809108153
 MonoBehaviour:
   m_ObjectHideFlags: 0

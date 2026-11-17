@@ -47,9 +47,11 @@ function StopPlay {
 }
 
 # Startet den Play-Modus. Ohne -KeepSave wird vorher der Spielstand geloescht (frischer Start).
+# -Scene: welche Szene gespielt wird (Meilenstein 6: Standard Room_Test, der Basis-Test nimmt Base).
 # Sorgt dafuer, dass das Spiel auch ohne Fokus weiterlaeuft, und prueft, dass wirklich Frames laufen.
-function StartPlay([switch]$KeepSave) {
+function StartPlay([switch]$KeepSave, [string]$Scene = 'Room_Test') {
     StopPlay
+    [void](Eval 't_openscene.cs' @{ SCENE = $Scene })
     # Das Projekt laedt beim Play-Start den Code nicht neu: alte Test-Geraete nehmen dann keine Eingaben mehr an.
     # Deshalb vor jedem Start entfernen; die Setup-Schnipsel legen sie frisch an.
     [void](Eval 't2_cleanup.cs')

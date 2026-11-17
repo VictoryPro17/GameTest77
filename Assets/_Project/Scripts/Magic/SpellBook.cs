@@ -139,6 +139,7 @@ namespace Reborn.Magic
             var s = Get(slot);
             if (s == null || s.effectPrefab == null) { LastFail = "fehlt"; return false; }
             if (_health != null && _health.IsDead) { LastFail = "tot"; return false; }
+            if (World.SceneRules.Peaceful) { LastFail = "friedlich"; return false; }   // Basis (Meilenstein 6)
             if (!IsUnlocked(slot)) { LastFail = "gesperrt"; return false; }
             if (_cooldowns[slot] > 0f) { LastFail = "abklingzeit"; return false; }
             if (_controller != null && _controller.Busy) { LastFail = "beschaeftigt"; return false; }

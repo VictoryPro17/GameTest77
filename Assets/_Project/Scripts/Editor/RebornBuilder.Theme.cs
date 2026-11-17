@@ -188,7 +188,7 @@ namespace Reborn.EditorTools
         }
 
         /// <summary>HUD im neuen Stil: Portraet mit Level, drei Leisten, Aktionsleiste unten, Ausruf, Banner, Schadenszahlen.</summary>
-        static GameObject BuildThemedHud(Sprite portraitSprite)
+        static GameObject BuildThemedHud(Sprite portraitSprite, Sprite goldSprite)
         {
             var canvas = NewCanvas("HUD", 10, true);
             var hud = canvas.gameObject.AddComponent<HUD>();
@@ -219,6 +219,16 @@ namespace Reborn.EditorTools
             hud.pointsHint.font = T.headingFont;
             hud.pointsHint.color = T.gold;
             hud.pointsHint.text = "";
+
+            // ---- Gold unter dem Portraet (Meilenstein 6)
+            var goldIcon = Rect("GoldIcon", canvas.transform, new Vector2(0, 1), new Vector2(30, -182), new Vector2(40, 40)).gameObject.AddComponent<Image>();
+            goldIcon.sprite = goldSprite;
+            goldIcon.preserveAspect = true;
+            goldIcon.raycastTarget = false;
+            hud.goldText = Label("GoldText", canvas.transform, new Vector2(0, 1), new Vector2(76, -182), new Vector2(200, 40), 26, TextAnchor.MiddleLeft);
+            hud.goldText.font = T.headingFont;
+            hud.goldText.color = T.gold;
+            hud.goldText.text = "0";
 
             // ---- unten Mitte: Aktionsleiste (4 Zauber, Heiltrank Q, Manatrank R)
             var bar = Rect("ActionBar", canvas.transform, new Vector2(0.5f, 0f), new Vector2(0, 14), new Vector2(720, 124)).gameObject.AddComponent<Image>();

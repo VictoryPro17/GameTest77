@@ -49,7 +49,8 @@ namespace Reborn.UI
             if (iconImage != null) iconImage.sprite = item.icon;
             if (nameText != null)
             {
-                nameText.text = count > 1 ? $"{item.itemName}  x{count}" : item.itemName;
+                string name = DisplayName(item);
+                nameText.text = count > 1 ? $"{name}  x{count}" : name;
                 nameText.color = ItemData.RarityColor(item.rarity);
             }
             if (categoryText != null) categoryText.text = $"{item.CategoryLabel} · {ItemData.RarityLabel(item.rarity)}";
@@ -64,13 +65,40 @@ namespace Reborn.UI
 
         static string Signed(int v) => v >= 0 ? "+" + v : v.ToString();
 
+        static Economy.UpgradeBook _upgrades;
+
+        /// <summary>Schmiede-Stufen des Spielers (Meilenstein 6), null wenn keine</summary>
+        public static Economy.UpgradeBook Upgrades
+        {
+            get
+            {
+                if (_upgrades == null)
+                {
+                    var player = GameObject.FindGameObjectWithTag("Player");
+                    if (player != null) _upgrades = player.GetComponent<Economy.UpgradeBook>();
+                }
+                return _upgrades;
+            }
+        }
+
+        /// <summary>Name mit Schmiede-Stufe, z. B. "Holzschwert +2"</summary>
+        public static string DisplayName(ItemData item)
+        {
+            int level = Upgrades != null ? Upgrades.Level(item) : 0;
+            return level > 0 ? $"{item.itemName} +{level}" : item.itemName;
+        }
+
+        /// <summary>Werte mit Schmiede-Stufe</summary>
+        public static StatBlock StatsOf(ItemData item) =>
+            item == null ? new StatBlock() : Upgrades != null ? item.stats + Upgrades.Bonus(item) : item.stats;
+
         public static string BuildStats(ItemData item, ItemData compareTo, bool compare)
         {
             var sb = new StringBuilder();
             if (item.healAmount > 0) sb.AppendLine($"Heilt {item.healAmount} Leben");
             if (item.manaAmount > 0) sb.AppendLine($"Füllt {item.manaAmount} Mana auf");
-            var a = item.stats.ToArray();
-            var b = compareTo != null ? compareTo.stats.ToArray() : new int[a.Length];
+            var a = StatsOf(item).ToArray();
+            var b = compareTo != null ? StatsOf(compareTo).ToArray() : new int[a.Length];
             for (int i = 0; i < a.Length; i++)
             {
                 if (a[i] == 0 && b[i] == 0) continue;

@@ -33,10 +33,15 @@ namespace Reborn.Save
         Health _health;
         Magic.SpellBook _spells;
         Magic.PlayerMana _mana;
+        Economy.PlayerWallet _wallet;
+        Economy.UpgradeBook _upgrades;
+        readonly System.Collections.Generic.HashSet<string> _knownOpenChests = new System.Collections.Generic.HashSet<string>();
         bool _suppress;
 
         void Awake()
         {
+            _wallet = GetComponent<Economy.PlayerWallet>();
+            _upgrades = GetComponent<Economy.UpgradeBook>();
             _progression = GetComponent<PlayerProgression>();
             _stats = GetComponent<PlayerStats>();
             _inventory = GetComponent<PlayerInventory>();
@@ -103,8 +108,10 @@ namespace Reborn.Save
                     var item = _equipment.Get(i);
                     if (item != null) data.equipment.Add(new SaveData.EquipData { slot = i, id = item.id });
                 }
+            // Offene Truhen: aus der Szene plus die aus anderen Szenen (Meilenstein 6: Basis und Kampfraum)
             foreach (var chest in FindObjectsByType<TreasureChest>())
-                if (chest.IsOpen) data.openedChests.Add(chest.chestId);
+                if (chest.IsOpen) _knownOpenChests.Add(chest.chestId);
+            data.openedChests.AddRange(_knownOpenChests);
             if (_mana != null)
             {
                 data.manaLevel = _mana.Level;
@@ -117,6 +124,10 @@ namespace Reborn.Save
                     var spell = _spells.Get(i);
                     if (spell != null) data.spells.Add(new SaveData.SpellSave { id = spell.id, level = _spells.Level(i), xp = _spells.XP(i) });
                 }
+            if (_wallet != null) data.gold = _wallet.Gold;
+            if (_upgrades != null)
+                foreach (var kv in _upgrades.All) data.upgrades.Add(new SaveData.UpgradeSave { id = kv.Key, level = kv.Value });
+            data.lastScene = SceneManager.GetActiveScene().name;
 
             try
             {
@@ -160,6 +171,17 @@ namespace Reborn.Save
                     if (e != null) _equipment.SetEquipped(e.slot, database != null ? database.Get(e.id) : null);
             }
 
+            // Ab Version 3: Gold und Schmiede-Stufen (vor dem Neuberechnen der Werte)
+            if (_wallet != null) _wallet.SetGold(data.gold);
+            if (_upgrades != null)
+            {
+                var levels = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, int>>();
+                if (data.upgrades != null)
+                    foreach (var u in data.upgrades)
+                        if (u != null) levels.Add(new System.Collections.Generic.KeyValuePair<string, int>(u.id, u.level));
+                _upgrades.SetAll(levels);
+            }
+
             if (_stats != null) _stats.Recalculate(false);
             if (_health != null)
             {
@@ -169,8 +191,10 @@ namespace Reborn.Save
             if (_inventory != null) _inventory.NotifyChanged();
             if (_equipment != null) _equipment.NotifyChanged();
 
+            _knownOpenChests.Clear();
+            if (data.openedChests != null) _knownOpenChests.UnionWith(data.openedChests);
             foreach (var chest in FindObjectsByType<TreasureChest>())
-                if (data.openedChests.Contains(chest.chestId)) chest.SetOpenedSilently();
+                if (_knownOpenChests.Contains(chest.chestId)) chest.SetOpenedSilently();
 
             // Ab Version 2: Zauber und Mana (bei aelteren Dateien bleiben die Startwerte)
             if (_spells != null && data.spells != null)
@@ -185,13 +209,14 @@ namespace Reborn.Save
             return true;
         }
 
-        /// <summary>Loescht den Spielstand und startet die Szene mit Startwerten neu.</summary>
+        /// <summary>Loescht den Spielstand und startet mit Startwerten neu, immer in der Basis (Meilenstein 6).</summary>
         public void DeleteAndRestart()
         {
             _suppress = true;
             if (Exists) File.Delete(SavePath);
+            _knownOpenChests.Clear();
             Time.timeScale = 1f;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            SceneManager.LoadScene(SceneTravel.BaseScene);
         }
     }
 }

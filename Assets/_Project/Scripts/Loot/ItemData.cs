@@ -20,6 +20,8 @@ namespace Reborn.Loot
         /// <summary>Mana beim Benutzen (Manatraenke)</summary>
         public int manaAmount;
         public int sellValue;
+        /// <summary>Preis beim Haendler (Meilenstein 6, Standard 4 x Verkaufswert, vom Builder gesetzt)</summary>
+        public int buyValue;
         public int maxStack = 99;
         /// <summary>Bildebene an der Figur (nur sichtbare Ausruestung)</summary>
         public Animation.SpriteAnimationSet visual;

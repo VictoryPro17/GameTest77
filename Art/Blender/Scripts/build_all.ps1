@@ -1,6 +1,7 @@
 # RE:BORN - alle Blender-Grafiken neu rendern (Meilenstein 5)
 # Reihenfolge: Figur -> Ausruestung (braucht Reborn_Characters.blend der Figur) -> Gegner -> Boss
 #              -> Gegenstaende -> Bodenkacheln (braucht Reborn_World.blend der Gegenstaende) -> Zauber
+#              -> NPCs der Basis (Spielfigur umgefaerbt, speichert nicht) -> Basis-Gegenstaende
 # Aufruf:  powershell -File Art/Blender/Scripts/build_all.ps1 [-Blender <pfad>] [-Only player,boss,...]
 # Danach in Unity: Tools > RE:BORN > Build (bzw. RebornBuilder per CLI), damit Importeinstellungen stimmen.
 param(
@@ -20,7 +21,10 @@ $steps = @(
     @{ Name = "boss";      Script = "build_boss.py";      Blend = $null },
     @{ Name = "props";     Script = "build_props.py";     Blend = $null },
     @{ Name = "tiles";     Script = "build_tiles.py";     Blend = "Reborn_World.blend" },
-    @{ Name = "spells";    Script = "build_spells.py";    Blend = $null }
+    @{ Name = "spells";    Script = "build_spells.py";    Blend = $null },
+    # Meilenstein 6: Basis (NPCs brauchen die Spielfigur aus Reborn_Characters.blend)
+    @{ Name = "npcs";      Script = "build_npcs.py";      Blend = "Reborn_Characters.blend" },
+    @{ Name = "base";      Script = "build_base.py";      Blend = $null }
 )
 
 $failed = @()

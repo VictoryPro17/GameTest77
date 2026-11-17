@@ -5,4 +5,4 @@ if (pickups.Length == 0) return "keine Beute am Boden";
 var rb = p.GetComponent<UnityEngine.Rigidbody2D>();
 rb.position = (UnityEngine.Vector2)pickups[0].transform.position;
 p.transform.position = rb.position;
-return "zu Beute " + pickups[0].item.itemName + " (" + pickups.Length + " am Boden)";
+return "zu Beute " + (pickups[0].item != null ? pickups[0].item.itemName : pickups[0].gold + " Gold") + " (" + pickups.Length + " am Boden)";

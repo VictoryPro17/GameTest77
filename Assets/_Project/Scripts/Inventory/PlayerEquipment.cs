@@ -101,15 +101,27 @@ namespace Reborn.Inventory
 
         public void NotifyChanged() => OnChanged?.Invoke();
 
+        /// <summary>Summe aller angelegten Teile inklusive Schmiede-Stufen (Meilenstein 6)</summary>
         public StatBlock TotalStats
         {
             get
             {
+                if (_upgrades == null) _upgrades = GetComponent<Economy.UpgradeBook>();
                 var total = new StatBlock();
                 foreach (var item in equipped)
-                    if (item != null) total = total + item.stats;
+                    if (item != null) total = total + StatsOf(item);
                 return total;
             }
         }
+
+        /// <summary>Werte eines Teils mit seiner Schmiede-Stufe</summary>
+        public StatBlock StatsOf(ItemData item)
+        {
+            if (item == null) return new StatBlock();
+            if (_upgrades == null) _upgrades = GetComponent<Economy.UpgradeBook>();
+            return _upgrades != null ? item.stats + _upgrades.Bonus(item) : item.stats;
+        }
+
+        Economy.UpgradeBook _upgrades;
     }
 }

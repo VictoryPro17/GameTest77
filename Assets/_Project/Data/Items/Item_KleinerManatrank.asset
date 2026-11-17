@@ -31,5 +31,6 @@ MonoBehaviour:
   healAmount: 0
   manaAmount: 20
   sellValue: 6
+  buyValue: 24
   maxStack: 10
   visual: {fileID: 0}

@@ -20,6 +20,9 @@ namespace Reborn.Loot
             _spawnTime = Time.time;
         }
 
+        /// <summary>Gold statt eines Gegenstands (Meilenstein 6); landet direkt im Geldbeutel</summary>
+        public int gold;
+
         public void Setup(ItemData data, int amount)
         {
             item = data;
@@ -27,9 +30,24 @@ namespace Reborn.Loot
             if (_renderer != null && data != null && data.icon != null) _renderer.sprite = data.icon;
         }
 
+        public void SetupGold(int amount)
+        {
+            item = null;
+            gold = amount;
+        }
+
         void OnTriggerStay2D(Collider2D other)
         {
             if (Time.time - _spawnTime < pickupDelay) return;
+            if (gold > 0)
+            {
+                var wallet = other.GetComponentInParent<Economy.PlayerWallet>();
+                if (wallet == null) return;
+                wallet.Add(gold);
+                gold = 0;
+                Destroy(gameObject);
+                return;
+            }
             var inventory = other.GetComponentInParent<PlayerInventory>();
             if (inventory == null || item == null) return;
             int rest = inventory.Add(item, count);

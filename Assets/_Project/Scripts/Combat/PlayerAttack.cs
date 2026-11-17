@@ -48,6 +48,7 @@ namespace Reborn.Combat
         {
             _cooldownTimer -= Time.deltaTime;
             if (_health != null && _health.IsDead) return;
+            if (World.SceneRules.Peaceful) return;   // Basis (Meilenstein 6): kein Kampf
             if (_attack.WasPressedThisFrame() && _cooldownTimer <= 0f && !_controller.Busy)
             {
                 StartCoroutine(DoAttack());
