@@ -65,7 +65,7 @@ Check 'B9 Stufe 3: -90 Gold, -6 Schleimgel' (Eval 'b_smith.cs' @{ ACT = 'up:holz
 Shot 'm6_schmied'
 
 'B10) Speichern und Laden'
-Check 'B10 Datei: Version 3, Gold, Stufen' (Eval 'b_savefile.cs') '^Version=4 Gold=340 Stufen=holzschwert:3 Szene=Base '
+Check 'B10 Datei: Version 3, Gold, Stufen' (Eval 'b_savefile.cs') '^Version=5 Gold=340 Stufen=holzschwert:3 Szene=Base '
 Check 'B10 Laden stellt Gold und Stufe her' (Eval 'b_reload.cs') "^geladen=True Gold=340 Stufe=3 Angriff=$($a0 + 3)$"
 [void](Eval 'b_close.cs')
 
@@ -101,7 +101,7 @@ unity command console clear @U 2>$null | Out-Null  # nur Fehler aus diesem Ladev
 StartPlay -KeepSave -Scene 'Base'
 '  ' + (Eval 't2_setup.cs')
 Check 'B14 Version 2 laedt (Gold 0, keine Stufen)' (Eval 'b_summary.cs') '^Lv2 Gold=0 Stufen=0 Heiltraenke=3$'
-Check 'B14 Speichern in der Basis behaelt Truhen des Kampfraums' (Eval 'b_savefile.cs') '^Version=4 Gold=0 Stufen= Szene=Base Truhen=room_test_truhe_1$'
+Check 'B14 Speichern in der Basis behaelt Truhen des Kampfraums' (Eval 'b_savefile.cs') '^Version=5 Gold=0 Stufen= Szene=Base Truhen=room_test_truhe_1$'
 $err = unity command console get @U -- --tail 50 --level error 2>$null | Out-String
 CheckTrue 'B14 keine Fehler beim Laden' ($err -notmatch 'Spielstand konnte nicht|NullReference|Exception') 'Konsole ohne Ladefehler'
 

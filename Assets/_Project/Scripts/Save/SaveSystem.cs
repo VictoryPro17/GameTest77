@@ -37,6 +37,16 @@ namespace Reborn.Save
         Economy.UpgradeBook _upgrades;
         Guilds.PlayerGuild _guild;
         readonly System.Collections.Generic.HashSet<string> _knownOpenChests = new System.Collections.Generic.HashSet<string>();
+        readonly System.Collections.Generic.HashSet<string> _defeatedBosses = new System.Collections.Generic.HashSet<string>();
+
+        /// <summary>Ist dieser Boss im Spielstand als besiegt vermerkt? (Meilenstein 8)</summary>
+        public bool IsBossDefeated(string id) => _defeatedBosses.Contains(id);
+
+        void HandleBossDefeated(string id)
+        {
+            _defeatedBosses.Add(id);
+            Save();
+        }
         bool _suppress;
 
         void Awake()
@@ -58,6 +68,7 @@ namespace Reborn.Save
             if (_progression != null) _progression.OnLevelUp += HandleLevelUp;
             TreasureChest.OnAnyOpened += HandleChestOpened;
             GameMenu.OnClosed += Save;
+            Enemies.BossAI.OnDefeated += HandleBossDefeated;
         }
 
         void OnDisable()
@@ -65,6 +76,7 @@ namespace Reborn.Save
             if (_progression != null) _progression.OnLevelUp -= HandleLevelUp;
             TreasureChest.OnAnyOpened -= HandleChestOpened;
             GameMenu.OnClosed -= Save;
+            Enemies.BossAI.OnDefeated -= HandleBossDefeated;
         }
 
         void Start()
@@ -114,6 +126,7 @@ namespace Reborn.Save
             foreach (var chest in FindObjectsByType<TreasureChest>())
                 if (chest.IsOpen) _knownOpenChests.Add(chest.chestId);
             data.openedChests.AddRange(_knownOpenChests);
+            data.defeatedBosses.AddRange(_defeatedBosses);   // Meilenstein 8
             if (_mana != null)
             {
                 data.manaLevel = _mana.Level;
@@ -212,6 +225,11 @@ namespace Reborn.Save
             if (data.openedChests != null) _knownOpenChests.UnionWith(data.openedChests);
             foreach (var chest in FindObjectsByType<TreasureChest>())
                 if (_knownOpenChests.Contains(chest.chestId)) chest.SetOpenedSilently();
+            // Ab Version 5: besiegte Bosse erscheinen nicht wieder
+            _defeatedBosses.Clear();
+            if (data.defeatedBosses != null) _defeatedBosses.UnionWith(data.defeatedBosses);
+            foreach (var boss in FindObjectsByType<Enemies.BossAI>())
+                if (_defeatedBosses.Contains(boss.bossId)) boss.RemoveDefeated();
 
             // Ab Version 2: Zauber und Mana (bei aelteren Dateien bleiben die Startwerte)
             if (_spells != null && data.spells != null)
@@ -232,6 +250,7 @@ namespace Reborn.Save
             _suppress = true;
             if (Exists) File.Delete(SavePath);
             _knownOpenChests.Clear();
+            _defeatedBosses.Clear();
             Time.timeScale = 1f;
             SceneManager.LoadScene(SceneTravel.BaseScene);
         }

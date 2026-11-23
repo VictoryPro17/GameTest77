@@ -89,8 +89,8 @@ Wait 600
 Check 'A4 danach wieder idle' (Eval 'a_clip.cs') '^clip=idle bild=idle_\w+_\d$'
 [void](Eval 'a_slime_go.cs'); Wait 400
 Check 'A5 verfolgender Schleim laeuft' (Eval 'a_slime_check.cs') '^clip=walk bild=walk_\w+_\d$'
-Check 'A6 Schatten unter Spieler, Schleimen, Schaufenster' (Eval 'a_shadow.cs') '^Spieler=1 Schleime=5 Schaufenster=3 Fehler=0$'
-Check 'A7 Kacheln, Deko, Schaufenster' (Eval 'a_scene.cs') '^Boden=Ground_Grass_0,Ground_Grass_1,Ground_Grass_2,Ground_Grass_3,Ground_Path 64px=True Deko=\d+ ohneBild=0 Schaufenster=Wolf:idle,Boss:idle,Spider:idle$'
+Check 'A6 Schatten unter Spieler, Schleimen, Schaufenster' (Eval 'a_shadow.cs') '^Spieler=1 Schleime=5 Schaufenster=0 Fehler=0$'   # Meilenstein 8: Schaufenster entfaellt
+Check 'A7 Kacheln, Deko, Schaufenster' (Eval 'a_scene.cs') '^Boden=Ground_Grass_0,Ground_Grass_1,Ground_Grass_2,Ground_Grass_3,Ground_Path 64px=True Deko=\d+ ohneBild=0 Schaufenster=$'
 [void](Eval 'lk_zoom.cs' @{ SIZE = '3.5'; X = '0'; Y = '0.5' }); Wait 400
 Shot 'm5_raum'
 [void](Eval 'lk_zoom.cs' @{ SIZE = '2'; X = '1.5'; Y = '2.4' }); Wait 400

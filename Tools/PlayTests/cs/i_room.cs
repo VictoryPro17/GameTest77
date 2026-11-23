@@ -14,4 +14,4 @@ int missing = 0;
 foreach (var sr in UnityEngine.Object.FindObjectsByType<UnityEngine.SpriteRenderer>()) if (sr.sprite == null && sr.GetComponent<Reborn.Animation.DirectionalSpriteAnimator>() == null && !sr.name.StartsWith("Layer_")) missing++;
 return "Szene=" + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + " Licht=" + global.ToString("F2", ic)
     + " friedlich=" + Reborn.World.SceneRules.Peaceful + " Meister=" + master + " Boden=" + g.GetUsedTilesCount() + " Mauerkacheln=" + w.GetUsedTilesCount()
-    + " Lichter=" + points + " ohneBild=" + missing;
+    + " Lichter=" + points + " ohneBild=" + missing + " Mitglieder=" + UnityEngine.Object.FindObjectsByType<Reborn.World.Wanderer>().Length;   // Meilenstein 8

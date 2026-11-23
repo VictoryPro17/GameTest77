@@ -146,6 +146,72 @@ namespace Reborn.EditorTools
             return (scene, room);
         }
 
+        // ------------------------------------------------------------ Meilenstein 8: schoenere Gildenhallen
+        static readonly string[] MemberNames = { "krieger_1", "krieger_2", "magier_1", "magier_2", "assassine_1", "assassine_2" };
+
+        /// <summary>Animationssets der Gildenmitglieder (Sprites/Interiors/Member_name, idle + walk)</summary>
+        static void CreateMemberSets()
+        {
+            foreach (var n in MemberNames)
+            {
+                var folder = $"{SpritesInteriors}/Member_{n}";
+                if (!AssetDatabase.IsValidFolder(folder)) continue;
+                ConfigureSprites(folder, FootPivot, SpritePpu);
+                CreateAnimationSet($"Member_{n}_Anim", folder, VillagerClips);
+            }
+        }
+
+        static void Member(Transform room, string name, params Vector2[] waypoints)
+        {
+            var set = AssetDatabase.LoadAssetAtPath<Animation.SpriteAnimationSet>($"{DataAnims}/Member_{name}_Anim.asset");   // nach dem Szenenwechsel frisch
+            if (set != null) Villager(room, "member_" + name, set, waypoints, 0.9f);
+        }
+
+        /// <summary>Teppich flach auf dem Boden (unter allem, ueber den Kacheln)</summary>
+        static void Carpet(Transform room, string file, Vector2 pos) => InteriorProp(room, "Carpet", file, pos, default, -9);
+
+        static void DecorateWarrior(Transform r)
+        {
+            Carpet(r, "carpet_red", new Vector2(0f, -0.8f));
+            var fire = InteriorProp(r, "Fireplace", "fireplace", new Vector2(0f, 4.55f), new Vector2(1.1f, 0.25f));
+            Glow(fire.transform, new Color(1f, 0.55f, 0.2f), 1.6f, 4f, 0.4f);
+            InteriorProp(r, "WeaponWall", "weapon_wall", new Vector2(-4.4f, 4.6f));
+            InteriorProp(r, "ArmorStand_L", "armor_stand", new Vector2(-6.2f, -2.8f), new Vector2(0.35f, 0.15f));
+            InteriorProp(r, "ArmorStand_R", "armor_stand", new Vector2(6.2f, -2.8f), new Vector2(0.35f, 0.15f));
+            InteriorProp(r, "FeastTable", "feast_table", new Vector2(4.2f, -3.3f), new Vector2(1.5f, 0.3f));
+            Member(r, "krieger_1", new Vector2(-3f, -2.6f), new Vector2(-3f, 1f), new Vector2(-1.6f, 1f));
+            Member(r, "krieger_2", new Vector2(2.2f, 2f), new Vector2(5.4f, 2f), new Vector2(5.4f, 1.2f));
+        }
+
+        static void DecorateMage(Transform r)
+        {
+            Carpet(r, "carpet_blue", new Vector2(0f, -1.6f));
+            InteriorProp(r, "Bookwall", "bookwall", new Vector2(0f, 4.6f));
+            var cauldron = InteriorProp(r, "Cauldron", "cauldron", new Vector2(-3.2f, -2.9f), new Vector2(0.4f, 0.2f));
+            Glow(cauldron.transform, new Color(0.4f, 1f, 0.45f), 1.1f, 2.4f, 0.5f);
+            InteriorProp(r, "Globe", "globe", new Vector2(3.4f, 2.4f), new Vector2(0.3f, 0.15f));
+            InteriorProp(r, "Telescope", "telescope", new Vector2(5.6f, 2.6f), new Vector2(0.3f, 0.15f));
+            InteriorProp(r, "StarMap", "star_map", new Vector2(-6.1f, -3.2f));
+            Member(r, "magier_1", new Vector2(-2.6f, 2.2f), new Vector2(-5f, 2.2f), new Vector2(-5f, 0.6f));
+            Member(r, "magier_2", new Vector2(2.4f, -2.6f), new Vector2(5.5f, -2.6f), new Vector2(5.5f, 0.3f));
+        }
+
+        static void DecorateAssassin(Transform r)
+        {
+            Carpet(r, "carpet_dark", new Vector2(0f, -0.8f));
+            InteriorProp(r, "DaggerWall", "dagger_wall", new Vector2(0f, 4.6f));
+            InteriorProp(r, "MapTable", "map_table", new Vector2(3.8f, 2.4f), new Vector2(1.1f, 0.3f));
+            InteriorProp(r, "Cabinet_1", "cabinet", new Vector2(5.4f, 3.9f), new Vector2(0.4f, 0.2f));
+            InteriorProp(r, "Cabinet_2", "cabinet", new Vector2(6.3f, 3.9f), new Vector2(0.4f, 0.2f));
+            foreach (var pos in new[] { new Vector2(-2.8f, -3.2f), new Vector2(2.8f, -3.2f) })
+            {
+                var l = InteriorProp(r, "LanternRed", "lantern_red", pos, new Vector2(0.2f, 0.12f));
+                Glow(l.transform, new Color(1f, 0.25f, 0.2f), 1.0f, 2.6f, 0.9f);
+            }
+            Member(r, "assassine_1", new Vector2(-2.5f, 1.8f), new Vector2(-2.5f, -2.4f));
+            Member(r, "assassine_2", new Vector2(2f, -2.6f), new Vector2(5.6f, -2.6f), new Vector2(5.6f, 0.4f));
+        }
+
         static void SaveInterior(UnityEngine.SceneManagement.Scene scene, string name, GameObject hud, GameObject mobile, GameObject menu, GameObject trade)
         {
             AddCommonUi(hud, mobile, menu, trade);
@@ -166,6 +232,7 @@ namespace Reborn.EditorTools
             InteriorProp(r1, "Table", "table_long", new Vector2(4.2f, 0f), new Vector2(1.1f, 0.3f));
             InteriorTorch(r1, new Vector2(-6.4f, 4.3f));
             InteriorTorch(r1, new Vector2(6.4f, 4.3f));
+            DecorateWarrior(r1);   // Meilenstein 8
             SaveInterior(s1, SceneWarrior, hud, mobile, menu, trade);
 
             // ---- Magierturm: Steinboden, Runenkreis, Regale, Alchemie, Kristall
@@ -182,6 +249,7 @@ namespace Reborn.EditorTools
             InteriorProp(r2, "Candles_2", "candles", new Vector2(2.2f, 3.6f));
             InteriorTorch(r2, new Vector2(-6.4f, 1.5f));
             InteriorTorch(r2, new Vector2(6.4f, 1.5f));
+            DecorateMage(r2);   // Meilenstein 8
             SaveInterior(s2, SceneMage, hud, mobile, menu, trade);
 
             // ---- Assassinenhaus: dunkles Holz, Vorhaenge, Zielscheiben, Kerzen, Kisten
@@ -202,6 +270,7 @@ namespace Reborn.EditorTools
             var csr = crate.AddComponent<SpriteRenderer>();
             csr.sprite = BaseSprite("crate");
             csr.spriteSortPoint = SpriteSortPoint.Pivot;
+            DecorateAssassin(r3);   // Meilenstein 8
             SaveInterior(s3, SceneAssassin, hud, mobile, menu, trade);
 
             // ---- Hoehle: Fels, Stalagmiten, leuchtende Kristalle, Portal zum Kampfraum

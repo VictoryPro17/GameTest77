@@ -595,6 +595,59 @@ Wunsch: große, schöne Stadt mit Stadtmauer und Soldaten, mehr Häuser und NPCs
 - Der Boss (Waldwächter) hat noch keine Kampf-Logik.
 - Touch auf einem echten Handy ist noch nicht getestet.
 
+## Meilenstein 8: Golem-Boss und schönere Gildenhallen
+
+### Entscheidungen
+
+| # | Thema | Entscheidung |
+|---|---|---|
+| B1 | Ort | Das Schaufenster im Kampfraum entfällt (Wolf und Spinne kämpfen im Wald). Der Golem (Waldwächter) steht oben in der Mitte und wacht auf, wenn man ihm auf 4 Einheiten nahe kommt |
+| B2 | Stärke | 1200 Leben, Berührung 20, Schlag 30 (0,5 s Ausholen), Wurzeln 25 (rote Warnfläche, 0,8 s, ausweichbar) |
+| B3 | Phasen | 50 %: Brüllen, 3 Wölfe, schneller, öfter Angriffe. 25 %: Wut, Wurzelangriff an 3 Stellen, schnellerer Schlag |
+| B4 | Anzeige | Große Lebensleiste oben in der Mitte „Waldwächter“, nur wenn er wach ist |
+| B5 | Belohnung | 400 Gold, 600 EP, fest das Amulett „Herz des Waldes“ (Leben +25, Vitalität +3) |
+| B6 | Besiegt | Gespeichert (Spielstand Version 5); er erscheint nicht wieder. Nach dem eigenen Tod hat er beim nächsten Versuch volles Leben |
+| B7 | Gildenhallen | Größere Möbel (256 px): Krieger Teppich, Kamin, Rüstungsständer, Waffenwand, Festtafel; Magier Teppich, Kessel, Globus, Teleskop, Bücherwand, Sternkarte; Assassinen Teppich, Kartentisch, Dolchwand, Schränke, Laternen; je 2 Gildenmitglieder laufen umher |
+| B8 | Tests | `t2_setup` schaltet auch den Boss aus, damit die alten Tests im Kampfraum stabil bleiben; Prüfungen am Schaufenster entfallen |
+| B9 | Token sparen | Spiel-Logik, Builder und Tests in der Hauptsitzung; Blender-Grafik von einem Sonnet-Hilfsagenten, Doku von einem günstigen Modell |
+
+### Was gebaut ist
+
+- **Golem-Boss:** `Enemies/BossAI.cs` – schläft, wacht in 3,2 Einheiten Nähe auf (Brüllen), läuft (Tempo 1,2, Phase 2: 1,8), Schlag aus der Nähe (0,5 s Ausholen, in Wut 0,3 s; 30 Schaden im Kreis vor ihm; Abklingzeit 2,2 s, ab Phase 2 1,4 s), Wurzelangriff aus mindestens 2,4 Einheiten Abstand (Abklingzeit 4 s, ab Phase 2 2,6 s), Berührung 20. 1200 Leben. Phase 2 bei 50 %: Brüllen, 3 Wölfe. Phase 3 (Wut) bei 25 %: Wurzeln an 3 Stellen. Prefab `Golem`, steht im Kampfraum oben in der Mitte (statt Schaufenster).
+- **Wurzelangriff:** `Enemies/RootSpike.cs` – rote Warnfläche, nach 0,8 s Wurzeln (3 Bilder), 25 Schaden im Radius 0,7; Ausweichen schützt.
+- **Lebensleiste:** `UI/BossBar.cs` oben in der Mitte mit Name und Phase („Phase 2“, „Wut!“), nur solange der Boss wach ist.
+- **Beute:** `Boss_Loot`: Amulett „Herz des Waldes“ (Halskette, Leben +25, Vitalität +3), 2 Heiltränke, 400 Gold; dazu 600 EP.
+- **Spielstand Version 5:** Liste `defeatedBosses`; ein besiegter Boss erscheint nicht wieder.
+- **Gildenhallen:** neue große Möbel: Krieger Teppich, Kamin mit Licht, Waffenwand, 2 Rüstungsständer, Festtafel; Magier Teppich, Bücherwand, Kessel mit grünem Licht, Globus, Teleskop, Sternkarte; Assassinen Teppich, Dolchwand, Kartentisch, 2 Schränke, 2 rote Laternen mit Licht. Je 2 Gildenmitglieder laufen umher (`Wanderer`, Animationssets `Member_*_Anim`).
+- `t2_setup` schaltet auch den Boss aus, damit die alten Tests im Kampfraum stabil bleiben.
+
+### Grafik (Blender)
+
+- Grafik von einem Sonnet-Hilfsagenten nach Vorgabe erstellt.
+- `build_boss_extras.py` (`Reborn_BossExtras.blend`): Wurzelstacheln (3 Bilder), Warnfläche, Icon „Herz des Waldes“.
+- `build_interiors2.py` (`Reborn_Interiors2.blend`): 16 neue Möbel (128/256 px).
+- `build_guildmembers.py`: 6 Gildenmitglieder (krieger_1/2, magier_1/2, assassine_1/2), idle und walk in 4 Richtungen, je 48 Bilder.
+- `build_all.ps1`: neue Gruppen `bossextras`, `interiors2`, `guildmembers`.
+
+### Befunde
+
+- Der Grafik-Agent brach einmal mit einem Server-Fehler (529, überlastet) ab, hatte aber alle Bilder schon erzeugt.
+- 3 alte Prüfungen erwarteten noch Spielstand-Version 4; angepasst.
+- Die Mana-Prüfung Z4 (Magie-Test) war zeitabhängig: Mana erholt sich mit der Zeit um 1. Sie erlaubt jetzt 3 oder 4.
+- Der vollständige Testlauf dauert jetzt über 10 Minuten und läuft im Hintergrund.
+
+### Tests
+
+- Neuer Boss-Test `bosstest.ps1` (Kürzel `boss`): schläft auf Abstand, wacht auf, Lebensleiste mit Namen, Schlag trifft, Wurzeln treffen (beim Ausweichen nicht), Phase 2 mit 3 Wölfen, Phase 3 mit 3 Wurzeln auf einmal, Sieg mit Herz des Waldes, Gold und EP, gespeichert, nach Neustart kein Boss, Tod gegen den Boss → Stadt. Raum-Test prüft je 2 Gildenmitglieder. Aussehen-Test ohne Schaufenster.
+- `run_all.ps1` (13 Tests): 198 Prüfungen, 0 Fehler (23.11.2026).
+
+### Bekannte Grenzen
+
+- Der Boss-Name über der Lebensleiste ist im Bild nicht zu sehen (der Text ist gesetzt); wird in 8b behoben.
+- Waffen- und Dolchwand wirken eher wie liegende Tische; dem Kessel fehlt das grüne Leuchten im Bild (nur das Licht leuchtet).
+- Der Kampfraum ist für den Boss-Kampf eng.
+- Touch auf einem echten Handy ist noch nicht getestet.
+
 ## Wichtige Dateien
 
 - `Art/Blender/Reborn_Characters.blend` – Spieler und Ausrüstung (Szene „Characters“)
@@ -615,3 +668,5 @@ Wunsch: große, schöne Stadt mit Stadtmauer und Soldaten, mehr Häuser und NPCs
 - `Art/Blender/Reborn_Interiors.blend`, `Art/Blender/Scripts/build_interiors.py`, `build_guildmasters.py` – Grafik der Räume und Gildenmeister
 - `Assets/_Project/Scripts/Guilds/` – Gilden, Ränge, Quests (Meilenstein 7c); `Assets/_Project/Scenes/Forest.unity` – Wald
 - `Art/Blender/Reborn_Forest.blend`, `Art/Blender/Scripts/build_forest.py` – Grafik des Waldes
+- `Assets/_Project/Scripts/Enemies/BossAI.cs`, `RootSpike.cs`, `Assets/_Project/Scripts/UI/BossBar.cs` – Golem-Boss (Meilenstein 8)
+- `Art/Blender/Scripts/build_boss_extras.py`, `build_interiors2.py`, `build_guildmembers.py` – Boss-Extras, neue Möbel, Gildenmitglieder

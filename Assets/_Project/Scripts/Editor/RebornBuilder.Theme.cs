@@ -282,6 +282,7 @@ namespace Reborn.EditorTools
             dmgTemplate.font = T.bodyBoldFont;
             var numbers = canvas.gameObject.AddComponent<DamageNumbers>();
             numbers.template = dmgTemplate;
+            AddBossBar(canvas);   // Meilenstein 8
             return SavePrefab(canvas.gameObject, "HUD");
         }
     }

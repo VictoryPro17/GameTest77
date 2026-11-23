@@ -30,6 +30,10 @@ $steps = @(
     @{ Name = "guildmasters"; Script = "build_guildmasters.py"; Blend = "Reborn_Characters.blend" },
     # Meilenstein 7c: Wald (die Gildenwaffen stecken in build_equipment.py)
     @{ Name = "forest";       Script = "build_forest.py";       Blend = $null },
+    # Meilenstein 8: Boss-Extras (Wurzeln, Warnflaeche, Amulett-Icon), neue Moebel, Gildenmitglieder
+    @{ Name = "bossextras";   Script = "build_boss_extras.py";  Blend = $null },
+    @{ Name = "interiors2";   Script = "build_interiors2.py";   Blend = $null },
+    @{ Name = "guildmembers"; Script = "build_guildmembers.py"; Blend = "Reborn_Characters.blend" },
     # Meilenstein 7a: Stadt (Gebaeude, Mauer, Gilden, Kacheln) und Stadtfiguren (Spielfigur umgefaerbt, speichert nicht)
     @{ Name = "town";      Script = "build_town.py";      Blend = $null },
     @{ Name = "villagers"; Script = "build_villagers.py"; Blend = "Reborn_Characters.blend" }

@@ -8,6 +8,8 @@ if (UnityEngine.InputSystem.InputSystem.GetDevice("TestKeyboard") == null) Unity
 hp.invulnerable = true;
 int n = 0;
 foreach (var sl in UnityEngine.Object.FindObjectsByType<Reborn.Enemies.SlimeAI>()) { sl.gameObject.SetActive(false); n++; }
+// Meilenstein 8: auch den Golem-Boss ausschalten (der Boss-Test schaltet ihn gezielt ein)
+foreach (var bo in UnityEngine.Object.FindObjectsByType<Reborn.Enemies.BossAI>()) bo.gameObject.SetActive(false);
 // Nur im Test: eine gehaltene Richtung im Menue nicht wiederholen (sonst wandert die Auswahl weiter)
 var module = UnityEngine.Object.FindAnyObjectByType<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
 module.moveRepeatDelay = 10f;

@@ -101,7 +101,13 @@ namespace Reborn.EditorTools
             var spiderLoot = CreateLoot("Spider_Loot", items, new[] { ("spinnenseide", 0.6f, 1, 1), ("manatrank_klein", 0.15f, 1, 1) }, 5, 9);
             var wolf = CreateCreaturePrefab("Wolf", "wolf", wolfAnim, wolfLoot, pickup, goldPickup, 40, 3.2f, 8, 50, 6f, 0.25f, 0.75f);
             var spider = CreateCreaturePrefab("Spider", "spinne", spiderAnim, spiderLoot, pickup, goldPickup, 60, 1.6f, 12, 70, 5f, 0.28f, 0.8f);
-            var showcase = new[] { (wolfAnim, 0.75f), (bossAnim, 1.6f), (spiderAnim, 0.8f) };
+            // Meilenstein 8: kein Schaufenster mehr; der Golem-Boss steht im Kampfraum
+            var showcase = new (Animation.SpriteAnimationSet, float)[0];
+            foreach (var f in new[] { "root_spike_0", "root_spike_1", "root_spike_2", "warning_circle" })
+                ConfigureTexture($"{SpritesBoss}/{f}.png", SpritePpu, f == "warning_circle" ? new Vector2(0.5f, 0.2138f) : FootPivot);
+            var bossLoot = CreateLoot("Boss_Loot", items, new[] { ("herz_des_waldes", 1f, 1, 1), ("heiltrank", 1f, 2, 2) }, 400, 400);
+            var rootSpike = CreateRootSpikePrefab();
+            BossPrefab = CreateBossPrefab(bossAnim, bossLoot, pickup, goldPickup, wolf, rootSpike);
             var chest = CreateChestPrefab(pickup, "Chest", "room_test_truhe_1", new[]
             {
                 new TreasureChest.Content { item = items["holzschwert"], count = 1 },
@@ -125,12 +131,13 @@ namespace Reborn.EditorTools
             // Meilenstein 7a: Die Basis ist jetzt eine Stadt (gleiche Szene "Base", siehe RebornBuilder.Town.cs)
             BuildTownScene(tiles, player, hud, mobile, menu, trade, portal, shop, items);
             ConfigureInteriorSprites();
+            CreateMemberSets();   // Meilenstein 8: Gildenmitglieder
             BuildInteriors(player, hud, mobile, menu, trade, portal);   // Meilenstein 7b
             ConfigureForestSprites();
             BuildForestScene(player, wolf, spider, slime, hud, mobile, menu, trade, portal);   // Meilenstein 7c
             ConfigureBuild();
             AssetDatabase.SaveAssets();
-            return "Meilenstein 7c gebaut (Gilden, Wald): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
+            return "Meilenstein 8 gebaut (Golem, Gildenhallen): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
                 + magic.spells.Length + " Zauber, " + equipSets.Count + " Ausruestungs-Ebenen, " + shop.items.Count + " Waren)";
         }
 
@@ -568,6 +575,10 @@ namespace Reborn.EditorTools
                 S, Gear, EquipSlot.Hauptwaffe, new StatBlock { attack = 2, intelligence = 4 }, 0, 70, 1);
             Item("schattendolche", "Item_Schattendolche", "Schattendolche", "Zwei leise Klingen der Assassinengilde.",
                 S, Gear, EquipSlot.Hauptwaffe, new StatBlock { attack = 4, dexterity = 2 }, 0, 70, 1);
+
+            // ---- Meilenstein 8: Beute des Golem-Bosses
+            Item("herz_des_waldes", "Item_HerzDesWaldes", "Herz des Waldes", "Das leuchtende Herz des Waldwächters. Pulsiert noch leise.",
+                E, Gear, EquipSlot.Halskette, new StatBlock { maxHealth = 25, vitality = 3 }, 0, 150, 1);
 
             var database = LoadOrCreate<ItemDatabase>($"{DataItems}/ItemDatabase.asset");
             database.items = items.Values.ToList();
@@ -1068,6 +1079,7 @@ namespace Reborn.EditorTools
             chest2Instance.transform.position = new Vector3(8f, 3f, 0f);
 
             BuildDecoration(showcase);
+            PlaceBoss();   // Meilenstein 8
 
             // Meilenstein 6: Rueckkehr-Portal unten links (abseits der Testwege) und Ankunftspunkt darueber
             new GameObject("SceneRules").AddComponent<SceneRules>().peaceful = false;

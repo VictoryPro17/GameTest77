@@ -12,7 +12,7 @@ namespace Reborn.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 4;
+        public const int CurrentVersion = 5;
 
         public int version = CurrentVersion;
         public int level = 1;
@@ -44,6 +44,9 @@ namespace Reborn.Save
         public int questIndex;
         public bool questActive;
         public int questProgress;
+
+        // ---- ab Version 5 (Meilenstein 8: Golem-Boss)
+        public List<string> defeatedBosses = new List<string>();
 
         [Serializable]
         public class UpgradeSave

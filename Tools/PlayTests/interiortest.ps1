@@ -21,7 +21,7 @@ foreach ($r in $rooms) {
     [void](Eval 'b_door_go.cs' @{ NAME = $r.door }); Wait 2500; WaitReady; $n++
     Check "I $($r.scene): drinnen am Eingang" (Eval 'b_state.cs') "^Szene=$($r.scene) Pos=\(0\.0,-3\.6\) Gold=77 .* Reisen=$n reist=False Ankunft=Eingang$"
     '  ' + (Eval 't2_setup.cs')
-    Check "I $($r.scene): Licht, friedlich, Meister, Kacheln, Bilder" (Eval 'i_room.cs') "^Szene=$($r.scene) Licht=$($r.light) friedlich=True Meister=$($r.master) Boden=[1-9]\d* Mauerkacheln=[1-9]\d* Lichter=[1-9]\d* ohneBild=0$"
+    Check "I $($r.scene): Licht, friedlich, Meister, Kacheln, Bilder" (Eval 'i_room.cs') "^Szene=$($r.scene) Licht=$($r.light) friedlich=True Meister=$($r.master) Boden=[1-9]\d* Mauerkacheln=[1-9]\d* Lichter=[1-9]\d* ohneBild=0 Mitglieder=2$"
     [void](Eval 'w_walk.cs' @{ PX = '0'; PY = '-1'; SX = '1'; SY = '0' }); Wait 1500
     CheckRange "I $($r.scene): rechte Wand haelt" (Eval 'w_pos.cs') 'x' 6.65 6.85
     [void](Eval 'b_goto.cs' @{ X = '0'; Y = '1.6' }); Wait 300
@@ -39,7 +39,7 @@ foreach ($r in $rooms) {
 [void](Eval 'b_portal_go.cs' @{ NAME = 'Tuer_Hoehle' }); Wait 2500; WaitReady; $n++
 Check 'H in der Hoehle am Eingang' (Eval 'b_state.cs') "^Szene=Cave Pos=\(0\.0,-3\.6\) Gold=77 .* Reisen=$n reist=False Ankunft=Eingang$"
 '  ' + (Eval 't2_setup.cs')
-Check 'H Licht, friedlich, Kacheln, Kristall-Lichter' (Eval 'i_room.cs') '^Szene=Cave Licht=0\.40 friedlich=True Meister=- Boden=[1-9]\d* Mauerkacheln=[1-9]\d* Lichter=[1-9]\d* ohneBild=0$'
+Check 'H Licht, friedlich, Kacheln, Kristall-Lichter' (Eval 'i_room.cs') '^Szene=Cave Licht=0\.40 friedlich=True Meister=- Boden=[1-9]\d* Mauerkacheln=[1-9]\d* Lichter=[1-9]\d* ohneBild=0 Mitglieder=0$'
 [void](Eval 'lk_zoom.cs' @{ SIZE = '4.5'; X = '0'; Y = '0' }); Wait 500
 Shot 'm7b_hoehle'
 [void](Eval 'b_portal_go.cs' @{ NAME = 'Portal_Kampf' }); Wait 2500; WaitReady; $n++

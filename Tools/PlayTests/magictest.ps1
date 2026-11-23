@@ -26,7 +26,7 @@ Check 'Z3 Wasserkugel trifft (30 -> 21)' (Eval 'mg_slimehp.cs') '^Schleime=21 '
 'Z4) Zu wenig Mana'
 [void](Eval 'mg_setmana.cs' @{ M = '3' })
 Key "${K}Digit1"
-Check 'Z4 kein Zauber, Mana bleibt 3' (Eval 'mg_cast_check.cs') '^Mana=3 Effekte=0 Zauber=1 LastFail=mana'
+Check 'Z4 kein Zauber, Mana bleibt 3' (Eval 'mg_cast_check.cs') '^Mana=[34] Effekte=0 Zauber=1 LastFail=mana'   # Mana erholt sich mit der Zeit um 1 (Meilenstein 8: zeitabhaengig)
 
 'Z5) Abklingzeit'
 Check 'Z5 zweimal schnell = ein Zauber' (Eval 'mg_double.cs') '^Zauber=1 erster=True zweiter=False LastFail=abklingzeit$'
