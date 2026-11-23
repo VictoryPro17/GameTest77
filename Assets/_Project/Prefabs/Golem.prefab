@@ -362,6 +362,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Reborn.Enemies.BossAI
   bossId: waldwaechter
   displayName: "Waldw\xE4chter"
+  stage2Name: "Uralter Waldw\xE4chter"
   wakeRadius: 3.2
   speed: 1.2
   speedPhase2: 1.8
@@ -383,6 +384,28 @@ MonoBehaviour:
   wolfPrefab: {fileID: 8637128897138708869, guid: 779c944762426bb46ba97c9097fc81cb, type: 3}
   wolvesPhase2: 3
   despawnDelay: 3
+  stage2Set: {fileID: 11400000, guid: 36719ea6d401c2d43850ba3e74c0fff5, type: 2}
+  stage2Health: 1500
+  stage2Speed: 2.1
+  stage2SlamDamage: 35
+  transformTime: 3
+  thornWavePrefab: {fileID: 1095401877212254795, guid: 3995ca8fd4378c44f8122e367cc0b830, type: 3}
+  thornCooldown: 6
+  thornRange: 4
+  chargeTelegraphPrefab: {fileID: 4329807303537905486, guid: 91d397c8752732f489a431959b943b2a, type: 3}
+  chargeCooldown: 7
+  chargeAimTime: 1
+  chargeSpeed: 9
+  chargeDuration: 0.7
+  chargeDamage: 30
+  ultimatePrefab: {fileID: 5963428861105021933, guid: 84285eb17beee50448232c2011ef053e, type: 3}
+  ultimateFirstDelay: 20
+  ultimateCooldown: 30
+  ultimateChargeTime: 4
+  wolfCallCooldown: 15
+  wolfCallCount: 2
+  wolfCallHealth: 20
+  repeatLoot: {fileID: 11400000, guid: 3717f2f82d018a449b68eaac8f083a11, type: 2}
 --- !u!114 &7335753284988542885
 MonoBehaviour:
   m_ObjectHideFlags: 0

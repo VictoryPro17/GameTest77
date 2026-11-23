@@ -61,7 +61,7 @@ Check 'G5 ohne Zauber zaehlt nicht' (Eval 'g_guild.cs' @{ ACT = 'kill:schleim:3:
 Check 'G5 mit Zaubern' (Eval 'g_guild.cs' @{ ACT = 'kill:spinne:5:1' }) 'Fortschritt=5/5 .* HUD=Gegner mit Zaubern besiegen 5/5$'
 
 'G6) Speichern und Laden'
-Check 'G6 Datei Version 4 mit Gilde' (Eval 'g_save.cs') '^Version=5 Gilde=Magier Rang=1 Quest=0 aktiv=True Fortschritt=5$'
+Check 'G6 Datei Version 4 mit Gilde' (Eval 'g_save.cs') '^Version=\d+ Gilde=Magier Rang=1 Quest=0 aktiv=True Fortschritt=5$'
 Check 'G6 Laden stellt die Gilde her' (Eval 'g_reload.cs') '^geladen=True Gilde=Magier Rang=1 Quest=0 aktiv=True Fortschritt=5$'
 [void](Eval 'b_close.cs')
 

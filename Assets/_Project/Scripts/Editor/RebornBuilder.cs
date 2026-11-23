@@ -108,6 +108,7 @@ namespace Reborn.EditorTools
             var bossLoot = CreateLoot("Boss_Loot", items, new[] { ("herz_des_waldes", 1f, 1, 1), ("heiltrank", 1f, 2, 2) }, 400, 400);
             var rootSpike = CreateRootSpikePrefab();
             BossPrefab = CreateBossPrefab(bossAnim, bossLoot, pickup, goldPickup, wolf, rootSpike);
+            AddBossStage2(BossPrefab, items);   // Meilenstein 8b: Stufe 2, Dornenwelle, Ansturm, Ultimate
             var chest = CreateChestPrefab(pickup, "Chest", "room_test_truhe_1", new[]
             {
                 new TreasureChest.Content { item = items["holzschwert"], count = 1 },
@@ -137,7 +138,7 @@ namespace Reborn.EditorTools
             BuildForestScene(player, wolf, spider, slime, hud, mobile, menu, trade, portal);   // Meilenstein 7c
             ConfigureBuild();
             AssetDatabase.SaveAssets();
-            return "Meilenstein 8 gebaut (Golem, Gildenhallen): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
+            return "Meilenstein 8b gebaut (Boss Stufe 2): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
                 + magic.spells.Length + " Zauber, " + equipSets.Count + " Ausruestungs-Ebenen, " + shop.items.Count + " Waren)";
         }
 

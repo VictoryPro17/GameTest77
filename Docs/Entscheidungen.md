@@ -648,6 +648,54 @@ Wunsch: große, schöne Stadt mit Stadtmauer und Soldaten, mehr Häuser und NPCs
 - Der Kampfraum ist für den Boss-Kampf eng.
 - Touch auf einem echten Handy ist noch nicht getestet.
 
+## Meilenstein 8b: Boss mit zwei Stufen
+
+### Entscheidungen
+
+| # | Thema | Entscheidung |
+|---|---|---|
+| C1 | Stufe 2 | Bei 0 Leben erwacht der Golem (3 s Verwandlung, unverwundbar) als „Uralter Waldwächter“: 1500 Leben, schneller, Schlag 35. Beute erst nach Stufe 2 |
+| C2 | Neue Fähigkeiten | Dornenwelle (Ring breitet sich vom Boss aus, 25 Schaden, weggehen oder ausweichen). Ansturm (1 s Ziel-Linie am Boden, dann rennt er geradeaus, 30 Schaden, zur Seite gehen) |
+| C3 | Ultimate „Zorn des Waldes“ | Nur in Stufe 2, frühestens nach 20 s, dann alle 30 s; 4 s Aufladung mit großem roten Kreis (Radius 5,5) und Hinweis im Bild; wer drin steht, verliert 50 % seines maximalen Lebens; rauslaufen oder im Moment ausweichen schützt |
+| C4 | Wolfsruf | In Stufe 2 alle 15 s 2 verwundete Wölfe mit halbem Leben (20 statt 40); die 3 Wölfe in Stufe 1 bei 50 % bleiben |
+| C5 | Wiederkehr | Ganz besiegt erscheint er nach 10 Minuten wieder (echte Zeit, im Spielstand, gilt auch nach Neustart). Amulett nur beim ersten Sieg, danach 300 Gold und Tränke |
+| C6 | Anzeige | Lebensleiste zeigt „Stufe 2“ und eine Ladeleiste für die Ultimate; der Boss-Name ist sichtbar |
+
+### Was gebaut ist
+
+- **Stufe 2:** `BossAI` erwacht bei 0 Leben in Stufe 1 (3 s unverwundbar, Brüllen) als „Uralter Waldwächter“: 1500 Leben, Tempo 2,1, Schlag 35 (schnelleres Ausholen), eigenes Animationsset `Boss2_Anim`. Wölfe aus Stufe 1 verschwinden. Beute erst nach Stufe 2.
+- **Dornenwelle:** `Enemies/ThornWave.cs` – Ring wächst in 1,2 s von 0,6 auf 4,5 Einheiten, 25 Schaden, trifft höchstens einmal; Abklingzeit 6 s, wenn der Spieler in 4 Einheiten Nähe ist.
+- **Ansturm:** `Enemies/ChargeTelegraph.cs` – 1 s blinkende Ziel-Linie, dann rennt der Boss 0,7 s mit Tempo 9 geradeaus; 30 Schaden bei Berührung oder Mittelpunkt-Abstand ≤ 1,3, höchstens einmal, danach bleibt er stehen; Abklingzeit 7 s, wenn der Spieler weiter als 3 Einheiten weg ist.
+- **Ultimate „Zorn des Waldes“:** `Enemies/UltimateZone.cs` – erst 20 s nach dem Erwachen, dann alle 30 s; 4 s Aufladung, großer pulsierender Kreis (Radius 5,5), Warnung „Zorn des Waldes! Lauf weg oder weiche aus!“; wer drin steht, verliert 50 % seines maximalen Lebens.
+- **Wolfsruf:** alle 15 s 2 Wölfe mit 20 Leben.
+- **Wiederkehr:** Spielstand Version 6 mit `bossRecords` (Zeitpunkt des Siegs, Anzahl der Siege). Nach 10 Minuten (echte Zeit, `SaveSystem.BossRespawnMinutes`) ist der Boss beim nächsten Betreten wieder da. Ab dem zweiten Sieg Beute `Boss_Loot_Repeat` (300 Gold, 2 Heiltränke, 1 Manatrank) statt Amulett. Spielstände Version 5 laden: dort besiegte Bosse gelten als längst wieder da.
+- **Lebensleiste:** Name je Stufe („Uralter Waldwächter (Stufe 2)“), orange Lade-Leiste der Ultimate, Warnhinweis in der Bildmitte. Der Name war in Meilenstein 8 unsichtbar, weil das Textfeld für die Schrift zu niedrig war (Unity blendet Text dann aus); behoben mit höherem Feld und Overflow.
+
+### Grafik (Blender)
+
+Grafik von einem Sonnet-Hilfsagenten nach Vorgabe erstellt.
+
+- `build_boss2.py`: Stufe 2 aus `Reborn_Boss.blend` umgefärbt (dunkle Rinde, glühende Risse, Hörner, Kristalle), alle 136 Bilder nach `Sprites/Boss2`; die Datei wird nicht gespeichert.
+- `build_boss2_fx.py` (`Reborn_Boss2Fx.blend`): Dornenring (3 Bilder), Ansturm-Pfeil, Ultimate-Kreis. Eigene Pivots: Ring 0,5/0,4747, Kreis 0,5/0,5, Pfeil 0,0476/0,5 (Start links).
+- `build_all.ps1`: neue Gruppen `boss2`, `boss2fx`.
+
+### Befunde
+
+- Der Ansturm traf im ersten Test nicht: Die Körper stoßen zusammen, bevor die Mittelpunkte nah genug kommen. Treffer zählt jetzt auch bei Berührung (Abstand ≤ 1,3). Der Test stellt den Spieler Richtung Raummitte und schaltet die Wurzeln dafür ab (`SetTimers` mit 5. Wert).
+- 9 Boss-Bilder (Tod und Brüllen) berühren knapp den Bildrand; das war schon in Stufe 1 so.
+
+### Tests
+
+- Boss-Test erweitert (24 Prüfungen): Erwachen (unverwundbar), Dornenwelle (trifft, beim Ausweichen nicht), Ansturm trifft, Ultimate (Warnung, 50 % im Kreis, außerhalb kein Schaden), Wolfsruf (2 Wölfe, 20 Leben), Sieg mit Amulett (Version 6), nach Neustart weg, nach 11 Minuten (vorgespult) wieder da, zweiter Sieg ohne Amulett, Tod → Stadt.
+- `run_all.ps1` (13 Tests): 210 Prüfungen im vollen Lauf; 3 alte Prüfungen (B10, B14, G6) erwarteten noch Spielstand-Version 5 und prüfen jetzt versionsunabhängig (`Version=\d+`). Danach Basis- und Gilden-Test erneut 56/56, alle übrigen Tests im vollen Lauf bestanden (23.11.2026).
+
+### Bekannte Grenzen
+
+- Der Boss erscheint erst beim nächsten Betreten des Kampfraums wieder, nicht während man drin steht.
+- Stufe 2 wirkt eher grau-violett als schwarz; Hörner und Kristalle sind klein.
+- Der Kampfraum ist für Ansturm und Ultimate eng.
+- Touch auf einem echten Handy ist noch nicht getestet.
+
 ## Wichtige Dateien
 
 - `Art/Blender/Reborn_Characters.blend` – Spieler und Ausrüstung (Szene „Characters“)
@@ -670,3 +718,4 @@ Wunsch: große, schöne Stadt mit Stadtmauer und Soldaten, mehr Häuser und NPCs
 - `Art/Blender/Reborn_Forest.blend`, `Art/Blender/Scripts/build_forest.py` – Grafik des Waldes
 - `Assets/_Project/Scripts/Enemies/BossAI.cs`, `RootSpike.cs`, `Assets/_Project/Scripts/UI/BossBar.cs` – Golem-Boss (Meilenstein 8)
 - `Art/Blender/Scripts/build_boss_extras.py`, `build_interiors2.py`, `build_guildmembers.py` – Boss-Extras, neue Möbel, Gildenmitglieder
+- `Assets/_Project/Scripts/Enemies/ThornWave.cs`, `ChargeTelegraph.cs`, `UltimateZone.cs`; `Art/Blender/Scripts/build_boss2.py`, `build_boss2_fx.py` – Boss Stufe 2 (Meilenstein 8b)

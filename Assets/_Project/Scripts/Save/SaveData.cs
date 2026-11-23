@@ -12,7 +12,7 @@ namespace Reborn.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 5;
+        public const int CurrentVersion = 6;
 
         public int version = CurrentVersion;
         public int level = 1;
@@ -47,6 +47,18 @@ namespace Reborn.Save
 
         // ---- ab Version 5 (Meilenstein 8: Golem-Boss)
         public List<string> defeatedBosses = new List<string>();
+
+        // ---- ab Version 6 (Meilenstein 8b: Boss kommt nach 10 Minuten wieder)
+        public List<BossRecord> bossRecords = new List<BossRecord>();
+
+        [Serializable]
+        public class BossRecord
+        {
+            public string id;
+            /// <summary>Zeitpunkt des letzten Siegs (UTC, DateTime.Ticks)</summary>
+            public long defeatedAtTicks;
+            public int kills;
+        }
 
         [Serializable]
         public class UpgradeSave

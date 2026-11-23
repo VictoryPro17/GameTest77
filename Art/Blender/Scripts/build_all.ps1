@@ -34,6 +34,9 @@ $steps = @(
     @{ Name = "bossextras";   Script = "build_boss_extras.py";  Blend = $null },
     @{ Name = "interiors2";   Script = "build_interiors2.py";   Blend = $null },
     @{ Name = "guildmembers"; Script = "build_guildmembers.py"; Blend = "Reborn_Characters.blend" },
+    # Meilenstein 8b: Boss Stufe 2 (braucht Reborn_Boss.blend, speichert nicht) und Effekte
+    @{ Name = "boss2";        Script = "build_boss2.py";        Blend = "Reborn_Boss.blend" },
+    @{ Name = "boss2fx";      Script = "build_boss2_fx.py";     Blend = $null },
     # Meilenstein 7a: Stadt (Gebaeude, Mauer, Gilden, Kacheln) und Stadtfiguren (Spielfigur umgefaerbt, speichert nicht)
     @{ Name = "town";      Script = "build_town.py";      Blend = $null },
     @{ Name = "villagers"; Script = "build_villagers.py"; Blend = "Reborn_Characters.blend" }

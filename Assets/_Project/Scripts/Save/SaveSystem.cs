@@ -37,14 +37,27 @@ namespace Reborn.Save
         Economy.UpgradeBook _upgrades;
         Guilds.PlayerGuild _guild;
         readonly System.Collections.Generic.HashSet<string> _knownOpenChests = new System.Collections.Generic.HashSet<string>();
-        readonly System.Collections.Generic.HashSet<string> _defeatedBosses = new System.Collections.Generic.HashSet<string>();
+        // Meilenstein 8b: besiegte Bosse mit Zeitpunkt und Anzahl der Siege; nach BossRespawnMinutes erscheinen sie wieder
+        public const float BossRespawnMinutes = 10f;
+        readonly System.Collections.Generic.Dictionary<string, SaveData.BossRecord> _bossRecords = new System.Collections.Generic.Dictionary<string, SaveData.BossRecord>();
 
-        /// <summary>Ist dieser Boss im Spielstand als besiegt vermerkt? (Meilenstein 8)</summary>
-        public bool IsBossDefeated(string id) => _defeatedBosses.Contains(id);
+        /// <summary>Zeitverschiebung fuer Tests (10 Minuten vorspulen); beim Play-Start 0</summary>
+        public static TimeSpan ClockOffset { get; set; }
+        public static DateTime Now => DateTime.UtcNow + ClockOffset;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetClock() => ClockOffset = TimeSpan.Zero;
+
+        /// <summary>Ist dieser Boss gerade besiegt (noch nicht wieder erschienen)?</summary>
+        public bool IsBossDefeated(string id) => _bossRecords.TryGetValue(id, out var r) && (Now - new DateTime(r.defeatedAtTicks, DateTimeKind.Utc)).TotalMinutes < BossRespawnMinutes;
+
+        public int BossKills(string id) => _bossRecords.TryGetValue(id, out var r) ? r.kills : 0;
 
         void HandleBossDefeated(string id)
         {
-            _defeatedBosses.Add(id);
+            if (!_bossRecords.TryGetValue(id, out var r)) _bossRecords[id] = r = new SaveData.BossRecord { id = id };
+            r.kills++;
+            r.defeatedAtTicks = Now.Ticks;
             Save();
         }
         bool _suppress;
@@ -126,7 +139,11 @@ namespace Reborn.Save
             foreach (var chest in FindObjectsByType<TreasureChest>())
                 if (chest.IsOpen) _knownOpenChests.Add(chest.chestId);
             data.openedChests.AddRange(_knownOpenChests);
-            data.defeatedBosses.AddRange(_defeatedBosses);   // Meilenstein 8
+            foreach (var r in _bossRecords.Values)   // Meilenstein 8b (defeatedBosses bleibt fuer aeltere Leser)
+            {
+                data.bossRecords.Add(new SaveData.BossRecord { id = r.id, defeatedAtTicks = r.defeatedAtTicks, kills = r.kills });
+                data.defeatedBosses.Add(r.id);
+            }
             if (_mana != null)
             {
                 data.manaLevel = _mana.Level;
@@ -225,11 +242,19 @@ namespace Reborn.Save
             if (data.openedChests != null) _knownOpenChests.UnionWith(data.openedChests);
             foreach (var chest in FindObjectsByType<TreasureChest>())
                 if (_knownOpenChests.Contains(chest.chestId)) chest.SetOpenedSilently();
-            // Ab Version 5: besiegte Bosse erscheinen nicht wieder
-            _defeatedBosses.Clear();
-            if (data.defeatedBosses != null) _defeatedBosses.UnionWith(data.defeatedBosses);
+            // Ab Version 5/6: besiegte Bosse; nach 10 Minuten erscheinen sie wieder (Version 5 ohne Zeit: laengst wieder da)
+            _bossRecords.Clear();
+            if (data.bossRecords != null)
+                foreach (var r in data.bossRecords)
+                    if (r != null && !string.IsNullOrEmpty(r.id)) _bossRecords[r.id] = r;
+            if (data.defeatedBosses != null)
+                foreach (var id in data.defeatedBosses)
+                    if (!string.IsNullOrEmpty(id) && !_bossRecords.ContainsKey(id)) _bossRecords[id] = new SaveData.BossRecord { id = id, kills = 1, defeatedAtTicks = 0 };
             foreach (var boss in FindObjectsByType<Enemies.BossAI>())
-                if (_defeatedBosses.Contains(boss.bossId)) boss.RemoveDefeated();
+            {
+                boss.FirstKill = BossKills(boss.bossId) == 0;
+                if (IsBossDefeated(boss.bossId)) boss.RemoveDefeated();
+            }
 
             // Ab Version 2: Zauber und Mana (bei aelteren Dateien bleiben die Startwerte)
             if (_spells != null && data.spells != null)
@@ -250,7 +275,7 @@ namespace Reborn.Save
             _suppress = true;
             if (Exists) File.Delete(SavePath);
             _knownOpenChests.Clear();
-            _defeatedBosses.Clear();
+            _bossRecords.Clear();
             Time.timeScale = 1f;
             SceneManager.LoadScene(SceneTravel.BaseScene);
         }
