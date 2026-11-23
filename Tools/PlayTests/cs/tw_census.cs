@@ -17,6 +17,6 @@ foreach (var v in UnityEngine.Object.FindObjectsByType<Reborn.World.Wanderer>())
 }
 int missing = 0;
 foreach (var sr in UnityEngine.Object.FindObjectsByType<UnityEngine.SpriteRenderer>()) if (sr.sprite == null && sr.GetComponent<Reborn.Animation.DirectionalSpriteAnimator>() == null && !sr.name.StartsWith("Layer_")) missing++;   // leere Ausruestungs-Ebenen sind gewollt
-var cave = UnityEngine.GameObject.Find("Portal_Kampf");
+var cave = UnityEngine.GameObject.Find("Tuer_Hoehle");   // Meilenstein 7b: Eingang zur Hoehle
 return "Haeuser=" + houses + " Laeden=" + shops + " Gilden=" + guilds + " Mauerteile=" + wall + " Leute=" + people + " Soldaten=" + soldiers
     + " Hoehle=" + (cave != null && cave.transform.parent != null ? cave.transform.parent.name : "-") + " ohneBild=" + missing;

@@ -11,7 +11,7 @@ StartPlay -Scene 'Base'
 '  ' + (Eval 't2_setup.cs')
 
 'B1) Start in der Basis'
-Check 'B1 Stadt, Startpunkt, friedlich, 5 NPCs, Portal, Mauer, Boden' (Eval 'b_start.cs') '^Szene=Base Pos=\(0\.0,-2\.0\) friedlich=True Gold=0 NPCs=5 Portal=Portal_Kampf>Room_Test Mauer=[1-9]\d* Boden=[1-9]\d* Mauerkacheln=[1-9]\d*$'
+Check 'B1 Stadt, Startpunkt, friedlich, 5 NPCs, Portal, Mauer, Boden' (Eval 'b_start.cs') '^Szene=Base Pos=\(0\.0,-2\.0\) friedlich=True Gold=0 NPCs=5 Portal=Tuer_Hoehle>Cave Mauer=[1-9]\d* Boden=[1-9]\d* Mauerkacheln=[1-9]\d*$'
 
 'B2) Kein Kampf in der Basis'
 Check 'B2 kein Zauber' (Eval 'b_cast.cs') '^gezaubert=False Grund=friedlich$'
@@ -72,13 +72,17 @@ Check 'B10 Laden stellt Gold und Stufe her' (Eval 'b_reload.cs') "^geladen=True 
 'B11) Portal in den Kampfraum'
 [void](Eval 'b_goto.cs' @{ X = '-18.5'; Y = '9.3' }); Wait 300
 Shot 'm6_portal'
+[void](Eval 'b_portal_go.cs' @{ NAME = 'Tuer_Hoehle' }); Wait 2500; WaitReady
+Check 'B11 in der Hoehle am Eingang' (Eval 'b_state.cs') '^Szene=Cave Pos=\(0\.0,-3\.6\) Gold=340 Stufe=3 .* Reisen=1 reist=False Ankunft=Eingang$'
 [void](Eval 'b_portal_go.cs' @{ NAME = 'Portal_Kampf' }); Wait 2500; WaitReady
-Check 'B11 Kampfraum, Ankunftspunkt, Gold und Stufe mitgenommen' (Eval 'b_state.cs') "^Szene=Room_Test Pos=\(.*\) Gold=340 Stufe=3 Angriff=$($a0 + 3) .* Reisen=1 reist=False Ankunft=Ankunft$"
+Check 'B11 Kampfraum, Ankunftspunkt, Gold und Stufe mitgenommen' (Eval 'b_state.cs') "^Szene=Room_Test Pos=\(.*\) Gold=340 Stufe=3 Angriff=$($a0 + 3) .* Reisen=2 reist=False Ankunft=Ankunft$"
 '  ' + (Eval 't2_setup.cs')
 
 'B12) Rueckkehr-Portal'
 [void](Eval 'b_portal_go.cs' @{ NAME = 'Portal_Basis' }); Wait 2500; WaitReady
-Check 'B12 zurueck in der Stadt vor der Hoehle' (Eval 'b_state.cs') '^Szene=Base Pos=\(-18\.5,9\.3\) Gold=340 Stufe=3 .* Reisen=2 reist=False Ankunft=Portal$'
+Check 'B12 zurueck in der Hoehle am Portal' (Eval 'b_state.cs') '^Szene=Cave Pos=\(0\.0,1\.1\) Gold=340 Stufe=3 .* Reisen=3 reist=False Ankunft=Portal$'
+[void](Eval 'b_door_go.cs' @{ NAME = 'Tuer_Ausgang' }); Wait 2500; WaitReady
+Check 'B12 aus der Hoehle in die Stadt' (Eval 'b_state.cs') '^Szene=Base Pos=\(-18\.5,9\.3\) Gold=340 Stufe=3 .* Reisen=4 reist=False Ankunft=Portal$'
 '  ' + (Eval 't2_setup.cs')
 [void](Eval 'lk_zoom.cs' @{ SIZE = '3.5'; X = '0'; Y = '-1' }); Wait 400
 Shot 'm6_basis'
@@ -88,7 +92,7 @@ Check 'B13 Tod: -10 % Gold' (Eval 'b_die.cs') '^tot=True Gold 340->306 Verlust=3
 Wait 600
 Shot 'm6_besiegt'
 Wait 3200; WaitReady
-Check 'B13 zurueck in der Basis, Leben und Mana voll' (Eval 'b_state.cs') '^Szene=Base Pos=\(0\.0,-2\.0\) Gold=306 Stufe=3 Angriff=\d+ HP=(\d+)/\1 Mana=(\d+)/\2 Reisen=3 reist=False Ankunft=Start$'
+Check 'B13 zurueck in der Basis, Leben und Mana voll' (Eval 'b_state.cs') '^Szene=Base Pos=\(0\.0,-2\.0\) Gold=306 Stufe=3 Angriff=\d+ HP=(\d+)/\1 Mana=(\d+)/\2 Reisen=5 reist=False Ankunft=Start$'
 StopPlay
 
 'B14) Alter Spielstand (Version 2)'

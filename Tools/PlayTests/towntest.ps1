@@ -50,10 +50,15 @@ foreach ($v in @(@('m7a_marktplatz', '0', '-1'), @('m7a_gilden', '0', '8'), @('m
 [void](Eval 'lk_zoom.cs' @{ SIZE = '3.5'; X = '0'; Y = '-2' }); Wait 600
 Shot 'm7a_start'
 
-'T6) Durch die Hoehle in den Kampfraum (laufen)'
-[void](Eval 'w_walk.cs' @{ PX = '-18.5'; PY = '9.3'; SX = '0'; SY = '1' }); Wait 3500; WaitReady
+'T6) Durch die Hoehle in den Kampfraum (laufen, Meilenstein 7b: erst in die Hoehle)'
+[void](Eval 'w_walk.cs' @{ PX = '-18.5'; PY = '9.3'; SX = '0'; SY = '1' }); Wait 900
+[void](Eval 'w_pos.cs')   # Stick loslassen, sonst laeuft die Figur in der Hoehle gleich weiter ins Portal
+Wait 2300; WaitReady
+Check 'T6 Hoehle erreicht' (Eval 'b_state.cs') '^Szene=Cave .* Reisen=1 reist=False Ankunft=Eingang$'
+'  ' + (Eval 't2_setup.cs')
+[void](Eval 'w_walk.cs' @{ PX = '0'; PY = '-3.6'; SX = '0'; SY = '1' }); Wait 3500; WaitReady
 [void](Eval 'w_pos.cs')
-Check 'T6 Kampfraum erreicht' (Eval 'b_state.cs') '^Szene=Room_Test .* Reisen=1 reist=False Ankunft=Ankunft$'
+Check 'T6 Kampfraum erreicht' (Eval 'b_state.cs') '^Szene=Room_Test .* Reisen=2 reist=False Ankunft=Ankunft$'
 
 StopPlay
 TestResult 'Stadt-Test' $f0

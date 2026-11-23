@@ -375,6 +375,13 @@ namespace Reborn.EditorTools
             TownProp(guilds, "Guild_Assassin", "guild_assassin", new Vector2(9.5f, 10f), 2.85f, 1.5f);
             foreach (var p in new[] { new Vector2(-14.5f, 8.3f), new Vector2(-4.6f, 8.3f), new Vector2(4.6f, 8.3f), new Vector2(14.5f, 8.3f) })
                 Lantern(guilds, p);
+            // Meilenstein 7b: Tueren an der Vorderkante der Grundflaeche, Ankunft davor
+            AddDoor(guilds, "Tuer_Gilde_Krieger", new Vector2(-9.5f, 10f - 1.8f * DepthPerMeter - 0.12f), new Vector2(0.8f, 0.25f), SceneWarrior, "Eingang");
+            AddDoor(guilds, "Tuer_Gilde_Magier", new Vector2(-0.5f, 11.3f - 1.5f * DepthPerMeter - 0.12f), new Vector2(0.8f, 0.25f), SceneMage, "Eingang");
+            AddDoor(guilds, "Tuer_Gilde_Assassine", new Vector2(9.5f, 10f - 1.5f * DepthPerMeter - 0.12f), new Vector2(0.8f, 0.25f), SceneAssassin, "Eingang");
+            AddSpawn("Tuer_Krieger", new Vector2(-9.5f, 8.6f));
+            AddSpawn("Tuer_Magier", new Vector2(-0.5f, 9.9f));
+            AddSpawn("Tuer_Assassine", new Vector2(9.5f, 8.7f));
             for (int i = 0; i < 6; i++)
                 TownProp(guilds, $"Hedge_{i}", "hedge", new Vector2(-17.5f + i * 7f, 14.6f), 1.05f, 0.3f);
 
@@ -387,14 +394,14 @@ namespace Reborn.EditorTools
             AddFootprint(rock, 0.75f, 0.5f, 1.55f, 0.2f);
             var gate = (GameObject)PrefabUtility.InstantiatePrefab(portal);
             PrefabUtility.UnpackPrefabInstance(gate, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
-            gate.name = "Portal_Kampf";
+            gate.name = "Tuer_Hoehle";   // Meilenstein 7b: fuehrt in die Hoehle (dort steht das Portal zum Kampfraum)
             gate.transform.SetParent(cave, true);
             gate.transform.position = new Vector3(-18.5f, 10.15f, 0f);
             var visualChild = gate.transform.Find("Visual");
             if (visualChild != null) Object.DestroyImmediate(visualChild.gameObject);   // man sieht nur das Leuchten im Hoehlenloch
             var gatePortal = gate.GetComponent<Portal>();
-            gatePortal.targetScene = SceneTravel.FightScene;
-            gatePortal.targetSpawn = "Ankunft";
+            gatePortal.targetScene = SceneCave;
+            gatePortal.targetSpawn = "Eingang";
 
             // ---- Teich im Suedosten, Baeume an der Mauer
             var nature = new GameObject("Nature").transform;

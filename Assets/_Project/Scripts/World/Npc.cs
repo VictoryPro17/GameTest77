@@ -6,7 +6,9 @@ namespace Reborn.World
     public enum NpcKind
     {
         Haendler,
-        Schmied
+        Schmied,
+        /// <summary>Meilenstein 7b: spricht einen Satz (Sprechblase); Beitreten und Quests folgen in 7c</summary>
+        Gildenmeister
     }
 
     /// <summary>NPC in der Basis (Meilenstein 6). In Reichweite zeigt das Handelsfenster "E: Sprechen".</summary>
@@ -16,6 +18,8 @@ namespace Reborn.World
         public string displayName = "Händler";
         public Economy.ShopData shop;
         public float range = 1.5f;
+        /// <summary>Satz beim Ansprechen (nur Gildenmeister, Meilenstein 7b)</summary>
+        [TextArea] public string greeting = "";
 
         static readonly List<Npc> All = new List<Npc>();
 

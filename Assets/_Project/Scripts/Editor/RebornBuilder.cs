@@ -118,6 +118,8 @@ namespace Reborn.EditorTools
             BuildScene(tiles, player, slime, hud, mobile, chest, chest2, menu, showcase, portal, trade);
             // Meilenstein 7a: Die Basis ist jetzt eine Stadt (gleiche Szene "Base", siehe RebornBuilder.Town.cs)
             BuildTownScene(tiles, player, hud, mobile, menu, trade, portal, shop, items);
+            ConfigureInteriorSprites();
+            BuildInteriors(player, hud, mobile, menu, trade, portal);   // Meilenstein 7b
             ConfigureBuild();
             AssetDatabase.SaveAssets();
             return "Meilenstein 7a gebaut (Stadt): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
@@ -1052,7 +1054,7 @@ namespace Reborn.EditorTools
             back.name = "Portal_Basis";
             back.transform.position = new Vector3(-5.8f, -4.4f, 0f);
             var backPortal = back.GetComponent<Portal>();
-            backPortal.targetScene = SceneTravel.BaseScene;
+            backPortal.targetScene = SceneCave;   // Meilenstein 7b: zurueck in die Hoehle
             backPortal.targetSpawn = "Portal";
             PrefabUtility.RecordPrefabInstancePropertyModifications(backPortal);
             AddSpawn("Ankunft", new Vector2(-4.6f, -3.1f));
@@ -1063,13 +1065,14 @@ namespace Reborn.EditorTools
 
         /// <summary>Neue Szene mit Kamera, Licht, Boden und Mauerrand (w x h Kacheln, Weg in Kachelzeile pathRow).</summary>
         static (UnityEngine.SceneManagement.Scene scene, GameObject camera) NewWorldScene(TileSet tiles, int w, int h, int pathRow,
-            bool requireTilemapCollider = true)
+            bool requireTilemapCollider = true, System.Func<TileSet> tileLoader = null)
         {
             // Kacheln nach dem Szenenwechsel frisch laden: NewScene (Single) gibt nicht benutzte Assets frei. Beim 2. Szenenbau
             // waren die Tile-Referenzen aus CreateTiles dadurch ungueltig, und SetTile setzte still nichts (Meilenstein 6).
             // Kein SaveAssets davor: gespeicherte (nicht mehr geaenderte) Assets gibt NewScene sonst ebenfalls frei.
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            tiles = ReloadTiles();
+            // Meilenstein 7b: Innenraeume laden ihre eigenen Boden- und Wandkacheln
+            tiles = tileLoader != null ? tileLoader() : ReloadTiles();
 
             var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
             var cam = camGo.AddComponent<Camera>();
@@ -1185,7 +1188,9 @@ namespace Reborn.EditorTools
         static void ConfigureBuild()
         {
             // Meilenstein 6: Spielstart in der Basis, Kampfraum als zweite Szene
-            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(BaseScenePath, true), new EditorBuildSettingsScene(ScenePath, true) };
+            var scenes = new System.Collections.Generic.List<EditorBuildSettingsScene> { new EditorBuildSettingsScene(BaseScenePath, true), new EditorBuildSettingsScene(ScenePath, true) };
+            foreach (var name in InteriorScenes) scenes.Add(new EditorBuildSettingsScene(InteriorScenePath(name), true));   // Meilenstein 7b
+            EditorBuildSettings.scenes = scenes.ToArray();
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;

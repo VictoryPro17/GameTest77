@@ -25,6 +25,9 @@ $steps = @(
     # Meilenstein 6: Basis (NPCs brauchen die Spielfigur aus Reborn_Characters.blend)
     @{ Name = "npcs";      Script = "build_npcs.py";      Blend = "Reborn_Characters.blend" },
     @{ Name = "base";      Script = "build_base.py";      Blend = $null },
+    # Meilenstein 7b: Innenraeume und Gildenmeister
+    @{ Name = "interiors";    Script = "build_interiors.py";    Blend = $null },
+    @{ Name = "guildmasters"; Script = "build_guildmasters.py"; Blend = "Reborn_Characters.blend" },
     # Meilenstein 7a: Stadt (Gebaeude, Mauer, Gilden, Kacheln) und Stadtfiguren (Spielfigur umgefaerbt, speichert nicht)
     @{ Name = "town";      Script = "build_town.py";      Blend = $null },
     @{ Name = "villagers"; Script = "build_villagers.py"; Blend = "Reborn_Characters.blend" }

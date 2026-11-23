@@ -13,7 +13,8 @@ if (walls != null)
 var groundGo = UnityEngine.GameObject.Find("Grid/Ground");
 int ground = groundGo != null ? groundGo.GetComponent<UnityEngine.Tilemaps.Tilemap>().GetUsedTilesCount() : 0;
 int wallTiles = walls != null ? walls.GetComponent<UnityEngine.Tilemaps.Tilemap>().GetUsedTilesCount() : 0;
-var portal = UnityEngine.Object.FindAnyObjectByType<Reborn.World.Portal>();
+var portalGo = UnityEngine.GameObject.Find("Tuer_Hoehle");   // Meilenstein 7b: Tueren sind auch Portale
+var portal =portalGo != null ? portalGo.GetComponent<Reborn.World.Portal>() : null;
 return "Szene=" + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
     + " Pos=(" + p.transform.position.x.ToString("F1", ic) + "," + p.transform.position.y.ToString("F1", ic) + ")"
     + " friedlich=" + Reborn.World.SceneRules.Peaceful + " Gold=" + wallet.Gold

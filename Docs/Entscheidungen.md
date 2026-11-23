@@ -499,6 +499,51 @@ Wunsch: große, schöne Stadt mit Stadtmauer und Soldaten, mehr Häuser und NPCs
 - Das Stadttor ist zu; außerhalb der Mauer gibt es nichts.
 - Häuser und Läden kann man nicht betreten.
 
+## Meilenstein 7b: Begehbare Räume
+
+### Entscheidungen
+
+| # | Thema | Entscheidung |
+|---|---|---|
+| R1 | Aufbau | Eine eigene Szene pro Raum: `Guild_Warrior`, `Guild_Mage`, `Guild_Assassin`, `Cave` |
+| R2 | Betreten | In die Tür laufen, kurz abdunkeln (wie das Portal); drinnen bringt die Fußmatte am Ausgang zurück vor die Tür |
+| R3 | Einrichtung | Krieger: Holzdielen, Waffenständer, Übungspuppe, Banner, Tisch. Magier: Steinboden mit Runenkreis, Bücherregale, Alchemietisch, schwebender Kristall. Assassinen: dunkles Holz, Vorhänge, Zielscheibe, Kisten, Kerzen |
+| R4 | Gildenmeister | Je einer pro Halle; beim Ansprechen eine Sprechblase mit einem Satz. Beitreten und Quests folgen in 7c |
+| R5 | Höhle | Der Höhleneingang führt in die Höhle; dort steht das Portal zum Kampfraum. Rückkehr aus dem Kampfraum in die Höhle, Ausgang in die Stadt vor den Felsen |
+| R6 | Licht | Drinnen dunkler (Grundlicht 0,6, Höhle 0,4) mit Fackeln, Kerzen und Kristallen als Lichtquellen |
+
+### Was gebaut ist
+
+- 4 neue Szenen (je 16 × 12 Kacheln, friedlich, eigener Boden und eigene Wände): `Guild_Warrior` (Kriegerhalle, Holzdielen, Licht 0,6), `Guild_Mage` (Magierturm, Steinboden, Licht 0,6), `Guild_Assassin` (Assassinenhaus, dunkles Holz, Licht 0,45), `Cave` (Höhle, Felsboden, Licht 0,4). Gebaut von `RebornBuilder.Interiors.cs`; alle 6 Szenen stehen in der Build-Liste (Base 0, Room_Test 1, dann die 4 Räume).
+- **Einrichtung:** Kriegerhalle mit 2 Waffenständern, 2 Übungspuppen, 2 Bannern, langem Tisch, 2 Fackeln. Magierturm mit Runenkreis, schwebendem Kristall (Licht), 4 Bücherregalen, 2 Alchemietischen, Kerzenständern, 2 Fackeln. Assassinenhaus mit 2 Vorhängen, 2 Zielscheiben, 3 Kerzenständern (Licht), Kiste. Höhle mit 5 Stalagmiten, 4 leuchtenden Kristallgruppen und dem Portal zum Kampfraum.
+- **Gildenmeister:** Kriegerin Brunhild, Erzmagier Aldric, Schattenmeisterin Nyx. Ansprechen (E, Enter, Steuerkreuz unten) zeigt eine Sprechblase mit einem Satz für 3 s (`World/SpeechBubble.cs`, neue NpcKind `Gildenmeister` mit Feld `greeting`). Kein Fenster; Beitreten und Quests folgen in 7c.
+- **Türen:** Neue Klasse `World/Door.cs` (verhält sich wie ein Portal: hineinlaufen, speichern, abdunkeln, Szene wechseln). In der Stadt je eine Tür vor Kriegerhalle, Magierturm und Assassinenhaus (`Tuer_Gilde_Krieger`, `Tuer_Gilde_Magier`, `Tuer_Gilde_Assassine`), Ankunft davor (`Tuer_Krieger`, `Tuer_Magier`, `Tuer_Assassine`). Drinnen: Fußmatte unten in der Mitte = Ausgang (`Tuer_Ausgang`), Ankunft „Eingang“.
+- **Höhlen-Weg:** Der Höhleneingang in der Stadt heißt jetzt `Tuer_Hoehle` und führt in die Höhle (Ankunft „Eingang“). In der Höhle führt `Portal_Kampf` in den Kampfraum. Das Rückkehr-Portal im Kampfraum führt jetzt in die Höhle (Ankunft „Portal“), der Höhlenausgang in die Stadt vor den Felsen.
+- `NewWorldScene` hat einen optionalen Kachel-Lader (`tileLoader`), damit Räume eigene Kacheln bekommen.
+
+### Grafik (Blender)
+
+- `build_interiors.py` (eigene Datei `Reborn_Interiors.blend`): 22 Bilder in `Sprites/Interiors` – 8 Kacheln 64 px (Floor_Wood, Floor_Stone, Floor_Dark, Floor_Cave, Wall_Wood, Wall_Mage, Wall_Dark, Wall_Cave) und 14 Einrichtungsteile (weapon_rack, dummy, banner, table_long, bookshelf, alchemy_table, crystal_float, rune_circle, curtain, target, candles, stalagmite, crystal_cluster, doormat). 0 Randwarnungen.
+- `build_guildmasters.py`: 3 Gildenmeister auf Basis der Spielfigur, je „idle“ nach unten, 4 Bilder (12 Bilder). `Reborn_Characters.blend` wird nicht gespeichert.
+- `build_all.ps1` hat die neuen Gruppen `interiors` und `guildmasters`.
+
+### Befunde
+
+- Nach dem Umbau fand `FindAnyObjectByType<Portal>` auch Türen (`Door` erbt von `Portal`). Der Basis-Test sucht den Höhleneingang jetzt über den Namen.
+- Im Stadt-Test hielt der Test den Stick nach der Ankunft in der Höhle weiter gedrückt, die Figur lief gleich ins Portal. Der Stick wird jetzt nach 0,9 s losgelassen.
+
+### Tests
+
+- Neuer Raum-Test `interiortest.ps1` (Kürzel `interior`): jede Gildenhalle hinein und hinaus mit Ankunftspunkt, rechte Wand hält, Gildenmeister spricht, Licht/Kacheln/Bilder, Höhle → Portal → Kampfraum → Höhle → Stadt, Gold bleibt über 10 Wechsel erhalten. Basis- und Stadt-Test auf den Weg über die Höhle angepasst.
+- `run_all.ps1` (look, magic, wall, m2, play, iframe, kb, hp0, base, town, interior): 160 Prüfungen, 0 Fehler (23.11.2026).
+
+### Bekannte Grenzen
+
+- Die Räume wirken noch recht leer, die Möbel sind im Maßstab der Figur klein.
+- Gildenmeister sagen nur einen Satz; Beitreten, Ränge und Quests folgen in 7c.
+- Läden und Wohnhäuser kann man weiterhin nicht betreten (so entschieden, Q5).
+- Touch auf einem echten Handy ist noch nicht getestet.
+
 ## Wichtige Dateien
 
 - `Art/Blender/Reborn_Characters.blend` – Spieler und Ausrüstung (Szene „Characters“)
@@ -515,3 +560,5 @@ Wunsch: große, schöne Stadt mit Stadtmauer und Soldaten, mehr Häuser und NPCs
 - `Art/Blender/Scripts/build_spells.py` – Zauber-Grafik (Szene „Spells“)
 - `Assets/_Project/Scripts/Magic/` – Mana, Zauberbuch, Effekte
 - `Tools/PlayTests/` – automatische Play-Tests
+- `Assets/_Project/Scenes/Guild_Warrior.unity`, `Guild_Mage.unity`, `Guild_Assassin.unity`, `Cave.unity` – begehbare Räume (Meilenstein 7b)
+- `Art/Blender/Reborn_Interiors.blend`, `Art/Blender/Scripts/build_interiors.py`, `build_guildmasters.py` – Grafik der Räume und Gildenmeister

@@ -107,6 +107,13 @@ namespace Reborn.UI
         public void Open(Npc npc)
         {
             if (IsOpen || npc == null || GameMenu.IsOpen) return;
+            // Meilenstein 7b: Gildenmeister oeffnen kein Fenster, sie sagen einen Satz (Beitreten und Quests in 7c)
+            if (npc.kind == NpcKind.Gildenmeister)
+            {
+                var bubble = npc.GetComponent<SpeechBubble>();
+                if (bubble != null) bubble.Show(npc.greeting);
+                return;
+            }
             IsOpen = true;
             CurrentNpc = npc;
             if (root != null) root.SetActive(true);
