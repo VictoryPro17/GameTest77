@@ -20,6 +20,8 @@ namespace Reborn.World
         public float range = 1.5f;
         /// <summary>Satz beim Ansprechen (nur Gildenmeister, Meilenstein 7b)</summary>
         [TextArea] public string greeting = "";
+        /// <summary>Gilde des Gildenmeisters (Meilenstein 7c)</summary>
+        public Guilds.GuildId guild;
 
         static readonly List<Npc> All = new List<Npc>();
 

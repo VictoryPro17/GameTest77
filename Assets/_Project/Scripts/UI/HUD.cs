@@ -26,6 +26,9 @@ namespace Reborn.UI
         public Text[] spellLevels = new Text[Magic.SpellBook.SlotCount];
         /// <summary>Gold (Meilenstein 6)</summary>
         public Text goldText;
+        /// <summary>Aktive Gilden-Quest oben rechts (Meilenstein 7c)</summary>
+        public Text questText;
+        Guilds.PlayerGuild _guild;
 
         Economy.PlayerWallet _wallet;
 
@@ -58,6 +61,7 @@ namespace Reborn.UI
             if (_stats != null) _stats.OnChanged += Refresh;
             if (_inventory != null) _inventory.OnChanged += Refresh;
             _wallet = player.GetComponent<Economy.PlayerWallet>();
+            _guild = player.GetComponent<Guilds.PlayerGuild>();
             if (_wallet != null) _wallet.OnChanged += HandleGold;
             Refresh();
         }
@@ -79,6 +83,11 @@ namespace Reborn.UI
         /// <summary>Mana und Zauber-Plaetze aendern sich laufend, deshalb jedes Bild neu.</summary>
         void Update()
         {
+            if (questText != null)
+            {
+                string q = _guild != null ? _guild.HudText : "";
+                if (questText.text != q) questText.text = q;
+            }
             if (_mana != null)
             {
                 if (manaFill != null)

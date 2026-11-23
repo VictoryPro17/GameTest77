@@ -236,6 +236,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23b0ee27984f934428eb267ac50de680, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Reborn.Enemies.SlimeAI
+  creatureId: schleim
+  playAttack: 0
+  attackDuration: 0.35
   detectRadius: 5
   speed: 2
   contactDamage: 5

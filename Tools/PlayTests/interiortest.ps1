@@ -26,7 +26,8 @@ foreach ($r in $rooms) {
     CheckRange "I $($r.scene): rechte Wand haelt" (Eval 'w_pos.cs') 'x' 6.65 6.85
     [void](Eval 'b_goto.cs' @{ X = '0'; Y = '1.6' }); Wait 300
     [void](Eval 'b_key.cs' @{ KEY = 'E' }); Wait 200; [void](Eval 'b_keyup.cs'); Wait 200
-    Check "I $($r.scene): Gildenmeister spricht" (Eval 'i_bubble.cs') '^Blase=True Fenster=False Text=.{20,}$'
+    Check "I $($r.scene): Gildenmeister oeffnet das Gilden-Fenster" (Eval 'b_trade.cs') ' offen=True Seite=Gilde '   # Meilenstein 7c
+    [void](Eval 'b_close.cs')
     [void](Eval 'lk_zoom.cs' @{ SIZE = '4.5'; X = '0'; Y = '0.8' }); Wait 500
     Shot $r.shot
     [void](Eval 'b_door_go.cs' @{ NAME = 'Tuer_Ausgang' }); Wait 2500; WaitReady; $n++

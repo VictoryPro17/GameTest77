@@ -82,7 +82,7 @@ Shot 'm5_figur_stab'
 
 'A) Blender-Grafik (Meilenstein 5)'
 [void](Eval 'lk_unequip_all.cs')
-Check 'A1-A3 Animationssets: Bildanzahl, 128/256 px, Fusspunkt' (Eval 'a_assets.cs') '^Sets ok=19/19 Ausruestung=14 Bilder=\d+ Fehler=0$'
+Check 'A1-A3 Animationssets: Bildanzahl, 128/256 px, Fusspunkt' (Eval 'a_assets.cs') '^Sets ok=22/22 Ausruestung=17 Bilder=\d+ Fehler=0$'   # Meilenstein 7c: +3 Gildenwaffen
 Wait 700
 Check 'A4 Treffer spielt hurt' (Eval 'a_hurt.cs') '^clip=hurt bild=hurt_\w+_\d HP=\d+$'
 Wait 600

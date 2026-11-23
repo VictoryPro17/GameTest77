@@ -230,6 +230,12 @@ namespace Reborn.EditorTools
             hud.goldText.color = T.gold;
             hud.goldText.text = "0";
 
+            // ---- Quest-Hinweis oben rechts (Meilenstein 7c)
+            hud.questText = Label("QuestText", canvas.transform, new Vector2(1, 1), new Vector2(-30, -175), new Vector2(620, 44), 26, TextAnchor.MiddleRight);
+            hud.questText.font = T.bodyBoldFont != null ? T.bodyBoldFont : hud.questText.font;
+            hud.questText.color = T.gold;
+            hud.questText.text = "";
+
             // ---- unten Mitte: Aktionsleiste (4 Zauber, Heiltrank Q, Manatrank R)
             var bar = Rect("ActionBar", canvas.transform, new Vector2(0.5f, 0f), new Vector2(0, 14), new Vector2(720, 124)).gameObject.AddComponent<Image>();
             bar.sprite = T.window;

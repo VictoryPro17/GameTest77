@@ -93,8 +93,14 @@ namespace Reborn.EditorTools
             var pickup = CreatePickupPrefab(icons["schleimgel"]);
             var goldPickup = CreateGoldPickupPrefab(goldSprite);
             var shop = CreateShop(items);
+            GuildAssets = CreateGuilds(items);   // Meilenstein 7c (vor dem Spieler-Prefab)
             var player = CreatePlayerPrefab(playerAnim, database, magic);
             var slime = CreateSlimePrefab(slimeAnim, lootTable, pickup, goldPickup);
+            // Meilenstein 7c: Schattenwolf und Riesenspinne mit Kampf-Logik
+            var wolfLoot = CreateLoot("Wolf_Loot", items, new[] { ("wolfsfell", 0.6f, 1, 1), ("heiltrank_klein", 0.15f, 1, 1) }, 3, 6);
+            var spiderLoot = CreateLoot("Spider_Loot", items, new[] { ("spinnenseide", 0.6f, 1, 1), ("manatrank_klein", 0.15f, 1, 1) }, 5, 9);
+            var wolf = CreateCreaturePrefab("Wolf", "wolf", wolfAnim, wolfLoot, pickup, goldPickup, 40, 3.2f, 8, 50, 6f, 0.25f, 0.75f);
+            var spider = CreateCreaturePrefab("Spider", "spinne", spiderAnim, spiderLoot, pickup, goldPickup, 60, 1.6f, 12, 70, 5f, 0.28f, 0.8f);
             var showcase = new[] { (wolfAnim, 0.75f), (bossAnim, 1.6f), (spiderAnim, 0.8f) };
             var chest = CreateChestPrefab(pickup, "Chest", "room_test_truhe_1", new[]
             {
@@ -120,9 +126,11 @@ namespace Reborn.EditorTools
             BuildTownScene(tiles, player, hud, mobile, menu, trade, portal, shop, items);
             ConfigureInteriorSprites();
             BuildInteriors(player, hud, mobile, menu, trade, portal);   // Meilenstein 7b
+            ConfigureForestSprites();
+            BuildForestScene(player, wolf, spider, slime, hud, mobile, menu, trade, portal);   // Meilenstein 7c
             ConfigureBuild();
             AssetDatabase.SaveAssets();
-            return "Meilenstein 7a gebaut (Stadt): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
+            return "Meilenstein 7c gebaut (Gilden, Wald): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
                 + magic.spells.Length + " Zauber, " + equipSets.Count + " Ausruestungs-Ebenen, " + shop.items.Count + " Waren)";
         }
 
@@ -549,6 +557,18 @@ namespace Reborn.EditorTools
             Item("saphirring", "Item_Saphirring", "Saphirring", "Ein goldener Ring mit tiefblauem Saphir.",
                 E, Gear, EquipSlot.Ring, new StatBlock { intelligence = 2, luck = 1 }, 0, 80, 1);
 
+            // ---- Meilenstein 7c: Beute von Wolf und Spinne, Gildenwaffen
+            Item("wolfsfell", "Item_Wolfsfell", "Wolfsfell", "Dichtes graues Fell eines Schattenwolfs.",
+                G, Mat, EquipSlot.None, none, 0, 8, 99);
+            Item("spinnenseide", "Item_Spinnenseide", "Spinnenseide", "Reißfester Faden einer Riesenspinne.",
+                G, Mat, EquipSlot.None, none, 0, 10, 99);
+            Item("gildenschwert", "Item_Gildenschwert", "Gildenschwert", "Die Klinge der Kriegergilde, mit rotem Knauf.",
+                S, Gear, EquipSlot.Hauptwaffe, new StatBlock { attack = 5, strength = 1 }, 0, 70, 1);
+            Item("gildenstab", "Item_Gildenstab", "Gildenstab", "Ein dunkler Stab mit arkanem Kristall der Magiergilde.",
+                S, Gear, EquipSlot.Hauptwaffe, new StatBlock { attack = 2, intelligence = 4 }, 0, 70, 1);
+            Item("schattendolche", "Item_Schattendolche", "Schattendolche", "Zwei leise Klingen der Assassinengilde.",
+                S, Gear, EquipSlot.Hauptwaffe, new StatBlock { attack = 4, dexterity = 2 }, 0, 70, 1);
+
             var database = LoadOrCreate<ItemDatabase>($"{DataItems}/ItemDatabase.asset");
             database.items = items.Values.ToList();
             EditorUtility.SetDirty(database);
@@ -630,6 +650,7 @@ namespace Reborn.EditorTools
             go.AddComponent<Economy.PlayerWallet>();     // Meilenstein 6: Gold
             go.AddComponent<Economy.UpgradeBook>();      // Meilenstein 6: Schmiede-Stufen
             go.AddComponent<DeathHandler>();             // Meilenstein 6: Tod -> zurueck in die Basis
+            go.AddComponent<Guilds.PlayerGuild>().guilds = GuildAssets;   // Meilenstein 7c: Gilde, Rang, Quests
             var potions = go.AddComponent<PotionUser>();
             potions.actions = input;
             var save = go.AddComponent<SaveSystem>();
@@ -1190,6 +1211,7 @@ namespace Reborn.EditorTools
             // Meilenstein 6: Spielstart in der Basis, Kampfraum als zweite Szene
             var scenes = new System.Collections.Generic.List<EditorBuildSettingsScene> { new EditorBuildSettingsScene(BaseScenePath, true), new EditorBuildSettingsScene(ScenePath, true) };
             foreach (var name in InteriorScenes) scenes.Add(new EditorBuildSettingsScene(InteriorScenePath(name), true));   // Meilenstein 7b
+            scenes.Add(new EditorBuildSettingsScene(InteriorScenePath(SceneForest), true));   // Meilenstein 7c
             EditorBuildSettings.scenes = scenes.ToArray();
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait = false;

@@ -544,6 +544,57 @@ Wunsch: große, schöne Stadt mit Stadtmauer und Soldaten, mehr Häuser und NPCs
 - Läden und Wohnhäuser kann man weiterhin nicht betreten (so entschieden, Q5).
 - Touch auf einem echten Handy ist noch nicht getestet.
 
+## Meilenstein 7c: Gilden und Quests
+
+### Entscheidungen
+
+| # | Thema | Entscheidung |
+|---|---|---|
+| G1 | Kampfgebiet | Neue Szene „Wald“ über ein zweites Portal in der Höhle: 4 Schattenwölfe, 3 Riesenspinnen, 2 Schleime, Bäume und Felsen. Der Kampfraum bleibt der Schleim-Übungsraum |
+| G2 | Gegner-KI | `SlimeAI` wird allgemeine Kreaturen-KI (Name bleibt) mit Werten pro Art. Wolf: schnell, 40 Leben, 8 Schaden, 50 EP, 3–6 Gold. Spinne: langsam, 60 Leben, 12 Schaden, 70 EP, 5–9 Gold. Angriffs-Animation bei Berührung |
+| G3 | Neue Beute | Wolfsfell (Wolf 60 %), Spinnenseide (Spinne 60 %); Material für Quests, verkaufbar |
+| G4 | Ränge | Beitritt = Rang 1 „Anwärter“ (+2 auf das Gilden-Attribut, Gildenwaffe geschenkt); nach 3 Quests Rang 2 „Geselle“ (+4, Waffe auf Stufe +2) |
+| G5 | Wechseln | Andere Gilde kostet 200 Gold; Rang und Quests der alten Gilde gehen verloren, die Waffe bleibt |
+| G6 | Quests | Je eine aktiv. Krieger: 5 Schleime → 3 Wölfe → 4 Wolfsfelle bringen. Magier: 5 Gegner mit Zaubern → 3 Spinnenseiden bringen → 3 Spinnen. Assassine: 3 Wölfe → 3 Spinnen → 6 Schleimgel und 2 Spinnenseiden bringen. Belohnung 50/80/120 Gold und 60/100/150 EP |
+| G7 | Gilden-Fenster | Beim Gildenmeister: Beitreten/Wechseln, Rang, Quest mit Fortschritt, Annehmen, Abgeben; Quest-Hinweis im HUD oben rechts |
+| G8 | Gildenwaffen | Gildenschwert (Angriff +5, Stärke +1), Gildenstab (Angriff +2, Intelligenz +4), Schattendolche (Angriff +4, Geschick +2); nur von der eigenen Gilde |
+| G9 | Speichern | Spielstand Version 4: Gilde, Rang, Quest-Nummer, Fortschritt; alte Stände laden ohne Gilde |
+
+### Was gebaut ist
+
+- **Gilden-Logik:** `Guilds/GuildData.cs` (ScriptableObject: Gilde, Attribut, Waffe, 3 Quests; Assets in `Data/Guilds`) und `Guilds/PlayerGuild.cs` am Spieler: Beitreten (Rang 1 Anwärter, +2 Attribut, Gildenwaffe ins Inventar), Wechsel für 200 Gold, eine aktive Quest, Fortschritt über das Ereignis `SlimeAI.OnAnyKilled` (Besiegen) oder das Inventar (Bringen), Abgeben mit Gold und EP, nach 3 Quests Rang 2 Geselle (+4, Gildenwaffe auf Schmiede-Stufe +2). Der Bonus fließt in `PlayerStats` ein.
+- **Zauber-Treffer:** `Health.LastHitBySpell` (gesetzt von `SpellEffect`) für die Quest „Gegner mit Zaubern besiegen“.
+- **Gilden-Fenster:** neue Seite `UI/GuildView.cs` im Handelsfenster: Begrüßung, Rang und Bonus, Quest mit Fortschritt und Belohnung, Knöpfe Beitreten/Wechseln, Annehmen, Abgeben. Gildenmeister öffnen dieses Fenster (`Npc.guild`). Quest-Hinweis im HUD oben rechts (z. B. „Wölfe besiegen 2/3“).
+- **Gegner:** `SlimeAI` ist jetzt die allgemeine Kreaturen-KI (`creatureId`, Angriffs-Animation bei Treffer). Prefabs `Wolf` (40 Leben, Tempo 3,2, 8 Schaden, 50 EP, Erkennung 6) und `Spider` (60 Leben, Tempo 1,6, 12 Schaden, 70 EP, Erkennung 5). Beute: `Wolf_Loot` (Wolfsfell 60 %, kleiner Heiltrank 15 %, 3–6 Gold), `Spider_Loot` (Spinnenseide 60 %, kleiner Manatrank 15 %, 5–9 Gold).
+- **Neue Gegenstände:** Wolfsfell (Verkauf 8), Spinnenseide (10), Gildenschwert (Angriff +5, Stärke +1), Gildenstab (Angriff +2, Intelligenz +4), Schattendolche (Angriff +4, Geschick +2), je Verkauf 70.
+- **Wald:** neue Szene `Forest` (24 × 16 Kacheln, Licht 0,8, nicht friedlich) mit 4 Schattenwölfen, 3 Riesenspinnen, 2 Schleimen, 12 Bäumen, 3 Felsen, umgestürzten Bäumen, Stümpfen, Pilzen und Farn. Erreichbar über das grüne `Portal_Wald` in der Höhle (Ankunft „Ankunft“); `Portal_Hoehle` im Wald führt zurück (Ankunft „Wald“ in der Höhle). Steht in der Build-Liste.
+- **Spielstand Version 4:** `guild`, `guildRank`, `questIndex`, `questActive`, `questProgress`; ältere Stände laden ohne Gilde.
+
+### Grafik (Blender)
+
+- `build_equipment.py`: 3 Gildenwaffen als sichtbare Ebenen (384 Bilder), 5 neue Icons; neuer Filter `item:<id>`, um nur einzelne Teile neu zu rendern.
+- `build_forest.py` (eigene Datei `Reborn_Forest.blend`): 4 Kacheln (Waldboden 2×, Waldweg, Dornenhecke als Rand) und 4 Deko-Teile (umgestürzter Baum, Pilze, Farn, Baumstumpf). 0 Randwarnungen.
+- `build_all.ps1`: neue Gruppe `forest`.
+
+### Befunde
+
+- Nach den neuen Gegenständen erwarteten 3 alte Prüfungen noch den alten Stand (19 statt 22 Animationssets, Spielstand-Version 3 statt 4); angepasst.
+- Im 0-HP-Test war die Verbindung zu Unity einmal kurz weg (nur eine Protokollzeile, keine Prüfung betroffen).
+
+### Tests
+
+- Neuer Gilden-Test `guildtest.ps1` (Kürzel `guild`): Beitreten mit Bonus und Waffe, alle 3 Krieger-Quests bis Rang 2, Abgeben zu früh geht nicht, Wechsel mit zu wenig und genug Gold, Zauber-Quest, Speichern und Laden Version 4, Wald mit Gegnern, Wolf und Spinne treffen, sterben und lassen Beute fallen, Rückweg in die Höhle. Der Raum-Test prüft jetzt, dass der Gildenmeister das Gilden-Fenster öffnet.
+- `run_all.ps1` (12 Tests: look, magic, wall, m2, play, iframe, kb, hp0, base, town, interior, guild): 186 Prüfungen, 0 Fehler (23.11.2026).
+
+### Bekannte Grenzen
+
+- Der Hinweistext unten im Gilden-Fenster nennt noch „Kaufen · Verkaufen · Verbessern“.
+- Der Wald wirkt etwas leer; Bäume sind im Maßstab klein.
+- Die Icons für Wolfsfell und Spinnenseide sind schwach erkennbar.
+- Gegner erscheinen bei jedem Betreten neu; es gibt nur Rang 1 und 2.
+- Der Boss (Waldwächter) hat noch keine Kampf-Logik.
+- Touch auf einem echten Handy ist noch nicht getestet.
+
 ## Wichtige Dateien
 
 - `Art/Blender/Reborn_Characters.blend` – Spieler und Ausrüstung (Szene „Characters“)
@@ -562,3 +613,5 @@ Wunsch: große, schöne Stadt mit Stadtmauer und Soldaten, mehr Häuser und NPCs
 - `Tools/PlayTests/` – automatische Play-Tests
 - `Assets/_Project/Scenes/Guild_Warrior.unity`, `Guild_Mage.unity`, `Guild_Assassin.unity`, `Cave.unity` – begehbare Räume (Meilenstein 7b)
 - `Art/Blender/Reborn_Interiors.blend`, `Art/Blender/Scripts/build_interiors.py`, `build_guildmasters.py` – Grafik der Räume und Gildenmeister
+- `Assets/_Project/Scripts/Guilds/` – Gilden, Ränge, Quests (Meilenstein 7c); `Assets/_Project/Scenes/Forest.unity` – Wald
+- `Art/Blender/Reborn_Forest.blend`, `Art/Blender/Scripts/build_forest.py` – Grafik des Waldes

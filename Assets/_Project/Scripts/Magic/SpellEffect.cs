@@ -47,7 +47,9 @@ namespace Reborn.Magic
         {
             if (target == null || target.IsDead) return false;
             UI.DamageNumbers.PendingColor = SpellData.ElementColor(Cast.data.element);
+            Health.DamageFromSpell = true;   // Meilenstein 7c: Quest "mit Zaubern besiegen"
             bool hit = target.TakeDamage(damage, knockback);
+            Health.DamageFromSpell = false;
             UI.DamageNumbers.PendingColor = null;
             if (!hit) return false;
             if (countXp && Cast.book != null) Cast.book.RegisterHit(Cast.slot);

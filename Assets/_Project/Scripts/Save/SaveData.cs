@@ -12,7 +12,7 @@ namespace Reborn.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 3;
+        public const int CurrentVersion = 4;
 
         public int version = CurrentVersion;
         public int level = 1;
@@ -36,6 +36,14 @@ namespace Reborn.Save
         public List<UpgradeSave> upgrades = new List<UpgradeSave>();
         /// <summary>Szene beim Speichern (nur Info; das Spiel startet immer in der Basis)</summary>
         public string lastScene = "";
+
+        // ---- ab Version 4 (Meilenstein 7c: Gilden und Quests)
+        /// <summary>"" = keine Gilde, sonst GuildId als Text</summary>
+        public string guild = "";
+        public int guildRank;
+        public int questIndex;
+        public bool questActive;
+        public int questProgress;
 
         [Serializable]
         public class UpgradeSave

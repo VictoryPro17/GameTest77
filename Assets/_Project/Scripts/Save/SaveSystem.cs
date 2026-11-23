@@ -35,6 +35,7 @@ namespace Reborn.Save
         Magic.PlayerMana _mana;
         Economy.PlayerWallet _wallet;
         Economy.UpgradeBook _upgrades;
+        Guilds.PlayerGuild _guild;
         readonly System.Collections.Generic.HashSet<string> _knownOpenChests = new System.Collections.Generic.HashSet<string>();
         bool _suppress;
 
@@ -42,6 +43,7 @@ namespace Reborn.Save
         {
             _wallet = GetComponent<Economy.PlayerWallet>();
             _upgrades = GetComponent<Economy.UpgradeBook>();
+            _guild = GetComponent<Guilds.PlayerGuild>();
             _progression = GetComponent<PlayerProgression>();
             _stats = GetComponent<PlayerStats>();
             _inventory = GetComponent<PlayerInventory>();
@@ -128,6 +130,14 @@ namespace Reborn.Save
             if (_upgrades != null)
                 foreach (var kv in _upgrades.All) data.upgrades.Add(new SaveData.UpgradeSave { id = kv.Key, level = kv.Value });
             data.lastScene = SceneManager.GetActiveScene().name;
+            if (_guild != null && _guild.Guild != Guilds.GuildId.None)
+            {
+                data.guild = _guild.Guild.ToString();
+                data.guildRank = _guild.Rank;
+                data.questIndex = _guild.QuestIndex;
+                data.questActive = _guild.QuestActive;
+                data.questProgress = _guild.Progress;
+            }
 
             try
             {
@@ -180,6 +190,13 @@ namespace Reborn.Save
                     foreach (var u in data.upgrades)
                         if (u != null) levels.Add(new System.Collections.Generic.KeyValuePair<string, int>(u.id, u.level));
                 _upgrades.SetAll(levels);
+            }
+
+            // Ab Version 4: Gilde und Quest (aeltere Staende: keine Gilde)
+            if (_guild != null)
+            {
+                var g = System.Enum.TryParse(data.guild, out Guilds.GuildId parsed) ? parsed : Guilds.GuildId.None;
+                _guild.SetState(g, data.guildRank, data.questIndex, data.questActive, data.questProgress);
             }
 
             if (_stats != null) _stats.Recalculate(false);

@@ -82,7 +82,7 @@ namespace Reborn.EditorTools
             Glow(torch.transform, new Color(1f, 0.6f, 0.25f), 1.1f, 3f, 0.75f);
         }
 
-        static void GuildMaster(Transform parent, string name, string displayName, string greeting, Vector2 pos)
+        static void GuildMaster(Transform parent, string name, string displayName, string greeting, Vector2 pos, Guilds.GuildId guild)
         {
             var go = new GameObject("Npc_Meister_" + name);
             go.transform.SetParent(parent, false);
@@ -95,6 +95,7 @@ namespace Reborn.EditorTools
             npc.kind = NpcKind.Gildenmeister;
             npc.displayName = displayName;
             npc.greeting = greeting;
+            npc.guild = guild;   // Meilenstein 7c
             npc.range = 1.5f;
             go.AddComponent<SpeechBubble>();
             var visual = new GameObject("Visual");
@@ -155,7 +156,7 @@ namespace Reborn.EditorTools
         {
             // ---- Kriegerhalle: Holz, Waffenstaender, Uebungspuppen, Banner, langer Tisch
             var (s1, r1) = NewInterior(SceneWarrior, "Floor_Wood", "Wall_Wood", 0.6f, player, "Tuer_Krieger");
-            GuildMaster(r1, "krieger", "Kriegerin Brunhild", "Willkommen, Kämpfer! Wer zu uns will, muss sich erst beweisen. Komm wieder, wenn du bereit bist.", new Vector2(0f, 2.6f));
+            GuildMaster(r1, "krieger", "Kriegerin Brunhild", "Willkommen, Kämpfer! Wer zu uns will, muss sich erst beweisen.", new Vector2(0f, 2.6f), Guilds.GuildId.Krieger);
             InteriorProp(r1, "WeaponRack_L", "weapon_rack", new Vector2(-5f, 3.9f), new Vector2(0.5f, 0.2f));
             InteriorProp(r1, "WeaponRack_R", "weapon_rack", new Vector2(5f, 3.9f), new Vector2(0.5f, 0.2f));
             InteriorProp(r1, "Banner_L", "banner", new Vector2(-2.4f, 4.5f));
@@ -172,7 +173,7 @@ namespace Reborn.EditorTools
             InteriorProp(r2, "RuneCircle", "rune_circle", new Vector2(0f, 0.2f), default, -8);
             var crystal = InteriorProp(r2, "Crystal", "crystal_float", new Vector2(0f, 0.8f), new Vector2(0.3f, 0.15f));
             Glow(crystal.transform, new Color(0.45f, 0.85f, 1f), 1.4f, 3.5f, 0.6f);
-            GuildMaster(r2, "magier", "Erzmagier Aldric", "Die Magie wählt ihre Schüler sorgfältig. Kehre zurück, wenn deine Zeit gekommen ist.", new Vector2(0f, 3f));
+            GuildMaster(r2, "magier", "Erzmagier Aldric", "Die Magie wählt ihre Schüler sorgfältig. Bist du bereit zu lernen?", new Vector2(0f, 3f), Guilds.GuildId.Magier);
             foreach (var x in new[] { -5.2f, -3.8f, 3.8f, 5.2f })
                 InteriorProp(r2, "Bookshelf", "bookshelf", new Vector2(x, 4.1f), new Vector2(0.55f, 0.2f));
             InteriorProp(r2, "Alchemy_L", "alchemy_table", new Vector2(-5f, -1.5f), new Vector2(0.5f, 0.2f));
@@ -185,7 +186,7 @@ namespace Reborn.EditorTools
 
             // ---- Assassinenhaus: dunkles Holz, Vorhaenge, Zielscheiben, Kerzen, Kisten
             var (s3, r3) = NewInterior(SceneAssassin, "Floor_Dark", "Wall_Dark", 0.45f, player, "Tuer_Assassine");
-            GuildMaster(r3, "assassine", "Schattenmeisterin Nyx", "Niemand hat dich hereingebeten ... und doch bist du hier. Interessant. Wir sprechen uns noch.", new Vector2(0f, 2.6f));
+            GuildMaster(r3, "assassine", "Schattenmeisterin Nyx", "Niemand hat dich hereingebeten ... und doch bist du hier. Interessant.", new Vector2(0f, 2.6f), Guilds.GuildId.Assassine);
             InteriorProp(r3, "Curtain_L", "curtain", new Vector2(-3.8f, 4.5f));
             InteriorProp(r3, "Curtain_R", "curtain", new Vector2(3.8f, 4.5f));
             InteriorProp(r3, "Target_1", "target", new Vector2(-5.4f, 0.2f), new Vector2(0.3f, 0.15f));
@@ -214,6 +215,18 @@ namespace Reborn.EditorTools
             gatePortal.targetScene = SceneTravel.FightScene;
             gatePortal.targetSpawn = "Ankunft";
             AddSpawn("Portal", new Vector2(0f, 1.1f));   // Rueckkehr aus dem Kampfraum
+            // Meilenstein 7c: zweites Portal (gruen) in den Wald, Rueckkehr aus dem Wald daneben
+            var forestGate = (GameObject)PrefabUtility.InstantiatePrefab(portal);
+            PrefabUtility.UnpackPrefabInstance(forestGate, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+            forestGate.name = "Portal_Wald";
+            forestGate.transform.SetParent(r4, true);
+            forestGate.transform.position = new Vector3(4.5f, 1.2f, 0f);
+            var forestPortal = forestGate.GetComponent<Portal>();
+            forestPortal.targetScene = SceneForest;
+            forestPortal.targetSpawn = "Ankunft";
+            foreach (var sr in forestGate.GetComponentsInChildren<SpriteRenderer>()) sr.color = new Color(0.65f, 1f, 0.7f);
+            foreach (var l in forestGate.GetComponentsInChildren<Light2D>()) l.color = new Color(0.45f, 1f, 0.55f);
+            AddSpawn("Wald", new Vector2(3.4f, 0.2f));
             foreach (var pos in new[] { new Vector2(-5.5f, 3.6f), new Vector2(-4.2f, -2f), new Vector2(5.3f, 3.2f), new Vector2(4.4f, -2.6f), new Vector2(-6f, 0.6f) })
                 InteriorProp(r4, "Stalagmite", "stalagmite", pos, new Vector2(0.3f, 0.15f));
             foreach (var pos in new[] { new Vector2(-3f, 3.9f), new Vector2(3.2f, 4f), new Vector2(6f, 0.4f), new Vector2(-2.6f, -3.4f) })

@@ -71,7 +71,17 @@ namespace Reborn.Progression
             Recalculate(true);
         }
 
-        StatBlock Gear => _equipment != null ? _equipment.TotalStats : new StatBlock();
+        /// <summary>Ausruestung plus Gilden-Bonus (Meilenstein 7c)</summary>
+        StatBlock Gear
+        {
+            get
+            {
+                var total = _equipment != null ? _equipment.TotalStats : new StatBlock();
+                if (_guild == null) _guild = GetComponent<Guilds.PlayerGuild>();
+                return _guild != null ? total + _guild.Bonus : total;
+            }
+        }
+        Guilds.PlayerGuild _guild;
         int Level => _progression != null ? _progression.Level : 1;
 
         public int BaseAttribute(PlayerAttribute attribute) => baseAttributes[(int)attribute];

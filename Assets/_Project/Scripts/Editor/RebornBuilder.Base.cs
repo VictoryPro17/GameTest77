@@ -159,6 +159,21 @@ namespace Reborn.EditorTools
             smith.levelText.color = new Color(1f, 0.85f, 0.4f);
             smith.detail = BuildDetail(smithPage, new Vector2(450, -10));
 
+            // ---- Gilde (Meilenstein 7c): Begruessung, Rang, Quest, Knoepfe
+            var guildPage = Stretch("GuildPage", panel);
+            var guild = guildPage.gameObject.AddComponent<GuildView>();
+            window.guildView = guild;
+            guild.greetingText = MenuText("Greeting", guildPage, new Vector2(0, 270), new Vector2(1300, 110), 30, TextAnchor.MiddleCenter);
+            guild.greetingText.fontStyle = FontStyle.Italic;
+            guild.statusText = MenuText("Status", guildPage, new Vector2(0, 150), new Vector2(1300, 80), 30, TextAnchor.MiddleCenter);
+            guild.statusText.color = new Color(1f, 0.85f, 0.4f);
+            Panel("QuestBox", guildPage, new Vector2(0, -30), new Vector2(1100, 220), new Color(0.16f, 0.15f, 0.2f, 1f));
+            guild.questText = MenuText("Quest", guildPage, new Vector2(0, -30), new Vector2(1040, 200), 32, TextAnchor.MiddleCenter);
+            guild.joinButton = MenuButton("Join", guildPage, new Vector2(-260, -230), new Vector2(380, 80), "Beitreten", 30, new Color(0.3f, 0.5f, 0.32f, 1f));
+            guild.joinLabel = guild.joinButton.GetComponentInChildren<Text>();
+            guild.acceptButton = MenuButton("Accept", guildPage, new Vector2(0, -230), new Vector2(340, 80), "Annehmen", 30, new Color(0.3f, 0.38f, 0.5f, 1f));
+            guild.turnInButton = MenuButton("TurnIn", guildPage, new Vector2(260, -230), new Vector2(340, 80), "Abgeben", 30, new Color(0.55f, 0.45f, 0.2f, 1f));
+
             root.gameObject.SetActive(false);
             return SavePrefab(canvas.gameObject, "TradeWindow");
         }

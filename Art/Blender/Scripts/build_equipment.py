@@ -32,7 +32,9 @@ ANIM = {k: list(v) for k, v in scene["anim_frames"].items()}
 # Animationen mit eigener Aktion pro Richtung ("Player_<anim>_<richtung>", von build_player.py)
 DIR_ACTIONS = set(scene.get("dir_actions", []))
 # Optional nur einzelne Animationen neu rendern:  -- <projektordner> death walk
-ONLY_ANIMS = set(argv[1:])
+ONLY_ANIMS = set(a for a in argv[1:] if not a.startswith("item:"))
+# Optional nur einzelne Teile neu rendern (Meilenstein 7c):  -- <projektordner> item:gildenschwert item:gildenstab
+ONLY_ITEMS = set(a[5:] for a in argv[1:] if a.startswith("item:"))
 r = scene.render
 
 for o in list(bpy.data.objects):
@@ -61,6 +63,12 @@ M = {
     "gem_teal": L.cel("ICON_Tuerkis", (0.2, 0.85, 0.85), emission=0.6),
     "gem_blue": L.cel("ICON_Saphir", (0.15, 0.35, 1.0), emission=0.6),
     "tooth": L.cel("ICON_Zahn", (0.95, 0.92, 0.84)),
+    # Meilenstein 7c: Gildenwaffen und neue Beute
+    "arcane": L.cel("EQ_Arkan", (0.7, 0.35, 1.0), shadow=0.8, emission=1.2),
+    "shadow": L.cel("EQ_Schatten", (0.22, 0.2, 0.28)),
+    "fur": L.cel("ICON_Fell", (0.38, 0.38, 0.44)),
+    "fur_dark": L.cel("ICON_FellDunkel", (0.22, 0.22, 0.28)),
+    "silk": L.cel("ICON_Seide", (0.95, 0.95, 0.92), emission=0.1),
 }
 
 
@@ -148,6 +156,19 @@ EQUIP = {
                             part("torus", "forearm.L", "iron_dark", (-0.41, -0.02, 1.0), (0.21, 0.21, 0.13), rot=(0, 90, 0)),
                             part("sphere", "forearm.L", "iron", (-0.43, -0.02, 1.0), (0.05, 0.05, 0.05))]
                            + [part("cube", "forearm.L", "wood_dark", (-0.427, -0.02, 1.0 + dz), (0.003, 0.2, 0.006), smooth=False) for dz in (-0.1, 0.1)]),
+    # ---- Meilenstein 7c: Gildenwaffen
+    "gildenschwert": lambda: sword("iron_light", "gold", "red", 0.4) + [part("sphere", "forearm.R", "red", (0.32, 0.06, 0.84), (0.035, 0.035, 0.035))],
+    "gildenstab": lambda: [part("cyl", "forearm.R", "shadow", (0.32, -0.02, 1.04), (0.028, 0.028, 0.64), taper=0.85),
+                           part("torus", "forearm.R", "gold", (0.32, -0.02, 1.25), (0.045, 0.045, 0.045)),
+                           part("torus", "forearm.R", "gold", (0.32, -0.02, 0.72), (0.045, 0.045, 0.045)),
+                           part("sphere", "forearm.R", "arcane", (0.32, -0.02, 1.74), (0.085, 0.085, 0.085)),
+                           part("cone", "forearm.R", "gold", (0.27, -0.02, 1.68), (0.02, 0.02, 0.09), rot=(0, -25, 0)),
+                           part("cone", "forearm.R", "gold", (0.37, -0.02, 1.68), (0.02, 0.02, 0.09), rot=(0, 25, 0))],
+    "schattendolche": lambda: pair(lambda s, sg: [
+        part("cyl", f"forearm.{s}", "shadow", (0.32 * sg, -0.02, 0.89), (0.02, 0.02, 0.06), rot=(30, 0, 0)),
+        part("cube", f"forearm.{s}", "red", (0.32 * sg, -0.06, 0.925), (0.05, 0.015, 0.015), rot=(-60, 0, 0)),
+        part("cube", f"forearm.{s}", "iron_light", (0.32 * sg, -0.16, 0.99), (0.022, 0.01, 0.12), rot=(-60, 0, 0), smooth=False),
+        part("cone", f"forearm.{s}", "iron_light", (0.32 * sg, -0.27, 1.05), (0.022, 0.01, 0.04), rot=(-150, 0, 0))]),
 }
 
 equip = {}
@@ -163,6 +184,8 @@ for item, build in EQUIP.items():
 body.is_holdout = True
 rendered = 0
 for item, obj in equip.items():
+    if ONLY_ITEMS and item not in ONLY_ITEMS:
+        continue
     out = os.path.join(EQ_DIR, item)
     os.makedirs(out, exist_ok=True)
     obj.hide_render = False
@@ -203,6 +226,13 @@ ICON_ONLY = {
                        ("cone", "tooth", (0, -0.02, -0.28), (0.07, 0.07, 0.14), (180, 0, 0)),
                        ("cone", "tooth", (-0.12, -0.02, -0.2), (0.04, 0.04, 0.09), (180, 0, 30)),
                        ("cone", "tooth", (0.12, -0.02, -0.2), (0.04, 0.04, 0.09), (180, 0, -30))],
+    # ---- Meilenstein 7c: Beute von Wolf und Spinne
+    "wolfsfell": [("sphere", "fur", (0, 0, 0), (0.34, 0.26, 0.06)), ("sphere", "fur_dark", (0.12, -0.05, 0.04), (0.1, 0.08, 0.03)),
+                  ("sphere", "fur_dark", (-0.14, 0.06, 0.04), (0.08, 0.07, 0.03)), ("cone", "fur", (-0.3, 0.18, 0), (0.08, 0.05, 0.06), (0, 0, 40)),
+                  ("cone", "fur", (0.3, 0.18, 0), (0.08, 0.05, 0.06), (0, 0, -40))],
+    "spinnenseide": [("cyl", "wood", (0, 0, 0), (0.09, 0.09, 0.3)), ("cyl", "silk", (0, 0, 0), (0.22, 0.22, 0.22)),
+                     ("torus", "silk", (0, 0, 0.1), (0.23, 0.23, 0.23)), ("cyl", "wood_dark", (0, 0, 0.3), (0.16, 0.16, 0.03)),
+                     ("cyl", "wood_dark", (0, 0, -0.3), (0.16, 0.16, 0.03))],
 }
 icon_only = {}
 for item, parts in ICON_ONLY.items():
@@ -222,8 +252,8 @@ icam = bpy.data.objects.new("IconCamera", cd); scene.collection.objects.link(ica
 scene.camera = icam
 r.resolution_x = r.resolution_y = ICON_SIZE
 body.hide_render = True
-VIEW = {"holzschwert": "right", "eisenschwert": "right", "eichenstab": "right", "holzschild": "left"}
-PAIRS = {"lederhandschuhe", "eisenhandschuhe", "lederstiefel", "eisenstiefel"}
+VIEW = {"holzschwert": "right", "eisenschwert": "right", "eichenstab": "right", "holzschild": "left", "gildenschwert": "right", "gildenstab": "right"}
+PAIRS = {"lederhandschuhe", "eisenhandschuhe", "lederstiefel", "eisenstiefel", "schattendolche"}
 R90 = math.radians(90)
 icons = 0
 for item, obj in list(equip.items()) + list(icon_only.items()):

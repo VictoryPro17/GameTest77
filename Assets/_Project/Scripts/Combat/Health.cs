@@ -24,6 +24,11 @@ namespace Reborn.Combat
         /// <summary>Tatsaechlich geheilte Menge</summary>
         public event Action<int> OnHealed;
 
+        /// <summary>Wird von Zaubern waehrend ihres Treffers gesetzt (Meilenstein 7c)</summary>
+        public static bool DamageFromSpell;
+        /// <summary>War der letzte zaehlende Treffer ein Zauber?</summary>
+        public bool LastHitBySpell { get; private set; }
+
         public int Current { get; private set; }
         public bool IsDead => Current <= 0;
         public bool IsHitInvulnerable => _hitTimer > 0f;
@@ -45,6 +50,7 @@ namespace Reborn.Combat
             if (_hitTimer > 0f) return false;
             if (defense > 0) amount = Mathf.Max(1, Mathf.RoundToInt(amount * 20f / (20f + defense)));
             Current = Mathf.Max(0, Current - amount);
+            LastHitBySpell = DamageFromSpell;
             _hitTimer = hitInvulnerability;
             OnDamaged?.Invoke(amount, knockback);
             OnAnyDamaged?.Invoke(this, amount);

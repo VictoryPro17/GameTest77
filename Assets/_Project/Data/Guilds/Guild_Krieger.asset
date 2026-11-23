@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 601ee48eb7ea8b940a71f7a37b423ad6, type: 3}
+  m_Name: Guild_Krieger
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Guilds.GuildData
+  id: 1
+  guildName: Kriegergilde
+  attribute: 0
+  weapon: {fileID: 11400000, guid: 9b0f010cfdcae8649a91846426d00ec2, type: 2}
+  quests:
+  - title: Schleime besiegen
+    kind: 0
+    target: schleim
+    amount: 5
+    item2: 
+    amount2: 0
+    gold: 50
+    xp: 60
+  - title: "W\xF6lfe besiegen"
+    kind: 0
+    target: wolf
+    amount: 3
+    item2: 
+    amount2: 0
+    gold: 80
+    xp: 100
+  - title: Wolfsfelle bringen
+    kind: 2
+    target: wolfsfell
+    amount: 4
+    item2: 
+    amount2: 0
+    gold: 120
+    xp: 150

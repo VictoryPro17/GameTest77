@@ -26,6 +26,8 @@ namespace Reborn.UI
         public Button closeButton;
         public ShopView shopView;
         public SmithView smithView;
+        /// <summary>Gilden-Seite (Meilenstein 7c): Beitreten, Rang, Quests</summary>
+        public GuildView guildView;
 
         public static bool IsOpen { get; private set; }
         /// <summary>Bild, in dem das Fenster zuletzt geschlossen wurde (das Menue soll dann nicht aufgehen)</summary>
@@ -107,8 +109,8 @@ namespace Reborn.UI
         public void Open(Npc npc)
         {
             if (IsOpen || npc == null || GameMenu.IsOpen) return;
-            // Meilenstein 7b: Gildenmeister oeffnen kein Fenster, sie sagen einen Satz (Beitreten und Quests in 7c)
-            if (npc.kind == NpcKind.Gildenmeister)
+            // Gildenmeister ohne Gilden-Seite (alte Szenen): nur die Sprechblase (Meilenstein 7b)
+            if (npc.kind == NpcKind.Gildenmeister && guildView == null)
             {
                 var bubble = npc.GetComponent<SpeechBubble>();
                 if (bubble != null) bubble.Show(npc.greeting);
@@ -124,11 +126,14 @@ namespace Reborn.UI
             HandleGold(_wallet != null ? _wallet.Gold : 0);
             if (messageText != null) messageText.text = "";
             bool shop = npc.kind == NpcKind.Haendler;
+            bool guild = npc.kind == NpcKind.Gildenmeister;
             if (shopView != null) shopView.gameObject.SetActive(shop);
-            if (smithView != null) smithView.gameObject.SetActive(!shop);
+            if (smithView != null) smithView.gameObject.SetActive(!shop && !guild);
+            if (guildView != null) guildView.gameObject.SetActive(guild);
             if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
             if (shop && shopView != null) shopView.Open(this, npc.shop);
-            if (!shop && smithView != null) smithView.Open(this);
+            if (!shop && !guild && smithView != null) smithView.Open(this);
+            if (guild && guildView != null) guildView.Open(this, npc.guild, npc.greeting);
             // Erst im naechsten Bild etwas auswaehlen: die Taste, die das Fenster geoeffnet hat (Enter),
             // soll nicht gleich "Kaufen" ausloesen
             StartCoroutine(SelectNextFrame());
@@ -140,6 +145,7 @@ namespace Reborn.UI
             if (!IsOpen) yield break;
             if (shopView != null && shopView.gameObject.activeSelf) shopView.SelectFirst();
             if (smithView != null && smithView.gameObject.activeSelf) smithView.SelectFirst();
+            if (guildView != null && guildView.gameObject.activeSelf) guildView.SelectFirst();
         }
 
         public void Close()

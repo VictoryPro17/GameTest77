@@ -89,6 +89,16 @@ namespace Reborn.Economy
             }
         }
 
+        /// <summary>Stufe direkt setzen (Gilden-Rang, Meilenstein 7c)</summary>
+        public void SetLevel(string id, int level)
+        {
+            if (string.IsNullOrEmpty(id)) return;
+            _levels[id] = Mathf.Clamp(level, 0, MaxLevel);
+            OnChanged?.Invoke();
+            var equipment = GetComponent<PlayerEquipment>();
+            if (equipment != null) equipment.NotifyChanged();
+        }
+
         /// <summary>Alle Stufen (Spielstand speichern)</summary>
         public IEnumerable<KeyValuePair<string, int>> All => _levels;
 
