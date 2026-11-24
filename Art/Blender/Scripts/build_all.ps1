@@ -39,7 +39,12 @@ $steps = @(
     @{ Name = "boss2fx";      Script = "build_boss2_fx.py";     Blend = $null },
     # Meilenstein 7a: Stadt (Gebaeude, Mauer, Gilden, Kacheln) und Stadtfiguren (Spielfigur umgefaerbt, speichert nicht)
     @{ Name = "town";      Script = "build_town.py";      Blend = $null },
-    @{ Name = "villagers"; Script = "build_villagers.py"; Blend = "Reborn_Characters.blend" }
+    @{ Name = "villagers"; Script = "build_villagers.py"; Blend = "Reborn_Characters.blend" },
+    # Meilenstein 9a: Frostgipfel, Siegel-Portal, Eisdrache
+    # (frostcreatures startet von Reborn_Enemies.blend und speichert als Reborn_FrostCreatures.blend)
+    @{ Name = "frost";          Script = "build_frost.py";           Blend = $null },
+    @{ Name = "frostcreatures"; Script = "build_frost_creatures.py"; Blend = "Reborn_Enemies.blend" },
+    @{ Name = "dragon";         Script = "build_dragon.py";          Blend = $null }
 )
 
 $failed = @()

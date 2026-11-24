@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f60c4263836c82499e7d964d59ee5c0, type: 3}
+  m_Name: Dragon_Loot
+  m_EditorClassIdentifier: Assembly-CSharp::Reborn.Loot.LootTable
+  entries:
+  - item: {fileID: 11400000, guid: c49c4bb320a0c954c9ca27b987303c55, type: 2}
+    dropChance: 1
+    min: 3
+    max: 3
+  - item: {fileID: 11400000, guid: 47a76db9cd85ec54b9af29c7bbda4792, type: 2}
+    dropChance: 1
+    min: 2
+    max: 2
+  goldMin: 600
+  goldMax: 600

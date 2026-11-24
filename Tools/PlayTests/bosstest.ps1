@@ -91,7 +91,7 @@ CheckTrue 'S9 ausserhalb: kein Ultimate-Schaden' ((Num $r 'Ultimate') -eq 2 -and
 Check 'S10 2 Woelfe mit halbem Leben' (Eval 'bs2_state.cs') ' WolfRufe=1 Woelfe=2 WolfHP=20 '
 
 'S11) Sieg ueber Stufe 2'
-Check 'S11 Beute, Gold, EP, gespeichert' (Eval 'bs_kill.cs') '^tot=True Beute=.*herz_des_waldesx1.* Gold=400 EP\+=True gespeichert=waldwaechter Version=6 '
+Check 'S11 Beute mit Frostschluessel, Gold, EP, gespeichert' (Eval 'bs_kill.cs') '^tot=True Beute=frostschluesselx1,.*herz_des_waldesx1.* Gold=400 EP\+=True gespeichert=waldwaechter Version=7 '
 Wait 3500
 Check 'S11 Boss weg, Leiste aus' (Eval 'bs_state.cs') '^kein Boss Leiste=False '
 StopPlay
@@ -104,7 +104,7 @@ Check 'S12 nach 11 Minuten wieder da (kein Erst-Sieg)' (Eval 'bs2_state.cs') '^S
 '  ' + (Eval 't2_setup.cs')
 '  ' + (Eval 'bs_wake.cs' @{ HP = '5000'; X = '0'; Y = '2.6' }); Wait 600
 [void](Eval 'bs2_do.cs' @{ ACT = 'hit:99999' }); Wait 3400
-Check 'S12 zweiter Sieg: Beute ohne Amulett' (Eval 'bs_kill.cs') '^tot=True Beute=heiltrankx2,manatrankx1 Gold=300 EP\+=True '
+Check 'S12 zweiter Sieg: Beute ohne Amulett, Schluessel erneut (Siegel zu, keiner im Inventar)' (Eval 'bs_kill.cs') '^tot=True Beute=frostschluesselx1,heiltrankx2,manatrankx1 Gold=300 EP\+=True '
 StopPlay
 'S13) Tod gegen den Boss -> Stadt'
 StartPlay

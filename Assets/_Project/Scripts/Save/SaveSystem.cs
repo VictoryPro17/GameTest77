@@ -82,6 +82,7 @@ namespace Reborn.Save
             TreasureChest.OnAnyOpened += HandleChestOpened;
             GameMenu.OnClosed += Save;
             Enemies.BossAI.OnDefeated += HandleBossDefeated;
+            Enemies.DragonAI.OnDefeated += HandleBossDefeated;   // Meilenstein 9a
         }
 
         void OnDisable()
@@ -90,6 +91,7 @@ namespace Reborn.Save
             TreasureChest.OnAnyOpened -= HandleChestOpened;
             GameMenu.OnClosed -= Save;
             Enemies.BossAI.OnDefeated -= HandleBossDefeated;
+            Enemies.DragonAI.OnDefeated -= HandleBossDefeated;
         }
 
         void Start()
@@ -144,6 +146,7 @@ namespace Reborn.Save
                 data.bossRecords.Add(new SaveData.BossRecord { id = r.id, defeatedAtTicks = r.defeatedAtTicks, kills = r.kills });
                 data.defeatedBosses.Add(r.id);
             }
+            data.worldFlags.AddRange(WorldFlags.All);   // Meilenstein 9a
             if (_mana != null)
             {
                 data.manaLevel = _mana.Level;
@@ -255,6 +258,13 @@ namespace Reborn.Save
                 boss.FirstKill = BossKills(boss.bossId) == 0;
                 if (IsBossDefeated(boss.bossId)) boss.RemoveDefeated();
             }
+            foreach (var dragon in FindObjectsByType<Enemies.DragonAI>())   // Meilenstein 9a
+            {
+                dragon.FirstKill = BossKills(dragon.bossId) == 0;
+                if (IsBossDefeated(dragon.bossId)) dragon.RemoveDefeated();
+            }
+            // Ab Version 7: Welt-Schalter (Siegel-Portal offen); aeltere Staende: keine
+            WorldFlags.SetAll(data.worldFlags);
 
             // Ab Version 2: Zauber und Mana (bei aelteren Dateien bleiben die Startwerte)
             if (_spells != null && data.spells != null)
@@ -276,6 +286,7 @@ namespace Reborn.Save
             if (Exists) File.Delete(SavePath);
             _knownOpenChests.Clear();
             _bossRecords.Clear();
+            WorldFlags.SetAll(null);
             Time.timeScale = 1f;
             SceneManager.LoadScene(SceneTravel.BaseScene);
         }

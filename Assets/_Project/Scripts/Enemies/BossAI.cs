@@ -15,7 +15,7 @@ namespace Reborn.Enemies
     /// Erst nach Stufe 2 gibt es Beute; er erscheint nach 10 Minuten wieder (SaveSystem).
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D), typeof(Health))]
-    public class BossAI : MonoBehaviour
+    public class BossAI : MonoBehaviour, IBossBarSource
     {
         enum State { Sleep, Chase, Windup, Strike, Root, Roar, Transform, ThornCast, ChargeAim, Charging, UltimateCharge, Dead }
 
@@ -68,6 +68,17 @@ namespace Reborn.Enemies
         public int wolfCallHealth = 20;
         /// <summary>Beute ab dem zweiten Sieg (ohne Amulett)</summary>
         public LootTable repeatLoot;
+
+        [Header("Meilenstein 9a: Frostschluessel")]
+        /// <summary>Faellt beim ersten Sieg; spaeter nur, solange das Siegel (bonusKeyFlag) zu ist und der Spieler keinen hat</summary>
+        public ItemData bonusKey;
+        public string bonusKeyFlag = "frost_siegel";
+        public bool KeyDropped { get; private set; }
+
+        // IBossBarSource (Meilenstein 9a)
+        public string BarName => CurrentName + (Stage >= 2 ? "  (Stufe 2)" : Phase >= 3 ? "  (Wut!)" : Phase == 2 ? "  (Phase 2)" : "");
+        public bool ShowUltimateBar => Stage >= 2;
+        public string WarningText => "Zorn des Waldes!  Lauf weg oder weiche aus!";
 
         /// <summary>Wacher, lebender Boss in der Szene (fuer die Lebensleiste), sonst null</summary>
         public static BossAI Active { get; private set; }
@@ -237,6 +248,7 @@ namespace Reborn.Enemies
             {
                 if (!FirstKill && repeatLoot != null) dropper.table = repeatLoot;
                 dropper.Drop();
+                DropKey(dropper);
             }
             if (_player != null)
             {
@@ -245,6 +257,14 @@ namespace Reborn.Enemies
             }
             OnDefeated?.Invoke(bossId);
             Destroy(gameObject, despawnDelay);
+        }
+
+        void DropKey(LootDropper dropper)
+        {
+            if (bonusKey == null || World.WorldFlags.Has(bonusKeyFlag)) return;
+            var inv = _player != null ? _player.GetComponent<Inventory.PlayerInventory>() : null;
+            if (!FirstKill && inv != null && inv.Count(bonusKey) > 0) return;
+            KeyDropped = LootDropper.Spawn(dropper.pickupPrefab, transform.position, 0.5f, bonusKey, 1) != null;
         }
 
         // ------------------------------------------------------------ Ablauf

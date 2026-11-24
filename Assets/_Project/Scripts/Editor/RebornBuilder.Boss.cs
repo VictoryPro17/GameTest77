@@ -113,6 +113,17 @@ namespace Reborn.EditorTools
             PrefabUtility.UnloadPrefabContents(root);
         }
 
+        /// <summary>Meilenstein 9a: Frostschluessel als Zusatz-Beute des Golems</summary>
+        static void SetBossKey(GameObject bossPrefab, ItemData key)
+        {
+            var root = PrefabUtility.LoadPrefabContents(AssetDatabase.GetAssetPath(bossPrefab));
+            var ai = root.GetComponent<BossAI>();
+            ai.bonusKey = key;
+            ai.bonusKeyFlag = "frost_siegel";
+            PrefabUtility.SaveAsPrefabAsset(root, AssetDatabase.GetAssetPath(bossPrefab));
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+
         /// <summary>Golem oben in der Mitte des Kampfraums (wacht in 3,2 Einheiten Naehe auf)</summary>
         static void PlaceBoss()
         {

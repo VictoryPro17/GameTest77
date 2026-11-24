@@ -36,6 +36,23 @@ namespace Reborn.Enemies
         /// <summary>Sterbe-Animation: 4 Bilder bei 12 Bildern/s = 0,33 s, danach kurz liegen bleiben</summary>
         public float despawnDelay = 0.45f;
 
+        [Header("Fernkampf (Meilenstein 9a: Frostgeist)")]
+        /// <summary>Gesetzt = schiesst aus der Ferne statt nur zu beruehren</summary>
+        public IceShard projectilePrefab;
+        public float shootRange = 5.5f;
+        /// <summary>Wunschabstand zum Spieler (naeher: weicht zurueck)</summary>
+        public float keepDistance = 3.2f;
+        public float shootCooldown = 2.2f;
+        public int projectileDamage = 10;
+        public Vector2 shootOffset = new Vector2(0f, 0.45f);
+        float _shootTimer = 1f;
+        /// <summary>Abgegebene Schuesse (fuer Tests)</summary>
+        public int Shots { get; private set; }
+        public bool IsRanged => projectilePrefab != null;
+
+        /// <summary>Fuer Tests: naechsten Schuss nach t Sekunden</summary>
+        public void SetShootTimer(float t) => _shootTimer = t;
+
         State _state = State.Idle;
         Rigidbody2D _body;
         Health _health;
@@ -101,6 +118,12 @@ namespace Reborn.Enemies
                 ? State.Chase
                 : State.Idle;
 
+            if (IsRanged && _state == State.Chase)
+            {
+                _shootTimer -= Time.deltaTime;
+                if (_shootTimer <= 0f && Vector2.Distance(transform.position, _player.position) <= shootRange) Shoot();
+            }
+
             if (_attackTimer > 0f)
             {
                 _attackTimer -= Time.deltaTime;
@@ -119,7 +142,11 @@ namespace Reborn.Enemies
             switch (_state)
             {
                 case State.Chase:
-                    _body.linearVelocity = ((Vector2)(_player.position - transform.position)).normalized * speed;
+                    Vector2 to = _player.position - transform.position;
+                    float d = to.magnitude;
+                    // Fernkaempfer halten Abstand: weiter weg naeher kommen, zu nah zurueckweichen
+                    float sign = !IsRanged || d > keepDistance ? 1f : d < keepDistance - 1f ? -1f : 0f;
+                    _body.linearVelocity = (d > 0.001f ? to / d : Vector2.zero) * speed * sign;
                     break;
                 case State.Hurt:
                     _body.linearVelocity = _knockback;
@@ -146,6 +173,22 @@ namespace Reborn.Enemies
                     _animator.Play("attack", true);
                     _attackTimer = attackDuration;
                 }
+            }
+        }
+
+        void Shoot()
+        {
+            _shootTimer = shootCooldown;
+            Shots++;
+            Vector2 origin = (Vector2)transform.position + shootOffset;
+            Vector2 target = (Vector2)_player.position + new Vector2(0f, 0.3f);
+            var shard = Instantiate(projectilePrefab, origin, Quaternion.identity);
+            shard.Launch(target - origin, projectileDamage);
+            if (_animator != null)
+            {
+                _animator.SetFacing(target - origin);
+                _animator.Play("attack", true);
+                _attackTimer = attackDuration;
             }
         }
 

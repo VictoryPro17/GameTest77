@@ -15,7 +15,7 @@ namespace Reborn.World
 
         float _startTime;
 
-        void Start() => _startTime = Time.time;
+        protected void Start() => _startTime = Time.time;
 
         void OnTriggerEnter2D(Collider2D other) => Try(other);
         void OnTriggerStay2D(Collider2D other) => Try(other);
@@ -27,8 +27,12 @@ namespace Reborn.World
             if (body == null || !body.CompareTag("Player")) return;
             var health = body.GetComponent<Combat.Health>();
             if (health != null && health.IsDead) return;
+            if (!CanEnter) return;
             Enter();
         }
+
+        /// <summary>Darf man hinein? (Siegel-Portal, Meilenstein 9a: erst nach dem Oeffnen)</summary>
+        public virtual bool CanEnter => true;
 
         /// <summary>Reise starten (auch fuer Tests)</summary>
         public void Enter() => SceneTravel.Go(targetScene, targetSpawn);

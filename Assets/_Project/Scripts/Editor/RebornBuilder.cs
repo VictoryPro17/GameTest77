@@ -109,6 +109,7 @@ namespace Reborn.EditorTools
             var rootSpike = CreateRootSpikePrefab();
             BossPrefab = CreateBossPrefab(bossAnim, bossLoot, pickup, goldPickup, wolf, rootSpike);
             AddBossStage2(BossPrefab, items);   // Meilenstein 8b: Stufe 2, Dornenwelle, Ansturm, Ultimate
+            SetBossKey(BossPrefab, items["frostschluessel"]);   // Meilenstein 9a: Golem laesst den Frostschluessel fallen
             var chest = CreateChestPrefab(pickup, "Chest", "room_test_truhe_1", new[]
             {
                 new TreasureChest.Content { item = items["holzschwert"], count = 1 },
@@ -136,9 +137,11 @@ namespace Reborn.EditorTools
             BuildInteriors(player, hud, mobile, menu, trade, portal);   // Meilenstein 7b
             ConfigureForestSprites();
             BuildForestScene(player, wolf, spider, slime, hud, mobile, menu, trade, portal);   // Meilenstein 7c
+            // Meilenstein 9a: Frostgipfel mit Eiswoelfen, Frostgeistern und Eisdrache; Siegel-Portal in der Hoehle
+            BuildFrost(items, pickup, goldPickup, player, hud, mobile, menu, trade, portal);
             ConfigureBuild();
             AssetDatabase.SaveAssets();
-            return "Meilenstein 8b gebaut (Boss Stufe 2): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
+            return "Meilenstein 9a gebaut (Frostgipfel, Eisdrache): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
                 + magic.spells.Length + " Zauber, " + equipSets.Count + " Ausruestungs-Ebenen, " + shop.items.Count + " Waren)";
         }
 
@@ -580,6 +583,14 @@ namespace Reborn.EditorTools
             // ---- Meilenstein 8: Beute des Golem-Bosses
             Item("herz_des_waldes", "Item_HerzDesWaldes", "Herz des Waldes", "Das leuchtende Herz des Waldwächters. Pulsiert noch leise.",
                 E, Gear, EquipSlot.Halskette, new StatBlock { maxHealth = 25, vitality = 3 }, 0, 150, 1);
+
+            // ---- Meilenstein 9a: Frostschluessel (Golem), Beute des Frostgipfels und des Eisdrachen
+            Item("frostschluessel", "Item_Frostschluessel", "Frostschlüssel", "Ein eisiger Schlüssel aus dem Herzen des Waldwächters. Er öffnet das Siegel-Portal in der Höhle.",
+                E, Mat, EquipSlot.None, none, 0, 1, 1);
+            Item("eiskristall", "Item_Eiskristall", "Eiskristall", "Ein kalt leuchtender Kristall vom Frostgipfel. Wird zum Herstellen gebraucht.",
+                S, Mat, EquipSlot.None, none, 0, 25, 20);
+            Item("drachenschuppe", "Item_Drachenschuppe", "Drachenschuppe", "Eine harte, eisblaue Schuppe des Eisdrachen.",
+                E, Mat, EquipSlot.None, none, 0, 60, 20);
 
             var database = LoadOrCreate<ItemDatabase>($"{DataItems}/ItemDatabase.asset");
             database.items = items.Values.ToList();
@@ -1225,6 +1236,7 @@ namespace Reborn.EditorTools
             var scenes = new System.Collections.Generic.List<EditorBuildSettingsScene> { new EditorBuildSettingsScene(BaseScenePath, true), new EditorBuildSettingsScene(ScenePath, true) };
             foreach (var name in InteriorScenes) scenes.Add(new EditorBuildSettingsScene(InteriorScenePath(name), true));   // Meilenstein 7b
             scenes.Add(new EditorBuildSettingsScene(InteriorScenePath(SceneForest), true));   // Meilenstein 7c
+            scenes.Add(new EditorBuildSettingsScene(InteriorScenePath(SceneFrost), true));    // Meilenstein 9a
             EditorBuildSettings.scenes = scenes.ToArray();
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait = false;

@@ -719,3 +719,67 @@ Grafik von einem Sonnet-Hilfsagenten nach Vorgabe erstellt.
 - `Assets/_Project/Scripts/Enemies/BossAI.cs`, `RootSpike.cs`, `Assets/_Project/Scripts/UI/BossBar.cs` – Golem-Boss (Meilenstein 8)
 - `Art/Blender/Scripts/build_boss_extras.py`, `build_interiors2.py`, `build_guildmembers.py` – Boss-Extras, neue Möbel, Gildenmitglieder
 - `Assets/_Project/Scripts/Enemies/ThornWave.cs`, `ChargeTelegraph.cs`, `UltimateZone.cs`; `Art/Blender/Scripts/build_boss2.py`, `build_boss2_fx.py` – Boss Stufe 2 (Meilenstein 8b)
+
+## Meilenstein 9: Schlüssel-Portal, Frostgipfel, Gilden-Fähigkeiten, Handwerk, Begleiter
+
+Status: beschlossen. Umsetzung in zwei Teilen: 9a und 9b.
+
+### Entscheidungen
+
+| # | Thema | Entscheidung |
+|---|---|---|
+| D1 | Frostschlüssel | Der Golem lässt beim ersten Sieg fest den Frostschlüssel fallen. Bei späteren Siegen nur, solange das Siegel-Portal noch nicht geöffnet ist und der Spieler keinen Schlüssel hat |
+| D2 | Siegel-Portal | Drittes Portal in der Höhle, grau und versiegelt. Mit Schlüssel und E (Interagieren) wird es blau und bleibt offen (gespeichert), der Schlüssel wird verbraucht. Ohne Schlüssel Hinweis „Versiegelt – ein Schlüssel fehlt“ |
+| D3 | Frostgipfel | Neue Szene, 28 × 18 Kacheln (Schnee, Eis, gefrorene Bäume, Eisfelsen). 4 Eiswölfe (60 Leben, schnell, 12 Schaden), 3 Frostgeister (70 Leben, schweben, schießen Eissplitter aus der Ferne, 10 Schaden; erster Fernkampf-Gegner). Hinten eine Arena mit dem Boss |
+| D4 | Eisdrache | 3000 Leben, wacht bei Nähe auf, eigene Lebensleiste. Eisatem (Kegel, 1 s Warnung), Eisregen (5 Warnkreise, Eiszapfen), Flügelschlag (Rückstoß-Welle). Ab 50 %: Flugphase 5 s unverwundbar, ruft 2 Frostgeister. Ultimate „Blizzard“: 5 s Aufladung, ganze Arena, Schutz nur hinter 3 Eissäulen, sonst 60 % Leben Schaden. Erscheint wie der Golem nach 10 Minuten wieder |
+| D5 | Drachen-Beute | Erster Sieg: Drachenschuppe × 3, Eiskristall × 2, 600 Gold, 1000 EP. Danach Gold und Eiskristalle |
+| D6 | Gilden-Fähigkeit | Ab Rang 2. Taste F, Controller Steuerkreuz rechts, eigener Handy-Knopf. Krieger Wirbelschlag (Rundumschlag, 2× Angriff, 8 s Abklingzeit). Magier Kettenblitz (springt auf 3 Gegner, 15 Mana, 6 s). Assassine Schattensprung (hinter den nächsten Gegner, nächster Treffer 2× Schaden, 7 s) |
+| D7 | Handwerk | Schmied-Reiter „Herstellen“. Wolfsfell-Rüstung (Brust, Verteidigung 3, Leben +15; 5 Wolfsfell + 50 Gold). Seidenrobe (Brust, Intelligenz +3, Verteidigung 1; 4 Spinnenseide + 50 Gold). Heiltrank (3 Schleimgel + 10 Gold). Frostklinge (Angriff 9; 3 Drachenschuppen + 2 Eiskristalle + 200 Gold) |
+| D8 | Begleiter | Wolfspfeife beim Händler (250 Gold). Ruft den Wolfswelpen: folgt, greift Gegner in 4 Einheiten Nähe an, steigt bis Stufe 3 auf (4 / 7 / 10 Schaden). Bei 0 Leben fällt er 20 s aus und steht wieder auf. Wird gespeichert |
+| D9 | Spielstand | Version 7: geöffnete Portale, Drache (Zeit wie beim Golem), Begleiter (Stufe, EP). Alte Stände laden weiter |
+| D10 | Arbeitsteilung | Kern-Logik und Prüfung macht die Hauptsitzung (Opus). Blender-Grafik, Szenen-Aufbau Frostgipfel und Test-Schnipsel günstige Sonnet-Hilfsagenten. Doku Haiku |
+
+### Umsetzung 9a (Schlüssel-Portal, Frostgipfel, Eisdrache)
+
+#### Was gebaut ist
+
+- **Welt-Schalter:** `World/WorldFlags.cs` – dauerhafte Schalter der Welt, im Spielstand Version 7 im Feld `worldFlags`.
+- **Siegel-Portal:** `World/SealedPortal.cs` erbt von `Portal`. Dafür hat `Portal` jetzt eine virtuelle Methode `CanEnter`. Mit dem Frostschlüssel öffnet E das Siegel (Sprechblase „E: Siegel öffnen“), der Schlüssel wird verbraucht und das Portal bleibt offen. Ohne Schlüssel erscheint „Versiegelt – ein Schlüssel fehlt“. Das Portal `Portal_Frost` liegt links in der Höhle, Ankunft „Frost“.
+- **Schlüssel:** `BossAI` lässt den Frostschlüssel (`bonusKey`) beim ersten Sieg fallen. Bei späteren Siegen nur, wenn das Siegel noch zu ist und der Spieler keinen Schlüssel hat.
+- **Slime mit Fernkampf:** `SlimeAI` hat die Felder `projectilePrefab`, Schussweite 5,5, Abstand halten 3,2, Abklingzeit 2,2 s und Schaden 10. Er hält Abstand zum Spieler.
+- **Eissplitter:** `Enemies/IceShard.cs` – Geschoss ohne Physik.
+- **Eisdrache:** `Enemies/DragonAI.cs`
+  - Eisatem: Kegel 4,2 Einheiten, 30°, 1 s Warnung, 30 Schaden, alle 5 s.
+  - Eisregen: 5 Eiszapfen, 25 Schaden, alle 9 s.
+  - Flügelschlag (nah): 15 Schaden mit Rückstoß, alle 6 s.
+  - Flugphase bei 50 %: 5 s unverwundbar, ruft 2 Frostgeister.
+  - Blizzard: erst nach 25 s, dann alle 35 s, 5 s Aufladung, 60 % Schaden außer hinter einer Eissäule. Die Deckung wird per Linecast auf `IcePillar` geprüft.
+- **Eissäulen:** `Enemies/IcePillar.cs` steht in einer eigenen Datei, weil Unity MonoBehaviours nur speichert, wenn Dateiname und Klassenname gleich sind. Vorher ging dadurch eine Säule verloren.
+- **Lebensleiste:** `Enemies/IBossBarSource.cs` ist die gemeinsame Schnittstelle für die Leiste von Golem und Drache, `ActiveBoss.Current` liefert den wachen Boss.
+- **Wiederkehr:** Der Drache erscheint wie der Golem nach 10 Minuten wieder. `SaveSystem` ist auf Version 7.
+- **Gegenstände:** `frostschluessel`, `eiskristall`, `drachenschuppe`.
+- **Frostgipfel (Builder):** `RebornBuilder.Frost.cs` baut die Szene „Frost“ (28 × 18 Kacheln): 4 Eiswölfe (60 Leben, 12 Schaden), 3 Frostgeister (70 Leben, Fernkampf), Arena mit Eisdrache und 3 Eissäulen, Rückkehr-Portal in die Höhle. Die Datei hat ein Sonnet-Hilfsagent geschrieben, die Hauptsitzung hat sie geprüft.
+- **Drache:** Bild 1,6-fach vergrößert (vorher kaum größer als der Spieler), Trefferkreis 0,95.
+
+#### Grafik (Blender)
+
+Grafik von einem Sonnet-Hilfsagenten nach Vorgabe erstellt.
+
+- `build_frost.py`: Kacheln, Deko, Portale, Effekte, Icons.
+- `build_frost_creatures.py`: Eiswolf (aus dem Wolf umgefärbt) und Frostgeist.
+- `build_dragon.py`: Eisdrache, 256 px, 8 Animationen.
+- `build_all.ps1`: neue Gruppen `frost`, `frostcreatures`, `dragon`.
+
+#### Tests
+
+- Neuer Test `frosttest.ps1` mit F1–F15, 29 Prüfungen: Siegel zu, ohne und mit Schlüssel; bleibt offen nach Neustart; Reise zum Frostgipfel; Bewohner; Frostgeist schießt; Drache schläft und erwacht; Atem; Eisregen; Flügelschlag; Flugphase; Blizzard ungeschützt (60 %) und hinter Säule (geschützt); Sieg mit Beute; Wiederkehr nach 10 Minuten mit kleinerer Beute; Tod → Stadt.
+- Boss-Test S11/S12 prüft jetzt den Frostschlüssel und Version 7.
+- Snippets `fr_*.cs`.
+
+#### Bekannte Grenzen
+
+- Eissplitter fliegen durch Wände.
+- Der Drache hat im Flug keinen eigenen Höhen-Effekt, nur die Animation.
+- Die Säulen-Deckung gilt nur für die Linie zum Drachen.
+- Eiswolf-Todesanimation etwas kleiner skaliert.
+- Grafik des Drachen eher hell.

@@ -371,6 +371,12 @@ MonoBehaviour:
   hurtDuration: 0.25
   xpReward: 50
   despawnDelay: 0.45
+  projectilePrefab: {fileID: 0}
+  shootRange: 5.5
+  keepDistance: 3.2
+  shootCooldown: 2.2
+  projectileDamage: 10
+  shootOffset: {x: 0, y: 0.45}
 --- !u!114 &5402415434955490921
 MonoBehaviour:
   m_ObjectHideFlags: 0

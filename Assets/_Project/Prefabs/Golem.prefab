@@ -406,6 +406,8 @@ MonoBehaviour:
   wolfCallCount: 2
   wolfCallHealth: 20
   repeatLoot: {fileID: 11400000, guid: 3717f2f82d018a449b68eaac8f083a11, type: 2}
+  bonusKey: {fileID: 11400000, guid: 4c98856918b222a4a94269036578b1df, type: 2}
+  bonusKeyFlag: frost_siegel
 --- !u!114 &7335753284988542885
 MonoBehaviour:
   m_ObjectHideFlags: 0
