@@ -67,6 +67,8 @@ function StartPlay([switch]$KeepSave, [string]$Scene = 'Room_Test') {
     if (-not ($f1 -match '^\d+$' -and $f2 -match '^\d+$' -and [int]$f2 -gt [int]$f1)) {
         throw "Der Play-Modus laeuft nicht (Frames: '$f1' -> '$f2'). Ist der Bildschirm gesperrt?"
     }
+    # Meilenstein 10a: Standard-Einstellungen nur fuer diese Sitzung (deine Sprache und Tasten bleiben unberuehrt)
+    [void](Eval 't_settings_default.cs')
 }
 
 # Screenshot der Game-Ansicht nach Screenshots/<name>.png (Seitenverhaeltnis wie die Game-Ansicht).

@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System.Collections.Generic;
 using Reborn.Inventory;
 using Reborn.Loot;
@@ -118,7 +119,7 @@ namespace Reborn.UI
             if (goldText != null)
             {
                 var wallet = _inventory.GetComponent<Economy.PlayerWallet>();
-                goldText.text = "Gold: " + (wallet != null ? wallet.Gold : 0);
+                goldText.text = Loc.F("Gold: {0}", wallet != null ? wallet.Gold : 0);
             }
             _viewToIndex.Clear();
             if (Filter == 0)
@@ -184,18 +185,42 @@ namespace Reborn.UI
             {
                 var item = _equipment != null ? _equipment.Get(view.index) : null;
                 if (item == null) { detail.Clear(); return; }
-                detail.Show(item, 1, null, false, "Ablegen", () => DoPrimaryAndReselect(view));
+                detail.Show(item, 1, null, false, Loc.T("Ablegen"), () => DoPrimaryAndReselect(view));
                 return;
             }
             int index = InventoryIndexAt(view.index);
             var slot = index >= 0 ? _inventory.slots[index] : null;
             if (slot == null || slot.IsEmpty) { detail.Clear(); return; }
             if (slot.item.IsEquipment)
-                detail.Show(slot.item, slot.count, _equipment != null ? _equipment.WouldReplace(slot.item) : null, true, "Anlegen", () => DoPrimaryAndReselect(view));
+                detail.Show(slot.item, slot.count, _equipment != null ? _equipment.WouldReplace(slot.item) : null, true, Loc.T("Anlegen"), () => DoPrimaryAndReselect(view));
             else if (slot.item.IsUsable)
-                detail.Show(slot.item, slot.count, null, false, "Benutzen", () => DoPrimaryAndReselect(view));
+                detail.Show(slot.item, slot.count, null, false, Loc.T("Benutzen"), () => DoPrimaryAndReselect(view));
             else
                 detail.Show(slot.item, slot.count, null, false, null, null);
+            // Meilenstein 10a: Wegwerfen (1 Stueck bzw. alle); nur fuer Inventar-Plaetze, Ausgeruestetes erst ablegen
+            detail.ShowDrop(() => DropAndReselect(view, false), slot.count > 1 ? () => DropAndReselect(view, true) : (System.Action)null);
+        }
+
+        /// <summary>Gegenstand am Platz wegwerfen (alle = ganzer Stapel). true = geklappt</summary>
+        public bool Drop(ItemSlotView view, bool all)
+        {
+            if (view == null || view.isEquipSlot || _inventory == null) return false;
+            int index = InventoryIndexAt(view.index);
+            if (index < 0 || _inventory.slots[index].IsEmpty) return false;
+            int n = all ? _inventory.slots[index].count : 1;
+            bool ok = _inventory.Drop(index, n);
+            if (ok) ShowMessage(Loc.T("Weggeworfen"));
+            return ok;
+        }
+
+        void DropAndReselect(ItemSlotView view, bool all)
+        {
+            Drop(view, all);
+            if (view != null && EventSystem.current != null)
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+                EventSystem.current.SetSelectedGameObject(view.gameObject);
+            }
         }
 
         /// <summary>Aktion ueber den Knopf im Detail-Fenster: danach wieder den Platz auswaehlen,
@@ -217,7 +242,7 @@ namespace Reborn.UI
             if (view.isEquipSlot)
             {
                 if (_equipment != null && _equipment.Get(view.index) != null && !_equipment.Unequip(view.index))
-                    ShowMessage("Inventar ist voll");
+                    ShowMessage(Loc.T("Inventar ist voll"));
                 return;
             }
             int index = InventoryIndexAt(view.index);
@@ -226,11 +251,11 @@ namespace Reborn.UI
             if (slot.IsEmpty) return;
             if (slot.item.IsEquipment && _equipment != null)
             {
-                if (!_equipment.Equip(index)) ShowMessage("Kann nicht angelegt werden");
+                if (!_equipment.Equip(index)) ShowMessage(Loc.T("Kann nicht angelegt werden"));
             }
             else if (slot.item.IsUsable && _potions != null)
             {
-                if (!_potions.UseAt(index)) ShowMessage("Jetzt nicht nötig");
+                if (!_potions.UseAt(index)) ShowMessage(Loc.T("Jetzt nicht nötig"));
             }
         }
 

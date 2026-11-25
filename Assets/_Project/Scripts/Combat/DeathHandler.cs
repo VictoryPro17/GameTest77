@@ -1,3 +1,4 @@
+using Reborn.Core;
 using Reborn.World;
 using UnityEngine;
 
@@ -29,7 +30,7 @@ namespace Reborn.Combat
             LastLoss = wallet != null ? wallet.LoseFraction(goldLoss) : 0;
             var mana = GetComponent<Magic.PlayerMana>();
             if (mana != null) mana.SetCurrent(mana.Max);
-            SceneTravel.Go(SceneTravel.BaseScene, "Start", 0.5f, Message, messageTime);
+            SceneTravel.Go(SceneTravel.BaseScene, "Start", 0.5f, Loc.T(Message), messageTime);
         }
     }
 }

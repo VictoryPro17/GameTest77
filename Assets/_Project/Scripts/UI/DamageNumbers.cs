@@ -51,6 +51,7 @@ namespace Reborn.UI
         void Show(Health target, int amount)
         {
             if (template == null || target == null) return;
+            if (!Core.GameSettings.Current.damageNumbers) return;   // Meilenstein 10a: Einstellung
             var text = _pool.Count > 0 ? _pool.Pop() : Instantiate(template, template.transform.parent);
             text.gameObject.SetActive(true);
             text.text = amount.ToString();

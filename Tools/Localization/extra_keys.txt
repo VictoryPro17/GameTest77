@@ -1,0 +1,24 @@
+# Zusaetzliche deutsche Schluessel, die nur ueber Konstanten oder Parameter laufen (von extract_strings.ps1 eingelesen)
+E: Siegel öffnen
+Versiegelt – ein Schlüssel fehlt
+Das Siegel bricht!
+Du wurdest besiegt
+Neuigkeiten
+Mitwirkende
+Waldwächter
+Uralter Waldwächter
+Eisdrache
+Händler
+Schleimgel
+Aktion
+Alle
+Beenden
+Controller
+Gold
+Level
+Mana
+Sprechen
+Steuerung
+Tastatur
+Trank
+Weiter

@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System;
 using System.Collections.Generic;
 using Reborn.Inventory;
@@ -81,11 +82,11 @@ namespace Reborn.Economy
         {
             switch (result)
             {
-                case Result.Ok: return "Verbessert!";
-                case Result.NotUpgradable: return "Kann nicht verbessert werden";
-                case Result.MaxLevel: return "Höchste Stufe erreicht";
-                case Result.NotEnoughGold: return "Nicht genug Gold";
-                default: return "Nicht genug Schleimgel";
+                case Result.Ok: return Loc.T("Verbessert!");
+                case Result.NotUpgradable: return Loc.T("Kann nicht verbessert werden");
+                case Result.MaxLevel: return Loc.T("Höchste Stufe erreicht");
+                case Result.NotEnoughGold: return Loc.T("Nicht genug Gold");
+                default: return Loc.T("Nicht genug Schleimgel");
             }
         }
 

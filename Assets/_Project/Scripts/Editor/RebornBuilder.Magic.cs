@@ -305,7 +305,7 @@ namespace Reborn.EditorTools
         /// <summary>Dritter Menue-Reiter "Magie".</summary>
         static void AddMagicMenu(GameMenu menu, Transform panel, Color tabColor)
         {
-            menu.magicTabButton = MenuButton("TabMagie", panel, new Vector2(-330, 425), new Vector2(200, 62), "Magie", 30, tabColor);
+            menu.magicTabButton = MenuButton("TabMagie", panel, new Vector2(-330, 425), new Vector2(200, 62), "Magie", 30, tabColor, true);
             var page = Stretch("MagicPage", panel);
             menu.magicPage = page.gameObject;
             var view = page.gameObject.AddComponent<MagicView>();

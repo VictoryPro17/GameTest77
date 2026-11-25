@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System;
 using System.Collections.Generic;
 
@@ -31,8 +32,8 @@ namespace Reborn.Loot
             };
         }
 
-        public static readonly string[] Labels =
-            { "Angriff", "Verteidigung", "Leben", "Stärke", "Geschick", "Vitalität", "Intelligenz", "Glück" };
+        public static string[] Labels => new[]
+            { Loc.T("Angriff"), Loc.T("Verteidigung"), Loc.T("Leben"), Loc.T("Stärke"), Loc.T("Geschick"), Loc.T("Vitalität"), Loc.T("Intelligenz"), Loc.T("Glück") };
 
         /// <summary>Werte in der Reihenfolge von Labels.</summary>
         public int[] ToArray()

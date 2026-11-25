@@ -1,3 +1,4 @@
+using Reborn.Core;
 using Reborn.Guilds;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -40,7 +41,7 @@ namespace Reborn.UI
             Setup();
             _window = window;
             _id = id;
-            if (greetingText != null) greetingText.text = greeting;
+            if (greetingText != null) greetingText.text = Loc.T(greeting);
             Refresh();
         }
 
@@ -60,22 +61,22 @@ namespace Reborn.UI
             {
                 string attr = data != null ? Progression.PlayerStats.AttributeLabels[(int)data.attribute] : "";
                 statusText.text = member
-                    ? $"Rang: {GuildData.RankName(_guild.Rank)}   Bonus: {attr} +{2 * _guild.Rank}   Quests: {Mathf.Min(_guild.QuestIndex, PlayerGuild.QuestsPerRank)}/{PlayerGuild.QuestsPerRank}"
+                    ? Loc.F("Rang: {0}   Bonus: {1} +{2}   Quests: {3}/{4}", GuildData.RankName(_guild.Rank), attr, 2 * _guild.Rank, Mathf.Min(_guild.QuestIndex, PlayerGuild.QuestsPerRank), PlayerGuild.QuestsPerRank)
                     : _guild.Guild == GuildId.None
-                        ? $"Tritt bei: {attr} +2 und die Gildenwaffe „{(data != null && data.weapon != null ? data.weapon.itemName : "-")}“."
-                        : $"Du bist in der {_guild.Data.guildName}. Wechsel kostet {PlayerGuild.SwitchCost} Gold; Rang und Quests gehen verloren.";
+                        ? Loc.F("Tritt bei: {0} +2 und die Gildenwaffe „{1}“.", attr, data != null && data.weapon != null ? Loc.T(data.weapon.itemName) : "-")
+                        : Loc.F("Du bist in der {0}. Wechsel kostet {1} Gold; Rang und Quests gehen verloren.", Loc.T(_guild.Data.guildName), PlayerGuild.SwitchCost);
             }
             if (joinButton != null) joinButton.gameObject.SetActive(!member);
-            if (joinLabel != null) joinLabel.text = _guild.Guild == GuildId.None ? "Beitreten" : $"Wechseln ({PlayerGuild.SwitchCost})";
+            if (joinLabel != null) joinLabel.text = _guild.Guild == GuildId.None ? Loc.T("Beitreten") : Loc.F("Wechseln ({0})", PlayerGuild.SwitchCost);
             var q = member ? _guild.CurrentQuest : null;
             if (questText != null)
             {
                 if (!member) questText.text = "";
-                else if (q == null) questText.text = "Alle Quests erledigt. Du bist Geselle!";
+                else if (q == null) questText.text = Loc.T("Alle Quests erledigt. Du bist Geselle!");
                 else
                 {
-                    string state = _guild.QuestActive ? $"Fortschritt: {_guild.CurrentProgress}/{_guild.Required}" : "Noch nicht angenommen";
-                    questText.text = $"Quest {_guild.QuestIndex + 1}/{PlayerGuild.QuestsPerRank}: {q.title}\n{state}\nBelohnung: {q.gold} Gold, {q.xp} EP";
+                    string state = _guild.QuestActive ? Loc.F("Fortschritt: {0}/{1}", _guild.CurrentProgress, _guild.Required) : Loc.T("Noch nicht angenommen");
+                    questText.text = Loc.F("Quest {0}/{1}: {2}", _guild.QuestIndex + 1, PlayerGuild.QuestsPerRank, Loc.T(q.title)) + "\n" + state + "\n" + Loc.F("Belohnung: {0} Gold, {1} EP", q.gold, q.xp);
                 }
             }
             if (acceptButton != null) acceptButton.gameObject.SetActive(member && q != null && !_guild.QuestActive);

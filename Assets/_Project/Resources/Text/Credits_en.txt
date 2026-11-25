@@ -1,0 +1,10 @@
+<b>RE:BORN</b>
+A mini project by Victory
+
+Idea, game design and direction: Victory
+Programming, graphics (Blender) and testing: with support from Claude (Anthropic)
+Engine: Unity 6
+3D graphics rendered with Blender
+Font: see project licenses
+
+Thanks to all beta testers!

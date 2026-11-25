@@ -1,3 +1,4 @@
+using Reborn.Core;
 using Reborn.Combat;
 using Reborn.Progression;
 using Reborn.Save;
@@ -21,13 +22,13 @@ namespace Reborn.UI
         public Button confirmNo;
         public Selectable fallbackSelection;
 
-        static readonly string[] Effects =
+        static string[] Effects => new[]
         {
-            "+1 Angriff pro Punkt",
-            "Schneller angreifen und ausweichen",
-            "+5 Leben pro Punkt",
-            "+5 Mana, +1 Magieschaden pro Punkt",
-            "+3 % Beute-Chance pro Punkt"
+            Loc.T("+1 Angriff pro Punkt"),
+            Loc.T("Schneller angreifen und ausweichen"),
+            Loc.T("+5 Leben pro Punkt"),
+            Loc.T("+5 Mana, +1 Magieschaden pro Punkt"),
+            Loc.T("+3 % Beute-Chance pro Punkt")
         };
 
         PlayerStats _stats;
@@ -82,16 +83,16 @@ namespace Reborn.UI
             if (statsText != null)
             {
                 statsText.text =
-                    $"Level {_progression.Level}\n" +
-                    $"Erfahrung {_progression.XP} / {_progression.XPToNextLevel}\n\n" +
-                    $"Leben {_health.Current} / {_health.maxHealth}\n" +
-                    $"Angriff {_stats.Attack}\n" +
-                    $"Verteidigung {_stats.Defense}\n" +
-                    $"Angriff alle {_stats.AttackCooldown:0.00} s\n" +
-                    $"Ausweichen alle {_stats.DodgeCooldown:0.00} s";
+                    Loc.F("Level {0}", _progression.Level) + "\n" +
+                    Loc.F("Erfahrung {0} / {1}", _progression.XP, _progression.XPToNextLevel) + "\n\n" +
+                    Loc.F("Leben {0} / {1}", _health.Current, _health.maxHealth) + "\n" +
+                    Loc.F("Angriff {0}", _stats.Attack) + "\n" +
+                    Loc.F("Verteidigung {0}", _stats.Defense) + "\n" +
+                    Loc.F("Angriff alle {0:0.00} s", _stats.AttackCooldown) + "\n" +
+                    Loc.F("Ausweichen alle {0:0.00} s", _stats.DodgeCooldown);
             }
             int points = _stats.UnspentPoints;
-            if (pointsText != null) pointsText.text = points > 0 ? $"Freie Punkte: {points}" : "Keine freien Punkte";
+            if (pointsText != null) pointsText.text = points > 0 ? Loc.F("Freie Punkte: {0}", points) : Loc.T("Keine freien Punkte");
             for (int i = 0; i < PlayerStats.AttributeCount; i++)
             {
                 var attribute = (PlayerAttribute)i;

@@ -2728,6 +2728,7 @@ MonoBehaviour:
     count: 0
   - item: {fileID: 0}
     count: 0
+  pickupPrefab: {fileID: 5242966620883833140, guid: 4234c4ddda0cbb4498c0010a26afd950, type: 3}
 --- !u!114 &4698138938897190451
 MonoBehaviour:
   m_ObjectHideFlags: 0

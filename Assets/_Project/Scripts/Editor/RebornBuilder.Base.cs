@@ -136,8 +136,8 @@ namespace Reborn.EditorTools
             var shopPage = Stretch("ShopPage", panel);
             var shop = shopPage.gameObject.AddComponent<ShopView>();
             window.shopView = shop;
-            shop.buyTab = MenuButton("TabKaufen", shopPage, new Vector2(-560, 300), new Vector2(200, 60), "Kaufen", 28, tabColor);
-            shop.sellTab = MenuButton("TabVerkaufen", shopPage, new Vector2(-345, 300), new Vector2(220, 60), "Verkaufen", 28, tabColor);
+            shop.buyTab = MenuButton("TabKaufen", shopPage, new Vector2(-560, 300), new Vector2(200, 60), "Kaufen", 28, tabColor, true);
+            shop.sellTab = MenuButton("TabVerkaufen", shopPage, new Vector2(-345, 300), new Vector2(220, 60), "Verkaufen", 28, tabColor, true);
             var shopGrid = Rect("Grid", shopPage, new Vector2(0.5f, 0.5f), new Vector2(-260, 20), new Vector2(660, 440));
             shop.slots = new ItemSlotView[PlayerInventory.Size];
             for (int i = 0; i < PlayerInventory.Size; i++)
@@ -149,7 +149,7 @@ namespace Reborn.EditorTools
             var smith = smithPage.gameObject.AddComponent<SmithView>();
             window.smithView = smith;
             smith.material = material;
-            MenuText("SmithTitle", smithPage, new Vector2(-260, 300), new Vector2(660, 50), 28, TextAnchor.MiddleCenter, "Ausrüstung verbessern (bis +5)");
+            MenuText("SmithTitle", smithPage, new Vector2(-260, 300), new Vector2(660, 50), 28, TextAnchor.MiddleCenter, "Ausrüstung verbessern (bis +5)", true);
             // 18 Plaetze: alle 14 verbesserbaren Arten (Waffen, Schild, Leder- und Eisen-Set) passen hinein
             var smithGrid = Rect("Grid", smithPage, new Vector2(0.5f, 0.5f), new Vector2(-260, 85), new Vector2(660, 330));
             smith.slots = new ItemSlotView[18];

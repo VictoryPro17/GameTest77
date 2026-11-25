@@ -16,10 +16,19 @@ namespace Reborn.UI
         public GameObject[] combatButtons = new GameObject[0];
         public GameObject talkButton;
 
+        void OnEnable() => Core.GameSettings.OnChanged += ApplyVisibility;
+        void OnDisable() => Core.GameSettings.OnChanged -= ApplyVisibility;
+
+        /// <summary>Meilenstein 10a: Einstellung "Handy-Knoepfe" (automatisch / an / aus)</summary>
+        void ApplyVisibility()
+        {
+            bool auto = forceShow || Application.isMobilePlatform || Touchscreen.current != null;
+            if (controlsRoot != null) controlsRoot.SetActive(Core.GameSettings.ShowMobileControls(auto));
+        }
+
         void Start()
         {
-            bool show = forceShow || Application.isMobilePlatform || Touchscreen.current != null;
-            if (controlsRoot != null) controlsRoot.SetActive(show);
+            ApplyVisibility();
             bool fight = !World.SceneRules.Peaceful;
             foreach (var b in combatButtons)
                 if (b != null) b.SetActive(fight);

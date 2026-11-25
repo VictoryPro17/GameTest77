@@ -94,7 +94,7 @@ namespace Reborn.EditorTools
             var goldPickup = CreateGoldPickupPrefab(goldSprite);
             var shop = CreateShop(items);
             GuildAssets = CreateGuilds(items);   // Meilenstein 7c (vor dem Spieler-Prefab)
-            var player = CreatePlayerPrefab(playerAnim, database, magic);
+            var player = CreatePlayerPrefab(playerAnim, database, magic, pickup);
             var slime = CreateSlimePrefab(slimeAnim, lootTable, pickup, goldPickup);
             // Meilenstein 7c: Schattenwolf und Riesenspinne mit Kampf-Logik
             var wolfLoot = CreateLoot("Wolf_Loot", items, new[] { ("wolfsfell", 0.6f, 1, 1), ("heiltrank_klein", 0.15f, 1, 1) }, 3, 6);
@@ -139,9 +139,10 @@ namespace Reborn.EditorTools
             BuildForestScene(player, wolf, spider, slime, hud, mobile, menu, trade, portal);   // Meilenstein 7c
             // Meilenstein 9a: Frostgipfel mit Eiswoelfen, Frostgeistern und Eisdrache; Siegel-Portal in der Hoehle
             BuildFrost(items, pickup, goldPickup, player, hud, mobile, menu, trade, portal);
+            BuildMainMenuScene(AssetDatabase.LoadAssetAtPath<InputActionAsset>(InputPath));   // Meilenstein 10a (zuletzt: NewScene gibt Assets frei)
             ConfigureBuild();
             AssetDatabase.SaveAssets();
-            return "Meilenstein 9a gebaut (Frostgipfel, Eisdrache): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
+            return "Meilenstein 10a gebaut (Hauptmenue, Einstellungen): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
                 + magic.spells.Length + " Zauber, " + equipSets.Count + " Ausruestungs-Ebenen, " + shop.items.Count + " Waren)";
         }
 
@@ -647,7 +648,7 @@ namespace Reborn.EditorTools
             return rb;
         }
 
-        static GameObject CreatePlayerPrefab(SpriteAnimationSet anim, ItemDatabase database, MagicAssets magic)
+        static GameObject CreatePlayerPrefab(SpriteAnimationSet anim, ItemDatabase database, MagicAssets magic, GameObject pickup = null)
         {
             var input = AssetDatabase.LoadAssetAtPath<InputActionAsset>(InputPath);
             var go = new GameObject("Player") { tag = "Player", layer = LayerPlayer };
@@ -667,7 +668,8 @@ namespace Reborn.EditorTools
             attack.range = 0.55f;
             attack.radius = 0.45f;
             go.AddComponent<PlayerProgression>();
-            go.AddComponent<PlayerInventory>();
+            var inventory = go.AddComponent<PlayerInventory>();
+            if (pickup != null) inventory.pickupPrefab = pickup.GetComponent<Pickup>();   // Meilenstein 10a: Wegwerfen
             go.AddComponent<PlayerEquipment>();
             go.AddComponent<PlayerStats>();
             go.AddComponent<Economy.PlayerWallet>();     // Meilenstein 6: Gold
@@ -898,17 +900,18 @@ namespace Reborn.EditorTools
             return rt;
         }
 
-        static Text MenuText(string name, Transform parent, Vector2 pos, Vector2 size, int fontSize, TextAnchor align, string text = "")
+        static Text MenuText(string name, Transform parent, Vector2 pos, Vector2 size, int fontSize, TextAnchor align, string text = "", bool localize = false)
         {
             var t = Label(name, parent, new Vector2(0.5f, 0.5f), pos, size, fontSize, align);
             t.horizontalOverflow = HorizontalWrapMode.Wrap;
             t.verticalOverflow = VerticalWrapMode.Overflow;
             t.supportRichText = true;
             t.text = text;
+            if (localize) Localize(t);
             return t;
         }
 
-        static Button MenuButton(string name, Transform parent, Vector2 pos, Vector2 size, string label, int fontSize, Color color)
+        static Button MenuButton(string name, Transform parent, Vector2 pos, Vector2 size, string label, int fontSize, Color color, bool localize = false)
         {
             var img = Panel(name, parent, pos, size, color, PanelStyle.Button);
             var button = img.gameObject.AddComponent<Button>();
@@ -918,7 +921,7 @@ namespace Reborn.EditorTools
             colors.selectedColor = new Color(1f, 0.92f, 0.55f);
             colors.pressedColor = new Color(0.8f, 0.8f, 0.8f);
             button.colors = colors;
-            var text = MenuText("Label", img.transform, Vector2.zero, size, fontSize, TextAnchor.MiddleCenter, label);
+            var text = MenuText("Label", img.transform, Vector2.zero, size, fontSize, TextAnchor.MiddleCenter, label, localize);
             if (T != null && T.headingFont != null) text.font = T.headingFont;
             return button;
         }
@@ -968,10 +971,13 @@ namespace Reborn.EditorTools
 
             var panel = Panel("Panel", root, Vector2.zero, new Vector2(1760, 960), new Color(0.11f, 0.1f, 0.14f, 0.97f), PanelStyle.Window).transform;
             var tabColor = new Color(0.25f, 0.23f, 0.3f, 1f);
-            menu.inventoryTabButton = MenuButton("TabInventar", panel, new Vector2(-760, 425), new Vector2(200, 62), "Inventar", 30, tabColor);
-            menu.characterTabButton = MenuButton("TabCharakter", panel, new Vector2(-545, 425), new Vector2(200, 62), "Charakter", 30, tabColor);
+            menu.inventoryTabButton = MenuButton("TabInventar", panel, new Vector2(-760, 425), new Vector2(200, 62), "Inventar", 30, tabColor, true);
+            menu.characterTabButton = MenuButton("TabCharakter", panel, new Vector2(-545, 425), new Vector2(200, 62), "Charakter", 30, tabColor, true);
             menu.closeButton = MenuButton("Close", panel, new Vector2(830, 425), new Vector2(76, 62), "X", 34, new Color(0.55f, 0.2f, 0.22f, 1f));
             AddMagicMenu(menu, panel, tabColor);
+            // Meilenstein 10a: Einstellungen und Hauptmenue oben neben den Reitern (Magie endet bei x = -230)
+            menu.settingsButton = MenuButton("SettingsButton", panel, new Vector2(-65, 425), new Vector2(290, 62), "Einstellungen", 26, new Color(0.3f, 0.38f, 0.5f, 1f), true);
+            menu.mainMenuButton = MenuButton("MainMenuButton", panel, new Vector2(240, 425), new Vector2(280, 62), "Hauptmenü", 26, new Color(0.3f, 0.38f, 0.5f, 1f), true);
 
             // ---------------- Reiter Inventar
             var invPage = Stretch("InventoryPage", panel);
@@ -979,7 +985,7 @@ namespace Reborn.EditorTools
             var inv = invPage.gameObject.AddComponent<InventoryView>();
             menu.inventoryView = inv;
 
-            MenuText("EquipTitle", invPage, new Vector2(-600, 345), new Vector2(420, 50), 30, TextAnchor.MiddleCenter, "Ausrüstung");
+            MenuText("EquipTitle", invPage, new Vector2(-600, 345), new Vector2(420, 50), 30, TextAnchor.MiddleCenter, "Ausrüstung", true);
             var equipRoot = Rect("Equipment", invPage, new Vector2(0.5f, 0.5f), new Vector2(-600, 0), new Vector2(420, 600));
             var equipView = equipRoot.gameObject.AddComponent<EquipmentView>();
             // Positionen in der Reihenfolge Helm, Brust, Hose, Schuhe, Handschuhe, Hauptwaffe, Nebenhand, Halskette, Ring, Ring
@@ -996,8 +1002,8 @@ namespace Reborn.EditorTools
             string[] filterNames = { "Alle", "Ausrüstung", "Verbrauch", "Material" };
             inv.filterButtons = new Button[4];
             for (int i = 0; i < 4; i++)
-                inv.filterButtons[i] = MenuButton($"Filter_{i}", invPage, new Vector2(-310 + i * 140, 345), new Vector2(130, 54), filterNames[i], 22, tabColor);
-            inv.sortButton = MenuButton("Sort", invPage, new Vector2(250, 345), new Vector2(130, 54), "Sortieren", 22, new Color(0.3f, 0.38f, 0.5f, 1f));
+                inv.filterButtons[i] = MenuButton($"Filter_{i}", invPage, new Vector2(-310 + i * 140, 345), new Vector2(130, 54), filterNames[i], 22, tabColor, true);
+            inv.sortButton = MenuButton("Sort", invPage, new Vector2(250, 345), new Vector2(130, 54), "Sortieren", 22, new Color(0.3f, 0.38f, 0.5f, 1f), true);
 
             var gridRoot = Rect("Grid", invPage, new Vector2(0.5f, 0.5f), new Vector2(-20, 75), new Vector2(650, 430));
             inv.gridSlots = new ItemSlotView[PlayerInventory.Size];
@@ -1028,8 +1034,11 @@ namespace Reborn.EditorTools
             detail.statsText = MenuText("Stats", content, new Vector2(0, -55), new Vector2(460, 190), 25, TextAnchor.UpperLeft);
             detail.sellText = MenuText("Sell", content, new Vector2(0, -185), new Vector2(460, 36), 22, TextAnchor.MiddleLeft);
             detail.sellText.color = new Color(1f, 0.85f, 0.4f);
-            detail.actionButton = MenuButton("Action", content, new Vector2(0, -300), new Vector2(320, 80), "Anlegen", 30, new Color(0.3f, 0.5f, 0.32f, 1f));
+            detail.actionButton = MenuButton("Action", content, new Vector2(0, -268), new Vector2(320, 70), "Anlegen", 30, new Color(0.3f, 0.5f, 0.32f, 1f));
             detail.actionLabel = detail.actionButton.GetComponentInChildren<Text>();
+            // Meilenstein 10a: Wegwerfen (darunter, kleiner)
+            detail.dropButton = MenuButton("Drop", content, new Vector2(-120, -345), new Vector2(230, 56), "Wegwerfen", 24, new Color(0.55f, 0.2f, 0.22f, 1f), true);
+            detail.dropAllButton = MenuButton("DropAll", content, new Vector2(120, -345), new Vector2(230, 56), "Alle wegwerfen", 22, new Color(0.55f, 0.2f, 0.22f, 1f), true);
             content.gameObject.SetActive(false);
             inv.detail = detail;
 
@@ -1054,15 +1063,18 @@ namespace Reborn.EditorTools
                 cv.effectTexts[i].color = new Color(0.75f, 0.75f, 0.8f);
                 cv.plusButtons[i] = MenuButton($"Plus_{i}", charPage, new Vector2(560, y), new Vector2(84, 84), "+", 44, new Color(0.3f, 0.5f, 0.32f, 1f));
             }
-            cv.deleteButton = MenuButton("DeleteSave", charPage, new Vector2(520, -400), new Vector2(400, 70), "Spielstand löschen", 26, new Color(0.55f, 0.2f, 0.22f, 1f));
+            cv.deleteButton = MenuButton("DeleteSave", charPage, new Vector2(520, -400), new Vector2(400, 70), "Spielstand löschen", 26, new Color(0.55f, 0.2f, 0.22f, 1f), true);
             var confirm = Panel("Confirm", charPage, Vector2.zero, new Vector2(760, 320), new Color(0.08f, 0.07f, 0.1f, 0.98f));
-            MenuText("Question", confirm.transform, new Vector2(0, 60), new Vector2(700, 120), 32, TextAnchor.MiddleCenter, "Spielstand wirklich löschen?\nDas Spiel startet danach neu.");
-            cv.confirmYes = MenuButton("Yes", confirm.transform, new Vector2(-160, -90), new Vector2(240, 76), "Ja, löschen", 28, new Color(0.55f, 0.2f, 0.22f, 1f));
-            cv.confirmNo = MenuButton("No", confirm.transform, new Vector2(160, -90), new Vector2(240, 76), "Nein", 28, tabColor);
+            MenuText("Question", confirm.transform, new Vector2(0, 60), new Vector2(700, 120), 32, TextAnchor.MiddleCenter, "Spielstand wirklich löschen?\nDas Spiel startet danach neu.", true);
+            cv.confirmYes = MenuButton("Yes", confirm.transform, new Vector2(-160, -90), new Vector2(240, 76), "Ja, löschen", 28, new Color(0.55f, 0.2f, 0.22f, 1f), true);
+            cv.confirmNo = MenuButton("No", confirm.transform, new Vector2(160, -90), new Vector2(240, 76), "Nein", 28, tabColor, true);
             cv.confirmPanel = confirm.gameObject;
             confirm.gameObject.SetActive(false);
             charPage.gameObject.SetActive(false);
 
+            // Meilenstein 10a: Einstellungen und Nachfrage als Geschwister ueber dem Menue
+            menu.settingsView = BuildSettingsPanel(canvas.transform, input);
+            menu.confirm = BuildConfirmDialog(canvas.transform);
             return SavePrefab(canvas.gameObject, "GameMenu");
         }
 
@@ -1233,7 +1245,7 @@ namespace Reborn.EditorTools
         static void ConfigureBuild()
         {
             // Meilenstein 6: Spielstart in der Basis, Kampfraum als zweite Szene
-            var scenes = new System.Collections.Generic.List<EditorBuildSettingsScene> { new EditorBuildSettingsScene(BaseScenePath, true), new EditorBuildSettingsScene(ScenePath, true) };
+            var scenes = new System.Collections.Generic.List<EditorBuildSettingsScene> { new EditorBuildSettingsScene(MainMenuScenePath, true), new EditorBuildSettingsScene(BaseScenePath, true), new EditorBuildSettingsScene(ScenePath, true) };
             foreach (var name in InteriorScenes) scenes.Add(new EditorBuildSettingsScene(InteriorScenePath(name), true));   // Meilenstein 7b
             scenes.Add(new EditorBuildSettingsScene(InteriorScenePath(SceneForest), true));   // Meilenstein 7c
             scenes.Add(new EditorBuildSettingsScene(InteriorScenePath(SceneFrost), true));    // Meilenstein 9a

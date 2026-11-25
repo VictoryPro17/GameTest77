@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System;
 using Reborn.Economy;
 using Reborn.Enemies;
@@ -86,11 +87,11 @@ namespace Reborn.Guilds
         public string Join(GuildId id)
         {
             var d = Find(id);
-            if (d == null) return "Unbekannte Gilde";
-            if (Guild == id) return "Du bist schon Mitglied";
+            if (d == null) return Loc.T("Unbekannte Gilde");
+            if (Guild == id) return Loc.T("Du bist schon Mitglied");
             bool switching = Guild != GuildId.None;
-            if (switching && (_wallet == null || !_wallet.CanAfford(SwitchCost))) return $"Wechsel kostet {SwitchCost} Gold";
-            if (d.weapon != null && _inventory != null && _inventory.SpaceFor(d.weapon) <= 0) return "Inventar voll";
+            if (switching && (_wallet == null || !_wallet.CanAfford(SwitchCost))) return Loc.F("Wechsel kostet {0} Gold", SwitchCost);
+            if (d.weapon != null && _inventory != null && _inventory.SpaceFor(d.weapon) <= 0) return Loc.T("Inventar voll");
             if (switching) _wallet.TrySpend(SwitchCost);
             Guild = id;
             Rank = 1;
@@ -99,19 +100,19 @@ namespace Reborn.Guilds
             Progress = 0;
             if (d.weapon != null && _inventory != null) _inventory.Add(d.weapon, 1);
             Changed();
-            return $"Willkommen in der {d.guildName}!";
+            return Loc.F("Willkommen in der {0}!", Loc.T(d.guildName));
         }
 
         // ------------------------------------------------------------ Quests
         public string Accept()
         {
-            if (Guild == GuildId.None) return "Erst beitreten";
-            if (QuestActive) return "Du hast schon eine Quest";
-            if (CurrentQuest == null) return "Alle Quests erledigt";
+            if (Guild == GuildId.None) return Loc.T("Erst beitreten");
+            if (QuestActive) return Loc.T("Du hast schon eine Quest");
+            if (CurrentQuest == null) return Loc.T("Alle Quests erledigt");
             QuestActive = true;
             Progress = 0;
             Changed();
-            return "Quest angenommen: " + CurrentQuest.title;
+            return Loc.F("Quest angenommen: {0}", Loc.T(CurrentQuest.title));
         }
 
         void HandleKill(string creature, bool bySpell)
@@ -169,8 +170,8 @@ namespace Reborn.Guilds
         public string TurnIn()
         {
             var q = CurrentQuest;
-            if (!QuestActive || q == null) return "Keine aktive Quest";
-            if (!IsComplete) return $"Noch nicht fertig ({CurrentProgress}/{Required})";
+            if (!QuestActive || q == null) return Loc.T("Keine aktive Quest");
+            if (!IsComplete) return Loc.F("Noch nicht fertig ({0}/{1})", CurrentProgress, Required);
             if (q.kind == QuestKind.Bringen)
             {
                 _inventory.Remove(ItemById(q.target), q.amount);
@@ -181,20 +182,20 @@ namespace Reborn.Guilds
             QuestIndex++;
             QuestActive = false;
             Progress = 0;
-            string msg = $"Quest erledigt: +{q.gold} Gold, +{q.xp} EP";
+            string msg = Loc.F("Quest erledigt: +{0} Gold, +{1} EP", q.gold, q.xp);
             if (QuestIndex >= QuestsPerRank && Rank < 2)
             {
                 Rank = 2;
                 var w = Data != null ? Data.weapon : null;
                 if (w != null && _upgrades != null && _upgrades.Level(w) < 2) _upgrades.SetLevel(w.id, 2);
-                msg += " · Neuer Rang: Geselle!";
+                msg += Loc.T(" · Neuer Rang: Geselle!");
             }
             Changed();
             return msg;
         }
 
         /// <summary>Kurztext fuer das HUD, z. B. "Woelfe besiegen 2/3" (leer ohne aktive Quest)</summary>
-        public string HudText => QuestActive && CurrentQuest != null ? $"{CurrentQuest.title} {CurrentProgress}/{Required}" : "";
+        public string HudText => QuestActive && CurrentQuest != null ? $"{Loc.T(CurrentQuest.title)} {CurrentProgress}/{Required}" : "";
 
         /// <summary>Zustand aus dem Spielstand (Meilenstein 7c, Version 4)</summary>
         public void SetState(GuildId guild, int rank, int questIndex, bool active, int progress)

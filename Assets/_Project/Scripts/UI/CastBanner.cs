@@ -1,3 +1,4 @@
+using Reborn.Core;
 using Reborn.Magic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,12 +36,12 @@ namespace Reborn.UI
             var color = SpellData.ElementColor(spell.element);
             if (title != null)
             {
-                title.text = spell.spellName.ToUpperInvariant() + "!";
+                title.text = Loc.T(spell.spellName).ToUpperInvariant() + "!";
                 title.color = color;
             }
             if (subtitle != null)
             {
-                subtitle.text = SpellData.ElementPrefix(spell.element) + "  ·  Stufe " + level;
+                subtitle.text = Loc.F("{0}  ·  Stufe {1}", SpellData.ElementPrefix(spell.element), level);
                 subtitle.color = Color.Lerp(color, Color.white, 0.5f);
             }
             _time = duration;

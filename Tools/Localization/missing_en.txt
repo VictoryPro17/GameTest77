@@ -1,0 +1,288 @@
+  (Phase 2)
+  (Stufe 2)
+  (Wut!)
+  (in der Luft)
+ · Neuer Rang: Geselle!
++1 Angriff pro Punkt
++3 % Beute-Chance pro Punkt
++5 Leben pro Punkt
++5 Mana, +1 Magieschaden pro Punkt
++{0} Punkte
+<color=#FF8866>Gesperrt: {0}</color>
+<color=#{0}>{1}</color>  Stufe {2}/{3}   <color=#999999>[{4}]</color>
+Ab Level {0}
+Ab {0} Stufe {1}
+Abbrechen
+Abgeben
+Ablegen
+Achtung: auch belegt bei „{0}“
+Aktion
+Alchemistin
+Alle
+Alle Quests erledigt
+Alle Quests erledigt. Du bist Geselle!
+Alle wegwerfen
+Angriff
+Angriff alle {0:0.00} s
+Angriff {0}
+Anlegen
+Annehmen
+Anwärter
+Assassinengilde
+Ausrüstung
+Ausweichen
+Ausweichen alle {0:0.00} s
+Beenden
+Beinschienen mit Kniekacheln.
+Beitreten
+Belohnung: {0} Gold, {1} EP
+Benutzen
+Bequem und widerstandsfähig.
+Bildrate
+Blizzard!  Versteck dich hinter einer Eissäule!
+Brustplatte
+Charakter
+Controller
+Das Siegel bricht!
+Das leuchtende Herz des Waldwächters. Pulsiert noch leise.
+Dichtes graues Fell eines Schattenwolfs.
+Die Klinge der Kriegergilde, mit rotem Knauf.
+Die Magie wählt ihre Schüler sorgfältig. Bist du bereit zu lernen?
+Die Stadt
+Drachenschuppe
+Du bist in der {0}. Wechsel kostet {1} Gold; Rang und Quests gehen verloren.
+Du bist schon Mitglied
+Du hast schon eine Quest
+Du wurdest besiegt
+E: Mit {0} sprechen
+E: Siegel öffnen
+Effekte
+Eichenstab
+Ein Drache aus Wasser schlängelt sich durch alle Gegner.
+Ein Mini-Projekt von Victory
+Ein Ring aus Feuer breitet sich um dich aus und stößt Gegner weg.
+Ein Zauberstab mit leuchtendem Kristall.
+Ein dunkler Stab mit arkanem Kristall der Magiergilde.
+Ein einfaches Übungsschwert aus Eichenholz.
+Ein eisiger Schlüssel aus dem Herzen des Waldwächters. Er öffnet das Siegel-Portal in der Höhle.
+Ein glühender Ball, der beim Aufprall explodiert.
+Ein goldener Ring mit tiefblauem Saphir.
+Ein kalt leuchtender Kristall vom Frostgipfel. Wird zum Herstellen gebraucht.
+Ein kleiner blauer Trank, der nach Minze duftet.
+Ein kleiner roter Trank aus Waldkräutern.
+Ein kräftiger Trank aus seltenen Kräutern.
+Ein kräftiger blauer Trank aus Mondblüten.
+Ein leichter Schild aus Brettern mit Eisenrand.
+Ein schlichter Ring. Man sagt, er bringt Glück.
+Ein schwerer Helm mit Nasenschutz und rotem Kamm.
+Eine Kugel aus Wasser, die beim Treffer zerspritzt.
+Eine harte, eisblaue Schuppe des Eisdrachen.
+Einstellungen
+Eisdrache
+Eisenbeinschienen
+Eisenbrustplatte
+Eisenhandschuhe
+Eisenhelm
+Eisenschwert
+Eisenstiefel
+Eiskristall
+Episch
+Erfahrung {0} / {1}
+Erfahrung {0}/{1}
+Erst beitreten
+Erzmagier Aldric
+Feuer
+Feuer-Erschaffungsmagie
+Feuerball
+Flammenring
+Fortschritt: {0}/{1}
+Freie Punkte: {0}
+Frostgipfel
+Frostschlüssel
+Füllt sich mit {0:0.0} pro Sekunde. Meditieren (M / B halten): {1:0} pro Sekunde und Mana-Training.
+Füllt {0} Mana auf
+Gegner mit Zaubern besiegen
+Gekauft: {0}
+Gesamtlautstärke
+Geschick
+Geschmiedete Platte mit Schulterschutz.
+Geselle
+Gespeichert
+Gewöhnlich
+Gildenschwert
+Gildenstab
+Glück
+Gold
+Gold: 0
+Gold: {0}
+Halskette
+Handschuhe
+Handy-Knöpfe
+Hauptmenü
+Hauptwaffe
+Heilt {0} Leben
+Heiltrank
+Helm
+Herz des Waldes
+Holzschild
+Holzschwert
+Hose
+Händler
+Höchste Stufe erreicht
+Höhle
+Intelligenz
+Inventar
+Inventar ist voll
+Inventar voll
+Ja
+Ja, löschen
+Ja, neu beginnen
+Jetzt nicht nötig
+Kampfraum
+Kann nicht angelegt werden
+Kann nicht verbessert werden
+Kaufen
+Kaufen ({0})
+Keine aktive Quest
+Keine freien Punkte
+Kette aus den Zähnen eines Schattenwolfs.
+Klebriges Material eines Waldschleims. Wird zum Herstellen gebraucht.
+Kleiner Heiltrank
+Kleiner Manatrank
+Kosten: {0} Gold{1}
+Kriegergilde
+Kriegerin Brunhild
+Kupferring
+Leben
+Leben {0} / {1}
+Lederhandschuhe
+Lederhose
+Lederkappe
+Lederstiefel
+Lederweste
+Legendär
+Leichte Stiefel für schnelle Schritte.
+Level
+Level {0}
+Lv {0}
+Magie
+Magiergilde
+Mana
+Mana {0}/{1}   Mana-Stufe {2}/{3} ({4})
+Manatrank
+Material
+Meditieren
+Menü
+Mitwirkende
+Nach links
+Nach oben
+Nach rechts
+Nach unten
+Nebenhand
+Nein
+Neue Taste drücken (Esc bricht ab)
+Neues Spiel
+Neues Spiel beginnen? Dein bisheriger Spielstand wird gelöscht.
+Neuigkeiten
+Nicht genug Gold
+Nicht genug Schleimgel
+Nichts ausgewählt
+Niemand hat dich hereingebeten ... und doch bist du hier. Interessant.
+Noch nicht angenommen
+Noch nicht fertig ({0}/{1})
+Oberflächen-Größe
+Panzerhandschuhe für kräftige Schläge.
+Preis: {0} Gold
+Qualität
+Quest angenommen: {0}
+Quest erledigt: +{0} Gold, +{1} EP
+Quest {0}/{1}: {2}
+RE:BORN
+Rang: {0}   Bonus: {1} +{2}   Quests: {3}/{4}
+Reißfester Faden einer Riesenspinne.
+Ring
+Robuste Weste aus gegerbtem Leder.
+Rüstungshändler
+Saphirring
+Schadenszahlen
+Schattendolche
+Schattenmeisterin Nyx
+Schleime besiegen
+Schleimgel
+Schleimgel und Seide bringen
+Schmied
+Schneller angreifen und ausweichen
+Schuhe
+Schwer, aber unverwüstlich.
+Schützt den Kopf vor Ästen und Schleim.
+Selten
+Solide geschmiedete Klinge aus Eisen.
+Sortieren
+Spielstand löschen
+Spielstand wirklich löschen?\nDas Spiel startet danach neu.
+Spinnen besiegen
+Spinnenseide
+Spinnenseide bringen
+Sprache
+Sprechen
+Sprechen / Benutzen
+St.
+Standard-Belegung
+Standard-Belegung wiederhergestellt
+Steuerung
+Stufe +{0} (höchste Stufe)
+Stufe +{0} → +{1}
+Stärke
+Tastatur
+Taste drücken …
+Trank
+Tritt bei: {0} +2 und die Gildenwaffe „{1}“.
+Unbegrenzt
+Unbekannte Gilde
+Uralter Waldwächter
+Verbessern
+Verbessert!
+Verbrauchsgegenstand
+Verkaufen
+Verkaufen (+{0})
+Verkaufswert: {0} Gold
+Verkauft: {0} (+{1} Gold)
+Versiegelt – ein Schlüssel fehlt
+Verteidigung
+Verteidigung {0}
+Vitalität
+Vollbild
+Waffenhändler
+Wald
+Waldwächter
+Wasser
+Wasser-Erschaffungsmagie
+Wasserdrache
+Wasserkugel
+Wechsel kostet {0} Gold
+Wechseln ({0})
+Weggeworfen
+Wegwerfen
+Weiche Handschuhe mit festem Griff.
+Weiter
+Willkommen in der {0}!
+Willkommen, Kämpfer! Wer zu uns will, muss sich erst beweisen.
+Wolfsfell
+Wolfsfelle bringen
+Wolfszahnkette
+Wölfe besiegen
+X
+Zauber 1
+Zauber 2
+Zauber 3
+Zauber 4
+Zorn des Waldes!  Lauf weg oder weiche aus!
+Zorn des Waldes! {0:0.0}
+Zum Hauptmenü? Dein Spiel wird vorher gespeichert.
+Zurück
+Zwei leise Klingen der Assassinengilde.
+höchste Stufe
+kein Schmied
+{0}  ·  Stufe {1}
+{0} + {1} Explosion
+{0} · Mana {1} · Schaden {2} · Abklingzeit {3:0.0} s · {4}

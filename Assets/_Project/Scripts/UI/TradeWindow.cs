@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System.Collections;
 using System.Collections.Generic;
 using Reborn.Economy;
@@ -86,7 +87,7 @@ namespace Reborn.UI
 
         void HandleGold(int gold)
         {
-            if (goldText != null) goldText.text = "Gold: " + gold;
+            if (goldText != null) goldText.text = Loc.F("Gold: {0}", gold);
         }
 
         void Update()
@@ -102,7 +103,7 @@ namespace Reborn.UI
                 return;
             }
             NearbyNpc = _player != null && !GameMenu.IsOpen ? Npc.Nearest(_player.position) : null;
-            if (promptText != null) promptText.text = NearbyNpc != null ? "E: Mit " + NearbyNpc.displayName + " sprechen" : "";
+            if (promptText != null) promptText.text = NearbyNpc != null ? Loc.F("E: Mit {0} sprechen", Loc.T(NearbyNpc.displayName)) : "";
             if (NearbyNpc != null && _interact.WasPressedThisFrame()) Open(NearbyNpc);
         }
 
@@ -113,7 +114,7 @@ namespace Reborn.UI
             if (npc.kind == NpcKind.Gildenmeister && guildView == null)
             {
                 var bubble = npc.GetComponent<SpeechBubble>();
-                if (bubble != null) bubble.Show(npc.greeting);
+                if (bubble != null) bubble.Show(Loc.T(npc.greeting));
                 return;
             }
             IsOpen = true;
@@ -122,7 +123,7 @@ namespace Reborn.UI
             if (promptText != null) promptText.text = "";
             Time.timeScale = 0f;
             foreach (var action in _blocked) action.Disable();
-            if (titleText != null) titleText.text = npc.displayName;
+            if (titleText != null) titleText.text = Loc.T(npc.displayName);
             HandleGold(_wallet != null ? _wallet.Gold : 0);
             if (messageText != null) messageText.text = "";
             bool shop = npc.kind == NpcKind.Haendler;

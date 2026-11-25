@@ -1,3 +1,4 @@
+using Reborn.Core;
 using Reborn.Combat;
 using Reborn.Inventory;
 using Reborn.Progression;
@@ -116,7 +117,7 @@ namespace Reborn.UI
                 }
                 if (spellCooldowns[i] != null)
                     spellCooldowns[i].fillAmount = open && s.cooldown > 0f ? _book.CooldownLeft(i) / s.cooldown : 0f;
-                if (spellLevels[i] != null) spellLevels[i].text = open ? "St." + _book.Level(i) : "-";
+                if (spellLevels[i] != null) spellLevels[i].text = open ? Loc.T("St.") + _book.Level(i) : "-";
             }
         }
 
@@ -130,10 +131,10 @@ namespace Reborn.UI
             if (_progression != null)
             {
                 if (xpFill != null) xpFill.fillAmount = (float)_progression.XP / _progression.XPToNextLevel;
-                if (levelText != null) levelText.text = $"Lv {_progression.Level}";
+                if (levelText != null) levelText.text = Loc.F("Lv {0}", _progression.Level);
             }
             if (goldText != null) goldText.text = _wallet != null ? _wallet.Gold.ToString() : "0";
-            if (pointsHint != null) pointsHint.text = _stats != null && _stats.UnspentPoints > 0 ? $"+{_stats.UnspentPoints} Punkte" : "";
+            if (pointsHint != null) pointsHint.text = _stats != null && _stats.UnspentPoints > 0 ? Loc.F("+{0} Punkte", _stats.UnspentPoints) : "";
             if (_potions != null)
             {
                 var potion = _potions.NextPotion;

@@ -1,3 +1,4 @@
+using Reborn.Core;
 using Reborn.Economy;
 using Reborn.Inventory;
 using Reborn.Loot;
@@ -113,13 +114,13 @@ namespace Reborn.UI
             {
                 int count = _inventory.slots[index].count;
                 detail.Show(item, count, _equipment != null ? _equipment.WouldReplace(item) : null, item.IsEquipment,
-                    $"Verkaufen (+{item.sellValue})", () => Sell(index));
+                    Loc.F("Verkaufen (+{0})", item.sellValue), () => Sell(index));
             }
             else
             {
                 detail.Show(item, 1, _equipment != null ? _equipment.WouldReplace(item) : null, item.IsEquipment,
-                    $"Kaufen ({item.buyValue})", () => Buy(item));
-                if (detail.sellText != null) detail.sellText.text = $"Preis: {item.buyValue} Gold";
+                    Loc.F("Kaufen ({0})", item.buyValue), () => Buy(item));
+                if (detail.sellText != null) detail.sellText.text = Loc.F("Preis: {0} Gold", item.buyValue);
             }
         }
 
@@ -135,14 +136,14 @@ namespace Reborn.UI
         public string Buy(ItemData item)
         {
             string result;
-            if (item == null || _wallet == null || _inventory == null) result = "Nichts ausgewählt";
-            else if (!_wallet.CanAfford(item.buyValue)) result = "Nicht genug Gold";
-            else if (_inventory.SpaceFor(item) <= 0) result = "Inventar voll";
+            if (item == null || _wallet == null || _inventory == null) result = Loc.T("Nichts ausgewählt");
+            else if (!_wallet.CanAfford(item.buyValue)) result = Loc.T("Nicht genug Gold");
+            else if (_inventory.SpaceFor(item) <= 0) result = Loc.T("Inventar voll");
             else
             {
                 _wallet.TrySpend(item.buyValue);
                 _inventory.Add(item, 1);
-                result = "Gekauft: " + item.itemName;
+                result = Loc.F("Gekauft: {0}", Loc.T(item.itemName));
                 if (_window != null) _window.SaveNow();
             }
             if (_window != null) _window.ShowMessage(result);
@@ -155,13 +156,13 @@ namespace Reborn.UI
         {
             string result;
             if (_inventory == null || _wallet == null || index < 0 || index >= PlayerInventory.Size || _inventory.slots[index].IsEmpty)
-                result = "Nichts ausgewählt";
+                result = Loc.T("Nichts ausgewählt");
             else
             {
                 var item = _inventory.slots[index].item;
                 _inventory.RemoveAt(index, 1);
                 _wallet.Add(item.sellValue);
-                result = $"Verkauft: {item.itemName} (+{item.sellValue} Gold)";
+                result = Loc.F("Verkauft: {0} (+{1} Gold)", Loc.T(item.itemName), item.sellValue);
                 if (_window != null) _window.SaveNow();
                 if (_inventory.slots[index].IsEmpty && detail != null) detail.Clear();
             }

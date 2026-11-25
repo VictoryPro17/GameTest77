@@ -3,7 +3,7 @@
 #              -> Gegenstaende -> Bodenkacheln (braucht Reborn_World.blend der Gegenstaende) -> Zauber
 #              -> NPCs der Basis (Spielfigur umgefaerbt, speichert nicht) -> Basis-Gegenstaende
 # Aufruf:  powershell -File Art/Blender/Scripts/build_all.ps1 [-Blender <pfad>] [-Only player,boss,...]
-# Danach in Unity: Tools > RE:BORN > Build (bzw. RebornBuilder per CLI), damit Importeinstellungen stimmen.
+# Danach in Unity: Menue "Reborn/Spiel neu bauen" (bzw. RebornBuilder.BuildAll per CLI), damit Importeinstellungen stimmen.
 param(
     [string]$Blender = "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe",
     [string[]]$Only = @()
@@ -44,7 +44,10 @@ $steps = @(
     # (frostcreatures startet von Reborn_Enemies.blend und speichert als Reborn_FrostCreatures.blend)
     @{ Name = "frost";          Script = "build_frost.py";           Blend = $null },
     @{ Name = "frostcreatures"; Script = "build_frost_creatures.py"; Blend = "Reborn_Enemies.blend" },
-    @{ Name = "dragon";         Script = "build_dragon.py";          Blend = $null }
+    @{ Name = "dragon";         Script = "build_dragon.py";          Blend = $null },
+    # Meilenstein 10: Hauptmenue-Bild, Logo-Rahmen, Zielpfeil, Mentor Aldric
+    @{ Name = "menuart"; Script = "build_menu_art.py"; Blend = $null },
+    @{ Name = "mentor";  Script = "build_mentor.py";   Blend = "Reborn_Characters.blend" }
 )
 
 $failed = @()
@@ -55,7 +58,10 @@ foreach ($s in $steps) {
     $bargs = @("-b")
     if ($s.Blend) { $bargs += (Join-Path $art $s.Blend) } else { $bargs += "--factory-startup" }
     $bargs += @("--python", (Join-Path $scripts $s.Script), "--", $project)
+    # Blender-Warnungen auf stderr sind keine Fehler (sonst bricht "Stop" hier ab)
+    $ErrorActionPreference = "Continue"
     $out = & $Blender @bargs 2>&1 | ForEach-Object { "$_" }
+    $ErrorActionPreference = "Stop"
     $result = $out | Where-Object { $_ -match '^RESULT' } | Select-Object -Last 1
     # Nur echte Abbrueche zaehlen ("Error:"-Zeilen kommen auch bei erfolgreich wiederholtem Speichern)
     $errors = $out | Where-Object { $_ -match 'Traceback' }

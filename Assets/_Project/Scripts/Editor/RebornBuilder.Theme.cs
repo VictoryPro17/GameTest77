@@ -283,6 +283,18 @@ namespace Reborn.EditorTools
             var numbers = canvas.gameObject.AddComponent<DamageNumbers>();
             numbers.template = dmgTemplate;
             AddBossBar(canvas);   // Meilenstein 8
+            // Meilenstein 10a: Ortsname gross oben, "Gespeichert" unten rechts (beide anfangs unsichtbar)
+            var locBanner = canvas.gameObject.AddComponent<LocationBanner>();
+            locBanner.titleText = Label("LocationTitle", canvas.transform, new Vector2(0.5f, 1f), new Vector2(0, -220), new Vector2(1400, 110), 72, TextAnchor.MiddleCenter);
+            locBanner.titleText.font = T.headingFont;
+            locBanner.titleText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            locBanner.titleText.raycastTarget = false;
+            locBanner.titleText.color = new Color(T.gold.r, T.gold.g, T.gold.b, 0f);
+            locBanner.titleText.text = "";
+            locBanner.savedText = Label("SavedText", canvas.transform, new Vector2(1f, 0f), new Vector2(-30, 24), new Vector2(360, 40), 26, TextAnchor.LowerRight);
+            locBanner.savedText.raycastTarget = false;
+            locBanner.savedText.color = new Color(T.text.r, T.text.g, T.text.b, 0f);
+            locBanner.savedText.text = "";
             return SavePrefab(canvas.gameObject, "HUD");
         }
     }

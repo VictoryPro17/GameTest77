@@ -1,3 +1,4 @@
+using Reborn.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -48,7 +49,7 @@ namespace Reborn.Enemies
             float k = Mathf.Clamp01(_time / Mathf.Max(0.01f, _charge));
             Scale(Mathf.Lerp(0.3f, 1f, Mathf.Min(1f, k * 1.5f)));
             if (circle != null) circle.color = new Color(1f, 1f, 1f, 0.45f + 0.4f * Mathf.Abs(Mathf.Sin(_time * (4f + 10f * k))));
-            if (warningText != null) warningText.text = $"Zorn des Waldes! {Mathf.Max(0f, _charge - _time):0.0}";
+            if (warningText != null) warningText.text = Loc.F("Zorn des Waldes! {0:0.0}", Mathf.Max(0f, _charge - _time));
         }
 
         /// <summary>Ausloesen (BossAI): kurzer heller Blitz, dann weg</summary>

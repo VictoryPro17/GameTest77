@@ -1,0 +1,33 @@
+<b>Beta 0.9.0</b>  –  The first public beta!
+
+<color=#f0c860>0.9.0 – Main menu and settings</color>
+• Main menu with Continue, New Game, Settings, News and Credits
+• Settings: rebindable controls, German or English, sound, graphics, interface
+• Discarding items: drop one item or all of them at once
+<color=#f0c860>0.8 – Frost Peak and Seal Portal</color>
+• Key portal in the cave: the Golem drops the Frost Key
+• Frost Peak with ice wolves and frost spirits that shoot from a distance
+• Ice Dragon with a flight phase and a blizzard
+<color=#f0c860>0.7 – Golem boss with two phases</color>
+• Forest Warden with thorn wave, charge and Wrath of the Forest
+• Second phase and return after 10 minutes
+<color=#f0c860>0.6 – Guilds, quests and forest</color>
+• Three guilds: Warrior, Mage and Assassin, with ranks and quests
+• Walkable guild halls and cave, forest with wolves and spiders
+<color=#f0c860>0.5 – Town, shops and guild halls</color>
+• Town with walls, guards, a market square and residential quarters
+• Shops for weapons, armor, potions and general goods
+<color=#f0c860>0.4 – Base, traders, blacksmith and gold</color>
+• Traders to buy and sell, the blacksmith upgrades equipment
+• Gold as currency
+• Earlier: combat, magic with water and fire, inventory and equipment, comic-style graphics
+
+<b>Coming Next</b>
+• Introduction with mentor Aldric
+• Sound effects
+• Guild abilities
+• Crafting at the blacksmith
+• Wolf pup as a companion
+• Music
+
+Updates coming soon! Thanks for playing!

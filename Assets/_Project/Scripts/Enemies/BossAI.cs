@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System;
 using Reborn.Animation;
 using Reborn.Combat;
@@ -76,9 +77,9 @@ namespace Reborn.Enemies
         public bool KeyDropped { get; private set; }
 
         // IBossBarSource (Meilenstein 9a)
-        public string BarName => CurrentName + (Stage >= 2 ? "  (Stufe 2)" : Phase >= 3 ? "  (Wut!)" : Phase == 2 ? "  (Phase 2)" : "");
+        public string BarName => Loc.T(CurrentName) + (Stage >= 2 ? Loc.T("  (Stufe 2)") : Phase >= 3 ? Loc.T("  (Wut!)") : Phase == 2 ? Loc.T("  (Phase 2)") : "");
         public bool ShowUltimateBar => Stage >= 2;
-        public string WarningText => "Zorn des Waldes!  Lauf weg oder weiche aus!";
+        public string WarningText => Loc.T("Zorn des Waldes!  Lauf weg oder weiche aus!");
 
         /// <summary>Wacher, lebender Boss in der Szene (fuer die Lebensleiste), sonst null</summary>
         public static BossAI Active { get; private set; }

@@ -96,6 +96,27 @@ namespace Reborn.Inventory
             OnChanged?.Invoke();
         }
 
+        /// <summary>Meilenstein 10a: Vorlage fuer weggeworfene Gegenstaende (setzt der Builder)</summary>
+        public Pickup pickupPrefab;
+        /// <summary>So lange laesst sich Weggeworfenes nicht wieder aufheben (Sekunden)</summary>
+        public const float DropPickupDelay = 2f;
+
+        /// <summary>Wirft count Stueck vom Platz index vor die Fuesse des Spielers (Meilenstein 10a)</summary>
+        public bool Drop(int index, int count)
+        {
+            EnsureSlots();
+            if (index < 0 || index >= Size || count <= 0 || pickupPrefab == null) return false;
+            var slot = slots[index];
+            if (slot.IsEmpty) return false;
+            var item = slot.item;
+            int n = Mathf.Min(count, slot.count);
+            RemoveAt(index, n);
+            var pickup = Instantiate(pickupPrefab, (Vector2)transform.position + new Vector2(UnityEngine.Random.Range(-0.3f, 0.3f), -0.55f), Quaternion.identity);
+            pickup.Setup(item, n);
+            pickup.pickupDelay = DropPickupDelay;
+            return true;
+        }
+
         public void Swap(int a, int b)
         {
             EnsureSlots();

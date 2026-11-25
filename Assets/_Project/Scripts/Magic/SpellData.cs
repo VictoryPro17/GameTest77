@@ -1,3 +1,4 @@
+using Reborn.Core;
 using UnityEngine;
 
 namespace Reborn.Magic
@@ -39,14 +40,14 @@ namespace Reborn.Magic
         public SpellEffect effectPrefab;
 
         public static string ElementPrefix(SpellElement element) =>
-            element == SpellElement.Wasser ? "Wasser-Erschaffungsmagie" : "Feuer-Erschaffungsmagie";
+            element == SpellElement.Wasser ? Loc.T("Wasser-Erschaffungsmagie") : Loc.T("Feuer-Erschaffungsmagie");
 
         public static Color ElementColor(SpellElement element) =>
             element == SpellElement.Wasser ? new Color(0.35f, 0.75f, 1f) : new Color(1f, 0.55f, 0.15f);
 
-        public string ElementLabel => element == SpellElement.Wasser ? "Wasser" : "Feuer";
+        public string ElementLabel => element == SpellElement.Wasser ? Loc.T("Wasser") : Loc.T("Feuer");
 
         /// <summary>Was der Charakter ruft, z. B. "Wasser-Erschaffungsmagie: Wasserdrache!"</summary>
-        public string Chant => $"{ElementPrefix(element)}: {spellName}!";
+        public string Chant => $"{ElementPrefix(element)}: {Loc.T(spellName)}!";
     }
 }

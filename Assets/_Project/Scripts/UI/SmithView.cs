@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System.Collections.Generic;
 using Reborn.Economy;
 using Reborn.Inventory;
@@ -105,17 +106,17 @@ namespace Reborn.UI
             if (detail == null || _book == null) return;
             int level = _book.Level(item);
             bool max = level >= UpgradeBook.MaxLevel;
-            detail.Show(item, 1, null, false, max ? null : "Verbessern", max ? null : () => Upgrade(item));
+            detail.Show(item, 1, null, false, max ? null : Loc.T("Verbessern"), max ? null : () => Upgrade(item));
             if (detail.nameText != null) detail.nameText.text = ItemDetailView.DisplayName(item);
             if (detail.sellText != null) detail.sellText.text = "";
             if (levelText != null)
             {
-                if (max) levelText.text = $"Stufe +{level} (höchste Stufe)";
+                if (max) levelText.text = Loc.F("Stufe +{0} (höchste Stufe)", level);
                 else
                 {
                     int gel = _book.MaterialCost(item);
-                    string mat = gel > 0 ? $" + {gel} Schleimgel" : "";
-                    levelText.text = $"Stufe +{level} → +{level + 1}\nKosten: {_book.GoldCost(item)} Gold{mat}";
+                    string mat = gel > 0 ? " + " + gel + " " + Loc.T("Schleimgel") : "";
+                    levelText.text = Loc.F("Stufe +{0} → +{1}", level, level + 1) + "\n" + Loc.F("Kosten: {0} Gold{1}", _book.GoldCost(item), mat);
                 }
             }
         }
@@ -123,7 +124,7 @@ namespace Reborn.UI
         /// <summary>Naechste Stufe kaufen. Rueckgabe: Meldung</summary>
         public string Upgrade(ItemData item)
         {
-            if (_book == null) return "kein Schmied";
+            if (_book == null) return Loc.T("kein Schmied");
             var result = _book.TryUpgrade(item, _wallet, _inventory, material);
             string text = UpgradeBook.Message(result);
             if (result == UpgradeBook.Result.Ok)

@@ -1,3 +1,4 @@
+using Reborn.Core;
 namespace Reborn.Loot
 {
     /// <summary>Art des Ausruestungsplatzes. Ring gibt es zweimal (Platz 8 und 9).</summary>
@@ -28,15 +29,15 @@ namespace Reborn.Loot
         {
             switch (slot)
             {
-                case EquipSlot.Helm: return "Helm";
-                case EquipSlot.Brust: return "Brustplatte";
-                case EquipSlot.Hose: return "Hose";
-                case EquipSlot.Schuhe: return "Schuhe";
-                case EquipSlot.Handschuhe: return "Handschuhe";
-                case EquipSlot.Hauptwaffe: return "Hauptwaffe";
-                case EquipSlot.Nebenhand: return "Nebenhand";
-                case EquipSlot.Halskette: return "Halskette";
-                case EquipSlot.Ring: return "Ring";
+                case EquipSlot.Helm: return Loc.T("Helm");
+                case EquipSlot.Brust: return Loc.T("Brustplatte");
+                case EquipSlot.Hose: return Loc.T("Hose");
+                case EquipSlot.Schuhe: return Loc.T("Schuhe");
+                case EquipSlot.Handschuhe: return Loc.T("Handschuhe");
+                case EquipSlot.Hauptwaffe: return Loc.T("Hauptwaffe");
+                case EquipSlot.Nebenhand: return Loc.T("Nebenhand");
+                case EquipSlot.Halskette: return Loc.T("Halskette");
+                case EquipSlot.Ring: return Loc.T("Ring");
                 default: return "";
             }
         }

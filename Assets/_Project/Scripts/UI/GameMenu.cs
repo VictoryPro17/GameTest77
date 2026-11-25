@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,6 +23,11 @@ namespace Reborn.UI
         public Button closeButton;
         public InventoryView inventoryView;
         public CharacterView characterView;
+        [Header("Meilenstein 10a: Pause-Menue")]
+        public Button settingsButton;
+        public Button mainMenuButton;
+        public SettingsView settingsView;
+        public ConfirmDialog confirm;
         public Color tabActive = new Color(1f, 0.93f, 0.72f, 1f);
         public Color tabInactive = new Color(0.5f, 0.48f, 0.5f, 1f);
 
@@ -49,6 +55,9 @@ namespace Reborn.UI
             if (characterTabButton != null) characterTabButton.onClick.AddListener(() => ShowPage(1));
             if (magicTabButton != null) magicTabButton.onClick.AddListener(() => ShowPage(2));
             if (closeButton != null) closeButton.onClick.AddListener(Close);
+            if (settingsButton != null) settingsButton.onClick.AddListener(OpenSettings);
+            if (mainMenuButton != null) mainMenuButton.onClick.AddListener(AskMainMenu);
+            Core.GameSettings.RegisterActions(actions);
             if (root != null) root.SetActive(false);
             IsOpen = false;
         }
@@ -72,7 +81,37 @@ namespace Reborn.UI
         {
             // Haendler-/Schmiede-Fenster offen oder gerade mit derselben Taste geschlossen: Menue nicht oeffnen
             if (TradeWindow.IsOpen || TradeWindow.ClosedFrame == Time.frameCount) return;
-            if (_menu.WasPressedThisFrame()) Toggle();
+            if (!_menu.WasPressedThisFrame()) return;
+            // Meilenstein 10a: zuerst Nachfrage bzw. Einstellungen schliessen, dann das Menue
+            if (confirm != null && confirm.IsOpen) { confirm.Answer(false); return; }
+            if (settingsView != null && settingsView.IsOpen) { settingsView.HandleBack(); return; }
+            Toggle();
+        }
+
+        /// <summary>Einstellungen ueber dem Menue oeffnen (Menue bleibt offen und pausiert)</summary>
+        public void OpenSettings()
+        {
+            if (settingsView == null) return;
+            if (!IsOpen) Open();
+            if (root != null) root.SetActive(false);
+            settingsView.Open(() =>
+            {
+                if (IsOpen && root != null) root.SetActive(true);
+                if (EventSystem.current != null && settingsButton != null) EventSystem.current.SetSelectedGameObject(settingsButton.gameObject);
+            });
+        }
+
+        public void AskMainMenu()
+        {
+            if (confirm != null) confirm.Show(Loc.T("Zum Hauptmenü? Dein Spiel wird vorher gespeichert."), Loc.T("Ja"), Loc.T("Nein"), GoToMainMenu);
+            else GoToMainMenu();
+        }
+
+        /// <summary>Speichern (macht SceneTravel) und ins Hauptmenue</summary>
+        public void GoToMainMenu()
+        {
+            Close();
+            World.SceneTravel.Go(MainMenu.SceneName, null);
         }
 
         public void Toggle()

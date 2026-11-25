@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System;
 using System.Text;
 using Reborn.Loot;
@@ -20,15 +21,33 @@ namespace Reborn.UI
         public Button actionButton;
         public Text actionLabel;
 
+        [Header("Meilenstein 10a: Wegwerfen")]
+        public Button dropButton;
+        public Button dropAllButton;
+
         Action _action;
+        Action _drop;
+        Action _dropAll;
 
         void Awake()
         {
             if (actionButton != null) actionButton.onClick.AddListener(() => _action?.Invoke());
+            if (dropButton != null) dropButton.onClick.AddListener(() => _drop?.Invoke());
+            if (dropAllButton != null) dropAllButton.onClick.AddListener(() => _dropAll?.Invoke());
+        }
+
+        /// <summary>Wegwerf-Knoepfe zeigen (null = Knopf aus). Show() blendet sie zuerst aus.</summary>
+        public void ShowDrop(Action one, Action all)
+        {
+            _drop = one;
+            _dropAll = all;
+            if (dropButton != null) dropButton.gameObject.SetActive(one != null);
+            if (dropAllButton != null) dropAllButton.gameObject.SetActive(all != null);
         }
 
         public void Clear()
         {
+            ShowDrop(null, null);
             _action = null;
             if (content != null) content.SetActive(false);
             if (emptyText != null) emptyText.gameObject.SetActive(true);
@@ -43,6 +62,7 @@ namespace Reborn.UI
                 Clear();
                 return;
             }
+            ShowDrop(null, null);
             if (content != null) content.SetActive(true);
             if (emptyText != null) emptyText.gameObject.SetActive(false);
 
@@ -54,9 +74,9 @@ namespace Reborn.UI
                 nameText.color = ItemData.RarityColor(item.rarity);
             }
             if (categoryText != null) categoryText.text = $"{item.CategoryLabel} · {ItemData.RarityLabel(item.rarity)}";
-            if (descriptionText != null) descriptionText.text = item.description;
+            if (descriptionText != null) descriptionText.text = Loc.T(item.description);
             if (statsText != null) statsText.text = BuildStats(item, compareTo, compare);
-            if (sellText != null) sellText.text = $"Verkaufswert: {item.sellValue} Gold";
+            if (sellText != null) sellText.text = Loc.F("Verkaufswert: {0} Gold", item.sellValue);
 
             _action = action;
             if (actionButton != null) actionButton.gameObject.SetActive(action != null);
@@ -85,7 +105,7 @@ namespace Reborn.UI
         public static string DisplayName(ItemData item)
         {
             int level = Upgrades != null ? Upgrades.Level(item) : 0;
-            return level > 0 ? $"{item.itemName} +{level}" : item.itemName;
+            return level > 0 ? $"{Loc.T(item.itemName)} +{level}" : Loc.T(item.itemName);
         }
 
         /// <summary>Werte mit Schmiede-Stufe</summary>
@@ -95,8 +115,8 @@ namespace Reborn.UI
         public static string BuildStats(ItemData item, ItemData compareTo, bool compare)
         {
             var sb = new StringBuilder();
-            if (item.healAmount > 0) sb.AppendLine($"Heilt {item.healAmount} Leben");
-            if (item.manaAmount > 0) sb.AppendLine($"Füllt {item.manaAmount} Mana auf");
+            if (item.healAmount > 0) sb.AppendLine(Loc.F("Heilt {0} Leben", item.healAmount));
+            if (item.manaAmount > 0) sb.AppendLine(Loc.F("Füllt {0} Mana auf", item.manaAmount));
             var a = StatsOf(item).ToArray();
             var b = compareTo != null ? StatsOf(compareTo).ToArray() : new int[a.Length];
             for (int i = 0; i < a.Length; i++)
@@ -112,7 +132,7 @@ namespace Reborn.UI
                 sb.AppendLine();
             }
             if (compare && item.IsEquipment)
-                sb.AppendLine(compareTo != null ? $"<color=#BBBBBB>Vergleich mit: {compareTo.itemName}</color>" : "<color=#BBBBBB>Platz ist frei</color>");
+                sb.AppendLine(compareTo != null ? $"<color=#BBBBBB>{Loc.F("Vergleich mit: {0}", Loc.T(compareTo.itemName))}</color>" : $"<color=#BBBBBB>{Loc.T("Platz ist frei")}</color>");
             return sb.ToString().TrimEnd();
         }
     }

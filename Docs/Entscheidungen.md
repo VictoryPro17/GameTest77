@@ -783,3 +783,25 @@ Grafik von einem Sonnet-Hilfsagenten nach Vorgabe erstellt.
 - Die Säulen-Deckung gilt nur für die Linie zum Drachen.
 - Eiswolf-Todesanimation etwas kleiner skaliert.
 - Grafik des Drachen eher hell.
+
+## Meilenstein 10: Beta-Release (Hauptmenü, Einführung, Einstellungen, Browser-Version)
+
+Status: beschlossen, Umsetzung in 10a, 10b, 10c; 9b folgt danach als Update 0.10.
+
+### Entscheidungen
+
+| # | Thema | Entscheidung |
+|---|---|---|
+| D1 | Reihenfolge | Meilenstein 10 kommt vor 9b. 9b wird das erste Update „0.10“ |
+| D2 | Veröffentlichen auf itch.io | Claude baut eine fertige ZIP-Datei für den Browser. Der Nutzer lädt sie mit seinem Konto hoch; Claude gibt keine Passwörter oder Schlüssel ein. GitHub Pages nur nach ausdrücklichem Ja |
+| D3 | Version | „Beta 0.9.0“. Seite Neuigkeiten mit den Änderungen je Version und „Updates kommen bald!“ |
+| D4 | Hauptmenü | Eigene Startszene: „RE:BORN – ein Mini-Projekt von Victory“. Weiter (nur mit Spielstand), Neues Spiel (Nachfrage, wenn ein Stand existiert), Einstellungen, Neuigkeiten, Mitwirkende, Beenden (nur PC). Bedienbar mit Maus, Tastatur, Controller und Touch |
+| D5 | Pause-Menü | Bekommt Einstellungen und „Zum Hauptmenü“. Vorher wird gespeichert |
+| D6 | Einstellungen | Getrennt vom Spielstand, auch im Browser. Steuerung neu belegbar (Tastatur und Controller getrennt, Zurücksetzen, Hinweis bei Doppelbelegung). Sprache Deutsch/English (erster Start nach Systemsprache). Ton (Gesamt, Effekte). Grafik (Vollbild, Qualität, Bildrate 30/60/unbegrenzt). Oberfläche (Größe 90/100/115 %, Schadenszahlen, Handy-Knöpfe an/aus/automatisch) |
+| D7 | Sprache (Technik) | Der deutsche Text ist der Schlüssel. Englische Tabelle als eigene Datei, englische Gegenstandsnamen und -beschreibungen, Übersetzungs-Komponente an festen Beschriftungen. Übersetzung durch Haiku, Prüfung durch die Hauptsitzung |
+| D8 | Einführung | Beim Neuen Spiel begleitet Mentor Aldric durch 7 Schritte (Laufen, Angreifen, Ausweichen, Zauber, Menü/Inventar, Händler, Höhle/Portal) mit Sprechblasen, Hinweis und Zielpfeil. Belohnung: 50 Gold und 3 kleine Heiltränke. Überspringbar, nur einmal, startet nur über das Hauptmenü |
+| D9 | Kleine Fixes | Wegwerfen (1 oder alle, 2 s Aufhebsperre, Ausgerüstetes erst ablegen). Löschen mit Nachfrage. Ortsname beim Szenenwechsel. Hinweis „Gespeichert“ |
+| D10 | Sound | Kurze Effekte werden im Code erzeugt (keine fremden Dateien). Musik später als Update |
+| D11 | Browser-Optimierung | Kleinere Datei (Code-Stripping, Texturkompression, gzip). Eigene Ladeseite mit Ladebalken und „Ein Mini-Projekt von Victory“. 60 Bilder/s, 16:9, Vollbild-Knopf. Speichern im Browser wird geprüft. Lokaler Test im eingebauten Browser |
+| D12 | Tests schützen Einstellungen | Tests nutzen Standard-Einstellungen nur für die Sitzung. Tastenbelegung und Sprache des Nutzers bleiben unverändert |
+| D13 | Arbeitsteilung | Hauptsitzung: Kern-Abläufe und Prüfung. Sonnet: Oberflächen-Builder, Titelbild und Mentor-Grafik, erzeugte Sounds, Test-Schnipsel. Haiku: Übersetzung, Neuigkeiten und Credits, Doku |

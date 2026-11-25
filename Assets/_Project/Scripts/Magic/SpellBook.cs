@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System;
 using Reborn.Animation;
 using Reborn.Combat;
@@ -128,10 +129,10 @@ namespace Reborn.Magic
             if (!string.IsNullOrEmpty(s.unlockSpellId))
             {
                 int other = IndexOf(s.unlockSpellId);
-                string name = other >= 0 ? spells[other].spellName : s.unlockSpellId;
-                return $"Ab {name} Stufe {s.unlockSpellLevel}";
+                string name = other >= 0 ? Loc.T(spells[other].spellName) : s.unlockSpellId;
+                return Loc.F("Ab {0} Stufe {1}", name, s.unlockSpellLevel);
             }
-            return s.unlockPlayerLevel > 1 ? $"Ab Level {s.unlockPlayerLevel}" : "";
+            return s.unlockPlayerLevel > 1 ? Loc.F("Ab Level {0}", s.unlockPlayerLevel) : "";
         }
 
         public bool TryCast(int slot)

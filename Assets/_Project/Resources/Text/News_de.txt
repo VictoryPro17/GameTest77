@@ -1,0 +1,33 @@
+<b>Beta 0.9.0</b>  –  Die erste öffentliche Beta!
+
+<color=#f0c860>0.9.0 – Hauptmenü und Einstellungen</color>
+• Hauptmenü mit Weiter, Neues Spiel, Einstellungen, Neuigkeiten und Mitwirkende
+• Einstellungen: Tasten neu belegen, Deutsch oder Englisch, Ton, Grafik, Oberfläche
+• Wegwerfen: Gegenstände ablegen, einzeln oder alle auf einmal
+<color=#f0c860>0.8 – Frostgipfel und Siegel-Portal</color>
+• Schlüssel-Portal in der Höhle: Der Golem lässt den Frostschlüssel fallen
+• Frostgipfel mit Eiswölfen und Frostgeistern, die aus der Ferne schießen
+• Eisdrache mit Flugphase und Blizzard
+<color=#f0c860>0.7 – Golem-Boss mit zwei Stufen</color>
+• Waldwächter mit Dornenwelle, Ansturm und Zorn des Waldes
+• Zweite Stufe und Wiederkehr nach 10 Minuten
+<color=#f0c860>0.6 – Gilden, Quests und Wald</color>
+• Drei Gilden: Krieger, Magier und Assassinen, mit Rängen und Quests
+• Begehbare Gildenhallen und Höhle, Wald mit Wölfen und Spinnen
+<color=#f0c860>0.5 – Stadt, Läden und Gildenhallen</color>
+• Stadt mit Mauer, Soldaten, Marktplatz und Wohnvierteln
+• Läden für Waffen, Rüstung, Tränke und Gemischtwaren
+<color=#f0c860>0.4 – Basis, Händler, Schmied und Gold</color>
+• Händler zum Kaufen und Verkaufen, Schmied verbessert Ausrüstung
+• Gold als Währung
+• Früher: Kampf, Magie mit Wasser und Feuer, Inventar und Ausrüstung, Comic-Grafik
+
+<b>Als Nächstes</b>
+• Einführung mit Mentor Aldric
+• Soundeffekte
+• Gilden-Fähigkeiten
+• Handwerk beim Schmied
+• Wolfswelpe als Begleiter
+• Musik
+
+Updates kommen bald!  Danke fürs Spielen!

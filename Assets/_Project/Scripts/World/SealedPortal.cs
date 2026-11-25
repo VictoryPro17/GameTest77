@@ -1,3 +1,4 @@
+using Reborn.Core;
 using Reborn.Inventory;
 using Reborn.Loot;
 using UnityEngine;
@@ -78,7 +79,7 @@ namespace Reborn.World
         void Say(string text)
         {
             LastMessage = text;
-            if (bubble != null) bubble.Show(text);
+            if (bubble != null) bubble.Show(Loc.T(text));
         }
 
         /// <summary>Siegel mit dem Schluessel oeffnen (auch fuer Tests). true = jetzt offen</summary>

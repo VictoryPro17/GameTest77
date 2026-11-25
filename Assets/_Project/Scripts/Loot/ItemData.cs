@@ -1,3 +1,4 @@
+using Reborn.Core;
 using UnityEngine;
 
 namespace Reborn.Loot
@@ -37,9 +38,9 @@ namespace Reborn.Loot
             {
                 switch (category)
                 {
-                    case ItemCategory.Verbrauch: return "Verbrauchsgegenstand";
+                    case ItemCategory.Verbrauch: return Loc.T("Verbrauchsgegenstand");
                     case ItemCategory.Ausruestung: return EquipSlots.Label(equipSlot);
-                    default: return "Material";
+                    default: return Loc.T("Material");
                 }
             }
         }
@@ -48,10 +49,10 @@ namespace Reborn.Loot
         {
             switch (rarity)
             {
-                case ItemRarity.Selten: return "Selten";
-                case ItemRarity.Episch: return "Episch";
-                case ItemRarity.Legendaer: return "Legendär";
-                default: return "Gewöhnlich";
+                case ItemRarity.Selten: return Loc.T("Selten");
+                case ItemRarity.Episch: return Loc.T("Episch");
+                case ItemRarity.Legendaer: return Loc.T("Legendär");
+                default: return Loc.T("Gewöhnlich");
             }
         }
 

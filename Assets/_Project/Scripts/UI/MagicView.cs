@@ -1,3 +1,4 @@
+using Reborn.Core;
 using Reborn.Magic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -52,25 +53,25 @@ namespace Reborn.UI
                 if (titles[i] != null)
                 {
                     string hex = ColorUtility.ToHtmlStringRGB(SpellData.ElementColor(s.element));
-                    titles[i].text = $"<color=#{hex}>{s.spellName}</color>  Stufe {lvl}/{SpellBook.MaxLevel}   <color=#999999>[{Keys[i]}]</color>";
+                    titles[i].text = Loc.F("<color=#{0}>{1}</color>  Stufe {2}/{3}   <color=#999999>[{4}]</color>", hex, Loc.T(s.spellName), lvl, SpellBook.MaxLevel, Keys[i]);
                 }
                 if (xpFills[i] != null)
                     xpFills[i].fillAmount = lvl >= SpellBook.MaxLevel ? 1f : (float)_book.XP(i) / _book.XPToNextLevel(i);
                 if (infos[i] != null)
                 {
-                    string dmg = _book.SplashDamage(i) > 0 ? $"{_book.Damage(i)} + {_book.SplashDamage(i)} Explosion" : _book.Damage(i).ToString();
-                    string xp = lvl >= SpellBook.MaxLevel ? "höchste Stufe" : $"Erfahrung {_book.XP(i)}/{_book.XPToNextLevel(i)}";
+                    string dmg = _book.SplashDamage(i) > 0 ? Loc.F("{0} + {1} Explosion", _book.Damage(i), _book.SplashDamage(i)) : _book.Damage(i).ToString();
+                    string xp = lvl >= SpellBook.MaxLevel ? Loc.T("höchste Stufe") : Loc.F("Erfahrung {0}/{1}", _book.XP(i), _book.XPToNextLevel(i));
                     infos[i].text = open
-                        ? $"{s.ElementLabel} · Mana {s.manaCost} · Schaden {dmg} · Abklingzeit {s.cooldown:0.0} s · {xp}"
-                        : $"<color=#FF8866>Gesperrt: {_book.UnlockText(i)}</color>";
+                        ? Loc.F("{0} · Mana {1} · Schaden {2} · Abklingzeit {3:0.0} s · {4}", s.ElementLabel, s.manaCost, dmg, s.cooldown, xp)
+                        : Loc.F("<color=#FF8866>Gesperrt: {0}</color>", _book.UnlockText(i));
                 }
             }
             if (_mana != null)
             {
-                string next = _mana.Level >= PlayerMana.MaxLevel ? "höchste Stufe" : $"Erfahrung {_mana.XP}/{_mana.XPToNextLevel}";
+                string next = _mana.Level >= PlayerMana.MaxLevel ? Loc.T("höchste Stufe") : Loc.F("Erfahrung {0}/{1}", _mana.XP, _mana.XPToNextLevel);
                 if (manaText != null)
-                    manaText.text = $"Mana {Mathf.FloorToInt(_mana.Current)}/{_mana.Max}   Mana-Stufe {_mana.Level}/{PlayerMana.MaxLevel} ({next})\n" +
-                                    $"Füllt sich mit {_mana.RegenRate:0.0} pro Sekunde. Meditieren (M / B halten): {_mana.meditateRate:0} pro Sekunde und Mana-Training.";
+                    manaText.text = Loc.F("Mana {0}/{1}   Mana-Stufe {2}/{3} ({4})", Mathf.FloorToInt(_mana.Current), _mana.Max, _mana.Level, PlayerMana.MaxLevel, next) + "\n" +
+                                    Loc.F("Füllt sich mit {0:0.0} pro Sekunde. Meditieren (M / B halten): {1:0} pro Sekunde und Mana-Training.", _mana.RegenRate, _mana.meditateRate);
                 if (manaXpFill != null)
                     manaXpFill.fillAmount = _mana.Level >= PlayerMana.MaxLevel ? 1f : (float)_mana.XP / _mana.XPToNextLevel;
             }

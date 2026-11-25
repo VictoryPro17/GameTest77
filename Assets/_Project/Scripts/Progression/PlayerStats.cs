@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System;
 using Reborn.Combat;
 using Reborn.Inventory;
@@ -20,7 +21,7 @@ namespace Reborn.Progression
     public class PlayerStats : MonoBehaviour
     {
         public const int AttributeCount = 5;
-        public static readonly string[] AttributeLabels = { "Stärke", "Geschick", "Vitalität", "Intelligenz", "Glück" };
+        public static string[] AttributeLabels => new[] { Loc.T("Stärke"), Loc.T("Geschick"), Loc.T("Vitalität"), Loc.T("Intelligenz"), Loc.T("Glück") };
 
         public int pointsPerLevel = 3;
         /// <summary>Verteilte Grundwerte (ohne Ausruestung), Start jeweils 1.</summary>

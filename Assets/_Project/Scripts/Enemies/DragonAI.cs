@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System;
 using Reborn.Animation;
 using Reborn.Combat;
@@ -90,12 +91,12 @@ namespace Reborn.Enemies
         public Vector2 BreathDirection => _breathDirection;
 
         // IBossBarSource
-        public string BarName => displayName + (IsFlying ? "  (in der Luft)" : HasFlown ? "  (Phase 2)" : "");
+        public string BarName => Loc.T(displayName) + (IsFlying ? Loc.T("  (in der Luft)") : HasFlown ? Loc.T("  (Phase 2)") : "");
         public bool ShowUltimateBar => IsAwake;
         public bool UltimateCharging => _state == State.UltimateCharge;
         public float UltimateProgress => UltimateCharging ? 1f - _timer / blizzardChargeTime
             : Mathf.Clamp01(1f - _blizzardTimer / Mathf.Max(0.01f, _blizzardWait));
-        public string WarningText => "Blizzard!  Versteck dich hinter einer Eissäule!";
+        public string WarningText => Loc.T("Blizzard!  Versteck dich hinter einer Eissäule!");
 
         State _state = State.Sleep;
         Rigidbody2D _body;

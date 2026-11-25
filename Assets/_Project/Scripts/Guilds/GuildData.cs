@@ -1,3 +1,4 @@
+using Reborn.Core;
 using System;
 using Reborn.Loot;
 using Reborn.Progression;
@@ -47,6 +48,6 @@ namespace Reborn.Guilds
         public ItemData weapon;
         public QuestData[] quests = new QuestData[0];
 
-        public static string RankName(int rank) => rank >= 2 ? "Geselle" : rank == 1 ? "Anwärter" : "-";
+        public static string RankName(int rank) => rank >= 2 ? Loc.T("Geselle") : rank == 1 ? Loc.T("Anwärter") : "-";
     }
 }
