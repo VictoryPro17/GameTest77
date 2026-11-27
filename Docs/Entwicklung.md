@@ -13,9 +13,10 @@ Technische Übersicht für alle, die am Projekt arbeiten. Die Entscheidungen hin
 5. [Lokalisierung](#lokalisierung)
 6. [Grafik-Pipeline (Blender)](#grafik-pipeline-blender)
 7. [Builder](#builder)
-8. [Play-Tests](#play-tests)
-9. [Konventionen](#konventionen)
-10. [Git-Workflow](#git-workflow)
+8. [Web-Demo](#web-demo-bauen)
+9. [Play-Tests](#play-tests)
+10. [Konventionen](#konventionen)
+11. [Git-Workflow](#git-workflow)
 
 ---
 
@@ -27,7 +28,7 @@ Technische Übersicht für alle, die am Projekt arbeiten. Die Entscheidungen hin
 | Eingabe | Neues Input System, Aktionen in `Assets/_Project/Input/RebornControls.inputactions` |
 | Grafik | Blender 5.2, Skripte in `Art/Blender/Scripts` |
 | Tests | PowerShell 5.1, steuert den Unity-Editor über die Unity CLI (`Tools/PlayTests`) |
-| Zielplattformen | Windows-Editor und Build, Android (Touch), Browser (in Vorbereitung) |
+| Zielplattformen | Windows-Editor und Build, Android (Touch), Browser (Web-Demo, Meilenstein 10c) |
 | Version | Beta 0.9.0 (`GameSettings.Version`) |
 
 Wichtige Pfade:
@@ -46,9 +47,9 @@ Der Code liegt unter `Assets/_Project/Scripts/`, gegliedert nach Themen. Die Nam
 |---|---|---|
 | `Animation/` | Richtungs-Animation der Sprites, Ausrüstungs-Ebenen | `DirectionalSpriteAnimator`, `SpriteAnimationSet`, `EquipmentVisuals` (folgt `OnFrameChanged` des Körpers), `Facing` |
 | `Combat/` | Leben, Schaden, Angriff, Tod | `Health` (Leben, Schutzzeit, `LastHitBySpell`), `PlayerAttack` (Trefferkreis), `DeathHandler`, `DamageFlash` |
-| `Core/` | Übergreifendes: Kamera, Einstellungen, Übersetzung | `CameraFollow`, `GameSettings`, `Loc` |
+| `Core/` | Übergreifendes: Kamera, Einstellungen, Übersetzung | `CameraFollow`, `GameSettings`, `Loc`, `Demo` (Kennzeichen der Browser-Demo) |
 | `Economy/` | Gold, Waren, Schmiede-Stufen | `PlayerWallet`, `ShopData`, `UpgradeBook` |
-| `Editor/` | Builder, erzeugt Szenen, Prefabs und Daten (nur im Editor) | `RebornBuilder` + Partial-Klassen (siehe [Builder](#builder)) |
+| `Editor/` | Builder, erzeugt Szenen, Prefabs und Daten (nur im Editor) | `RebornBuilder` + Partial-Klassen (siehe [Builder](#builder)), `WebBuild` (Web-Demo, siehe [Web-Demo](#web-demo-bauen)) |
 | `Enemies/` | Gegner-KI und Bosse | `SlimeAI` (allgemeine Kreaturen-KI für Schleim, Wolf, Spinne, Eiswolf), `BossAI` (Golem, zwei Stufen), `DragonAI` (Eisdrache), `RootSpike`, `ThornWave`, `ChargeTelegraph`, `UltimateZone`, `IcePillar`, `IceShard`, `IBossBarSource`, `ActiveBoss` (Lebensleiste) |
 | `Guilds/` | Gilden, Ränge, Quests | `GuildData` (ScriptableObject), `PlayerGuild` (am Spieler) |
 | `Inventory/` | Inventar, Ausrüstung, Tränke | `PlayerInventory`, `PlayerEquipment`, `PotionUser` |
@@ -72,7 +73,7 @@ Der Code liegt unter `Assets/_Project/Scripts/`, gegliedert nach Themen. Die Nam
 
 ## Spielstand (Speicherformat)
 
-Datei: `%USERPROFILE%\AppData\LocalLow\DefaultCompany\GameTest77\reborn_save.json` (`SaveSystem`). Aktuelle Version: **7** (`SaveData.CurrentVersion`). Fehlende Felder behalten beim Laden ihre Startwerte, ältere Versionen laden daher weiter.
+Datei: `%USERPROFILE%\AppData\LocalLow\DefaultCompany\GameTest77\reborn_save.json` (`SaveSystem`). Aktuelle Version: **7** (`SaveData.CurrentVersion`). Fehlende Felder behalten beim Laden ihre Startwerte, ältere Versionen laden daher weiter. Im Browser-Build (Web-Demo) liegt dieselbe Datei im virtuellen Dateisystem von Unity, das in IndexedDB gespeichert wird (`autoSyncPersistentDataPath`).
 
 | Version | Meilenstein | Neue Felder |
 |---|---|---|
@@ -215,6 +216,22 @@ Hinweise:
 
 ---
 
+## Web-Demo bauen
+
+Die Browser-Demo entsteht aus demselben Projekt. Code: `Assets/_Project/Scripts/Core/Demo.cs` (Kennzeichen `REBORN_DEMO`) und `Assets/_Project/Scripts/Editor/WebBuild.cs`.
+
+- Aufruf: `powershell -File Tools/Build/build_web.ps1`. Der Unity-Editor muss offen sein, aber nicht im Play-Modus. Der Build schaltet den Editor kurz auf WebGL um und danach zurück.
+- Ergebnis: `Builds/WebDemo` und `Builds/RebornDemo.zip`. Der Ordner `Builds/` steht nicht im Git.
+- WebGL mit Brotli-Kompression und Entpacken im Browser. Der Build läuft auf jedem Webserver ohne Extra-Einstellungen (z. B. Netlify).
+- Eigene Ladeseite: `Assets/WebGLTemplates/Reborn`.
+- Demo-Inhalt: Stadt, Höhle, Wald, Golem-Boss. Der Frostgipfel ist gesperrt („Frostgipfel – nur in der Vollversion“), das Siegel-Portal bleibt geschlossen, das Hauptmenü zeigt „Demo“.
+- Spielstand im Browser über IndexedDB (`autoSyncPersistentDataPath`).
+- Einbinden ins Portfolio: Ordner `Builds/WebDemo` nach `Portfolio/projekte/reborn/demo/` kopieren. Die Seite lädt das Spiel erst nach Klick auf „Demo starten“ in ein iframe, mit Vollbild-Knopf.
+- Bekannte Grenzen: Touch auf echten Handys ist ungetestet (Hinweis auf der Seite). Der Download ist einmalig ca. 24 MB groß.
+- Play-Test: `demotest.ps1` (Siegel bleibt in der Demo geschlossen).
+
+---
+
 ## Play-Tests
 
 Automatische Tests über den **offenen Unity-Editor** (`Tools/PlayTests`). Details: [Tools/PlayTests/README.md](../Tools/PlayTests/README.md).
@@ -243,9 +260,11 @@ Voraussetzungen: Projekt in Unity geöffnet, Play-Modus aus, Unity nicht minimie
 | `boss` | `bosstest.ps1` | Golem: Erwachen, Schlag, Wurzeln, Phasen, Ultimate, Sieg, Wiederkehr nach 10 Minuten |
 | `frost` | `frosttest.ps1` | Siegel-Portal, Frostgipfel, Eisdrache (Atem, Eisregen, Flügelschlag, Flugphase, Blizzard), Wiederkehr |
 | `menu` | `menutest.ps1` | Hauptmenü, Einstellungen, Sprache, Tasten, Pause-Menü, Wegwerfen, Ortsname |
+| `tutorial` | `tutorialtest.ps1` | Einführung mit Aldric (35 Prüfungen): Angriff und Ausweichen mit echten Tasten über eine virtuelle Tastatur |
+| `demo` | `demotest.ps1` | Browser-Demo: Siegel-Portal bleibt geschlossen, Frostgipfel gesperrt |
 | `diag` | `inputdiag.ps1` | Nur zur Fehlersuche, **nicht verlässlich**, nicht in der Standardliste |
 
-Der Standardlauf enthält alle Tests außer `diag`.
+Der Standardlauf enthält alle Tests außer `diag`. Letzter Gesamtlauf: 323 Prüfungen bestanden.
 
 **Schutz des Spielstands:** `run_all.ps1` sichert `reborn_save.json` mit SHA-256, startet die Tests, räumt auf und spielt den Stand zurück. Die Prüfsumme wird verglichen. Liegt schon eine alte Sicherung (`reborn_save.user_backup.json`), bricht der Lauf ab. Einstellungen und Tastenbelegung des Spielers bleiben unangetastet, weil die Tests nur Sitzungs-Standardwerte nutzen (`UseSessionDefaults`). Diagnosen nur über `run_all.ps1` laufen lassen, nie über eigene Skripte ohne Sicherung.
 

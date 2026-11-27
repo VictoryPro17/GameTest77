@@ -6,10 +6,15 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unveröffentlicht]
 
+### Hinzugefügt
+- Meilenstein 10b: Einführung mit Mentor Aldric nach „Neues Spiel“ in 7 Schritten (Laufen, Angreifen, Ausweichen, Zauber, Menü, Händler, Weg zur Höhle) mit Sprechblasen, Hinweisleiste mit der belegten Taste und Zielpfeil. Knopf „Einführung überspringen“. Belohnung: 50 Gold und 3 kleine Heiltränke. Die Einführung läuft nur einmal (wird gespeichert). In der Stadt sind Angriff und Zauber nur während der Übungsschritte erlaubt.
+- Meilenstein 10b: 15 Soundeffekte, im Code erzeugt (ohne Audiodateien). Der Effekt-Regler und der Gesamt-Regler in den Einstellungen wirken.
+- Meilenstein 10b: Play-Test `tutorialtest.ps1` (35 Prüfungen, Angriff und Ausweichen mit echten Tasten über eine virtuelle Tastatur).
+- Meilenstein 10c: Spielbare Browser-Demo auf der Portfolio-Seite (Stadt, Höhle, Wald, Golem-Boss). Der Frostgipfel ist in der Demo gesperrt, das Hauptmenü zeigt „Demo“.
+- Meilenstein 10c: Web-Build über `Tools/Build/build_web.ps1` mit gzip, eigener Ladeseite und Spielstand im Browser (IndexedDB).
+- Meilenstein 10c: Play-Test `demotest.ps1` (Siegel-Portal bleibt in der Demo geschlossen).
+
 ### Geplant
-- Einführung mit Mentor Aldric (Meilenstein 10b)
-- Soundeffekte (Meilenstein 10b)
-- Browser-Version auf itch.io (Meilenstein 10c)
 - Gilden-Fähigkeiten: Wirbelschlag, Kettenblitz, Schattensprung (Meilenstein 9b)
 - Handwerk beim Schmied (Meilenstein 9b)
 - Wolfswelpe als Begleiter (Meilenstein 9b)

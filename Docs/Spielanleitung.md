@@ -17,6 +17,7 @@ Willkommen in **RE:BORN – Echoes of Eternity**, Beta 0.9.0. Diese Anleitung er
 9. [Orte](#orte)
 10. [Bosse](#bosse)
 11. [Einstellungen](#einstellungen)
+12. [Im Browser spielen](#im-browser-spielen)
 
 ---
 
@@ -27,7 +28,15 @@ Willkommen in **RE:BORN – Echoes of Eternity**, Beta 0.9.0. Diese Anleitung er
 - Das Spiel startet immer in der **Stadt**. Dort beginnt man mit Startwerten.
 - Gespeichert wird automatisch, etwa beim Aufsteigen, beim Schließen von Menüs und vor jedem Ortswechsel.
 
-> **Hinweis:** Eine Einführung mit Mentor Aldric ist für die nächste Version geplant (siehe Roadmap in der README).
+### Einführung mit Mentor Aldric
+
+Nach **Neues Spiel** begleitet dich Mentor Aldric durch sieben Schritte: Laufen, Angreifen, Ausweichen, Zauber, Menü, Händler und Weg zur Höhle.
+
+- Seine Sprechblasen erklären jeden Schritt. Die Hinweisleiste nennt die Taste, die gerade belegt ist, und ein Zielpfeil zeigt den Weg.
+- Mit **Einführung überspringen** beendest du sie vorzeitig.
+- In der Stadt sind Angriff und Zauber nur während der Übungsschritte erlaubt.
+- Belohnung: 50 Gold und 3 kleine Heiltränke.
+- Die Einführung läuft nur einmal; das wird gespeichert.
 
 ## Menüs
 
@@ -228,3 +237,13 @@ Erreichbar im Hauptmenü und im Pause-Menü.
 | **Tasten** | Jede Aktion neu belegen. Tastatur und Controller werden getrennt eingestellt. Bei Doppelbelegung erscheint ein Hinweis. „Zurücksetzen“ stellt die Standardbelegung wieder her. |
 
 Deine Einstellungen bleiben beim Neustart erhalten und sind getrennt vom Spielstand gespeichert.
+
+## Im Browser spielen
+
+Die Demo läuft im Browser auf https://okhomina.dev/projekte/reborn/ (Abschnitt „Demo im Browser spielen“). Sie enthält Stadt, Höhle, Wald und den Golem-Boss.
+
+- Der **Frostgipfel** ist in der Demo gesperrt („Frostgipfel – nur in der Vollversion“). Auch das Siegel-Portal in der Höhle bleibt geschlossen.
+- Das Hauptmenü zeigt „Demo“.
+- Der Spielstand wird im Browser gespeichert.
+- Der Download ist einmalig ca. 24 MB groß.
+- Die Bedienung per Touch auf echten Handys ist noch nicht getestet (Hinweis auf der Seite).

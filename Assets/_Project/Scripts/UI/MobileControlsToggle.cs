@@ -22,7 +22,9 @@ namespace Reborn.UI
         /// <summary>Meilenstein 10a: Einstellung "Handy-Knoepfe" (automatisch / an / aus)</summary>
         void ApplyVisibility()
         {
-            bool auto = forceShow || Application.isMobilePlatform || Touchscreen.current != null;
+            // Im Browser meldet Unity auch am PC einen Touchscreen: dort zaehlt nur ein echtes Handy/Tablet (10c)
+            bool touch = Application.platform == RuntimePlatform.WebGLPlayer ? Application.isMobilePlatform : Touchscreen.current != null;
+            bool auto = forceShow || Application.isMobilePlatform || touch;
             if (controlsRoot != null) controlsRoot.SetActive(Core.GameSettings.ShowMobileControls(auto));
         }
 

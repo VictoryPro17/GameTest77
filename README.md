@@ -4,6 +4,8 @@
 
 Ein Mini-Projekt von Victory · Beta 0.9.0
 
+**Demo im Browser spielen:** https://okhomina.dev/projekte/reborn/#demo
+
 <p align="center">
   <img src="Docs/Bilder/m10a_hauptmenue.png" width="720" alt="Hauptmenü von RE:BORN">
 </p>
@@ -61,6 +63,10 @@ RE:BORN spielt in einer Welt aus Stadt, Höhlen, Wäldern und einem verschneiten
 - Händler zum Kaufen und Verkaufen, Schmied zum Verbessern von Ausrüstung (Stufe +1 bis +5)
 - Gegenstände wegwerfen, einzeln oder alle auf einmal
 
+### Einführung und Ton
+- Einführung mit Mentor Aldric nach „Neues Spiel“: 7 Schritte, Sprechblasen, Zielpfeil, überspringbar, Belohnung
+- 15 Soundeffekte (im Code erzeugt), Regler für Gesamt- und Effekt-Lautstärke
+
 ### Komfort & Einstellungen
 - Hauptmenü mit Weiter, Neues Spiel, Einstellungen, Neuigkeiten und Mitwirkende
 - Pause-Menü mit Einstellungen und Rückkehr zum Hauptmenü
@@ -98,13 +104,11 @@ Das Dateiformat ist versioniert (aktuell Version 7); ältere Stände laden weite
 
 ## Roadmap
 
-Geplant, in dieser Reihenfolge (Stand Beta 0.9.0):
+Geplant, in dieser Reihenfolge (Stand Beta 0.9.0; Einführung, Ton und Browser-Demo sind umgesetzt):
 
-1. **Beta-Version 0.10 – Einführung und Ton** (Meilenstein 10b): Einführung mit Mentor Aldric, Soundeffekte
-2. **Browser-Version** auf itch.io (Meilenstein 10c)
-3. **Gilden-Fähigkeiten** (Meilenstein 9b): Taste F, Ability ab Gildenrang 2
-4. **Handwerk** beim Schmied, **Wolfswelpe** als Begleiter
-5. **Musik**
+1. **Gilden-Fähigkeiten** (Meilenstein 9b): Taste F, Ability ab Gildenrang 2
+2. **Handwerk** beim Schmied, **Wolfswelpe** als Begleiter
+3. **Musik**
 
 Die Änderungen je Version stehen in der [CHANGELOG.md](CHANGELOG.md).
 
@@ -128,8 +132,9 @@ GameTest77/
 ├── Packages/            Unity-Pakete
 ├── ProjectSettings/     Unity-Projekteinstellungen
 ├── Screenshots/         Screenshots aus den Play-Tests
-└── Tools/               Play-Tests, Lokalisierungs-Werkzeuge
+└── Tools/               Play-Tests, Lokalisierungs- und Build-Werkzeuge
     ├── Localization/    extract_strings.ps1 (Übersetzungsschlüssel sammeln)
+    ├── Build/           build_web.ps1 (Browser-Demo bauen)
     └── PlayTests/       Automatische Tests über den offenen Unity-Editor
 ```
 
@@ -137,11 +142,13 @@ GameTest77/
 
 - **Engine:** Unity 6000.6.8f1 mit C#, Universal Render Pipeline (URP 2D), neues Input System
 - **Grafik:** 3D-Modelle in Blender 5.2, gerendert zu Pixel-Sprites in 4 Blickrichtungen
-- **Zielplattformen:** Windows (Editor und Build), Browser (in Vorbereitung), Android (Touch-Steuerung)
+- **Zielplattformen:** Windows (Editor und Build), Browser (Web-Demo, Meilenstein 10c), Android (Touch-Steuerung)
 - **Spiel bauen:** In Unity über das Menü **Reborn → Spiel neu bauen** (`RebornBuilder.BuildAll`). Der Builder erzeugt Szenen, Prefabs, Menüs, Daten und Importeinstellungen neu.
 - **Grafik neu rendern:** `powershell -File Art/Blender/Scripts/build_all.ps1` (optional `-Only boss,spells` für einzelne Gruppen). Danach den Unity-Builder ausführen.
 - **Lokalisierung:** Der deutsche Text ist der Schlüssel (`Loc.T("…")`). Die englische Übersetzung steht in `Assets/_Project/Resources/Localization/Loc_en.json`. `Tools/Localization/extract_strings.ps1` sammelt alle deutschen Texte und meldet fehlende englische Einträge.
 - **Play-Tests:** `powershell -ExecutionPolicy Bypass -File Tools\PlayTests\run_all.ps1` (Unity-Editor muss offen und im Stopp-Modus sein). Details in [Tools/PlayTests/README.md](Tools/PlayTests/README.md).
+
+- **Browser-Demo:** `powershell -File Tools/Build/build_web.ps1` (Unity-Editor offen, nicht im Play-Modus). Details in [Docs/Entwicklung.md](Docs/Entwicklung.md#web-demo-bauen).
 
 Die technischen Details (Architektur, Speicherformat, Konventionen, Grafik-Pipeline) stehen in [Docs/Entwicklung.md](Docs/Entwicklung.md).
 

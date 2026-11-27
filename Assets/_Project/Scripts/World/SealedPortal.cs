@@ -26,7 +26,7 @@ namespace Reborn.World
         public const string OpenedText = "Das Siegel bricht!";
 
         public bool IsOpen => WorldFlags.Has(flagId);
-        public override bool CanEnter => IsOpen;
+        public override bool CanEnter => IsOpen && !Core.Demo.Active;   // Demo (10c): Frostgipfel gesperrt
         /// <summary>Letzte Meldung (fuer Tests)</summary>
         public string LastMessage { get; private set; } = "";
 
@@ -68,9 +68,9 @@ namespace Reborn.World
         void Update()
         {
             if (_shownOpen != IsOpen) ApplyVisual();   // Spielstand wurde nach Start geladen
-            if (IsOpen || _player == null) return;
+            if ((IsOpen && !Core.Demo.Active) || _player == null) return;
             bool near = Vector2.Distance(_player.position, transform.position) <= range;
-            if (near && !_wasNear) Say(PromptText);
+            if (near && !_wasNear) Say(Core.Demo.Active ? Core.Demo.LockedText : PromptText);
             _wasNear = near;
             if (!near || UI.TradeWindow.IsOpen || UI.GameMenu.IsOpen) return;
             if (_interact != null && _interact.WasPressedThisFrame()) TryUnseal();
@@ -85,6 +85,7 @@ namespace Reborn.World
         /// <summary>Siegel mit dem Schluessel oeffnen (auch fuer Tests). true = jetzt offen</summary>
         public bool TryUnseal()
         {
+            if (Core.Demo.Active) { Say(Core.Demo.LockedText); return false; }
             if (IsOpen) return true;
             if (keyItem == null || _inventory == null || !_inventory.Remove(keyItem, 1))
             {

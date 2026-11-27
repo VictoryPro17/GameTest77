@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
+    <title>RE:BORN – Demo</title>
+    <link rel="stylesheet" href="TemplateData/style.css">
+  </head>
+  <body>
+    <div id="game">
+      <canvas id="unity-canvas" tabindex="-1"></canvas>
+      <div id="loading">
+        <div class="title">RE:BORN</div>
+        <div class="subtitle">Echoes of Eternity · Demo</div>
+        <div class="bar"><div id="bar-fill"></div></div>
+        <div id="loading-text">Lädt … 0 %</div>
+        <div class="credit">Ein Mini-Projekt von Victory</div>
+      </div>
+      <div id="error" hidden></div>
+    </div>
+    <script>
+      var canvas = document.querySelector("#unity-canvas");
+      var english = (navigator.language || "de").toLowerCase().indexOf("de") !== 0;
+      if (english) {
+        document.documentElement.lang = "en";
+        document.querySelector(".credit").textContent = "A mini project by Victory";
+      }
+      function showError(msg) {
+        var e = document.querySelector("#error");
+        e.textContent = msg;
+        e.hidden = false;
+      }
+      var buildUrl = "Build";
+      var config = {
+        arguments: [],
+#if PROGRESSIVE_ASSET_LOADING
+        primaryDataUrls: {{{ JSON.stringify(PRIMARY_DATA_FILES) }}},
+        secondaryDataUrls: {{{ JSON.stringify(SECONDARY_DATA_FILES) }}},
+#else
+        dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
+#endif
+        frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
+#if USE_WASM
+        codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+        symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
+#endif
+        streamingAssetsUrl: "StreamingAssets",
+        fullscreenElementID: "game",
+        companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+        productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+        productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+        // Spielstand und Einstellungen bleiben im Browser gespeichert
+        autoSyncPersistentDataPath: true,
+        showBanner: function (msg, type) { if (type === "error") showError(msg); else console.warn(msg); }
+      };
+      // Handy: geringere Aufloesung fuer bessere Leistung
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) config.devicePixelRatio = 1;
+
+      var script = document.createElement("script");
+      script.src = buildUrl + "/{{{ LOADER_FILENAME }}}";
+      script.onload = function () {
+        var fill = document.querySelector("#bar-fill");
+        var text = document.querySelector("#loading-text");
+        var label = english ? "Loading … " : "Lädt … ";
+        createUnityInstance(canvas, config, function (progress) {
+          var pct = Math.round(progress * 100);
+          fill.style.width = pct + "%";
+          text.textContent = label + pct + " %";
+        }).then(function (instance) {
+          window.unityInstance = instance;
+          document.querySelector("#loading").classList.add("done");
+          canvas.focus();
+        }).catch(function (message) {
+          showError((english ? "The game could not be started: " : "Das Spiel konnte nicht gestartet werden: ") + message);
+        });
+      };
+      script.onerror = function () { showError(english ? "Game files are missing." : "Spieldateien fehlen."); };
+      document.body.appendChild(script);
+      // Klick ins Spiel gibt ihm die Tastatur (wichtig im eingebetteten Fenster)
+      canvas.addEventListener("pointerdown", function () { canvas.focus(); });
+    </script>
+  </body>
+</html>

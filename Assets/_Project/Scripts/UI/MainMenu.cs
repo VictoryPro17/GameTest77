@@ -79,7 +79,7 @@ namespace Reborn.UI
         void Refresh()
         {
             if (continueButton != null) continueButton.gameObject.SetActive(SaveSystem.Exists);
-            if (versionText != null) versionText.text = GameSettings.Version + "  ·  " + Loc.T("Ein Mini-Projekt von Victory");
+            if (versionText != null) versionText.text = (Demo.Active ? Loc.T(Demo.Label) + " · " : "") + GameSettings.Version + "  ·  " + Loc.T("Ein Mini-Projekt von Victory");
         }
 
         void SelectDefault()
