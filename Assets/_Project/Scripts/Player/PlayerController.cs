@@ -148,6 +148,7 @@ namespace Reborn.Player
             _dodgeDirection = direction;
             FacingDirection = direction;
             _dodgeTimer = dodgeDuration;
+            Core.Sfx.Play(Core.SfxId.Dodge, 0.7f);
             _cooldownTimer = dodgeDuration + dodgeCooldown;
             if (_health != null) _health.invulnerable = true;
             if (_animator != null)

@@ -100,6 +100,7 @@ namespace Reborn.Inventory
             if (item.manaAmount > 0 && _mana != null) _mana.SetCurrent(_mana.Current + item.manaAmount);
             _cooldownTimer = cooldown;
             OnUsed?.Invoke();
+            Core.Sfx.Play(Core.SfxId.Potion, 0.8f);
             return true;
         }
     }

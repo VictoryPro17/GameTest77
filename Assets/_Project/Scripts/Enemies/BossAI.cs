@@ -175,6 +175,7 @@ namespace Reborn.Enemies
         void StartRoar(float time)
         {
             _state = State.Roar;
+            Core.Sfx.Play(Core.SfxId.Roar);
             _timer = time;
             _body.linearVelocity = Vector2.zero;
             if (_animator != null) _animator.Play("roar", true);

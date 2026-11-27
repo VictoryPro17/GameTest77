@@ -321,6 +321,8 @@ namespace Reborn.EditorTools
             TownProp(plaza, "Signpost", "signpost", new Vector2(1.6f, 6.9f));
 
             var npcs = new GameObject("Npcs").transform;
+            // Meilenstein 10b: Mentor Aldric neben dem Startpunkt (Einfuehrung)
+            AddMentor(npcs, AssetDatabase.LoadAssetAtPath<UnityEngine.InputSystem.InputActionAsset>(InputPath), items["heiltrank_klein"], new Vector2(-1.3f, -1.5f));
             AddNpc(npcs, "haendler", NpcKind.Haendler, "Händler", shop, new Vector2(-1.4f, -2.75f));
             AddNpc(npcs, "schmied", NpcKind.Schmied, "Schmied", null, new Vector2(3.3f, -3.0f));
 

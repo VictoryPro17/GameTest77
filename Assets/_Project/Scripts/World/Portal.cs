@@ -35,6 +35,6 @@ namespace Reborn.World
         public virtual bool CanEnter => true;
 
         /// <summary>Reise starten (auch fuer Tests)</summary>
-        public void Enter() => SceneTravel.Go(targetScene, targetSpawn);
+        public void Enter() { Core.Sfx.Play(Core.SfxId.Portal); SceneTravel.Go(targetScene, targetSpawn); }
     }
 }

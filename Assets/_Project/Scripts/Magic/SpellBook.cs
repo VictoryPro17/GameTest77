@@ -173,6 +173,7 @@ namespace Reborn.Magic
                 Destroy(flash, 1f);
             }
             OnCast?.Invoke(s, levels[slot]);
+            Core.Sfx.Play(Core.SfxId.Cast, 0.8f);
             return true;
         }
 

@@ -22,6 +22,7 @@ namespace Reborn.Progression
                 XP -= XPToNextLevel;
                 Level++;
                 OnLevelUp?.Invoke(Level);
+                Core.Sfx.Play(Core.SfxId.LevelUp);
             }
             OnChanged?.Invoke();
         }

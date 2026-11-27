@@ -51,6 +51,7 @@ namespace Reborn.Loot
             var inventory = other.GetComponentInParent<PlayerInventory>();
             if (inventory == null || item == null) return;
             int rest = inventory.Add(item, count);
+            if (rest < count) Core.Sfx.Play(Core.SfxId.Pickup, 0.8f);
             if (rest <= 0) Destroy(gameObject);
             else count = rest;
         }

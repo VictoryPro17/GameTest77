@@ -142,7 +142,7 @@ namespace Reborn.EditorTools
             BuildMainMenuScene(AssetDatabase.LoadAssetAtPath<InputActionAsset>(InputPath));   // Meilenstein 10a (zuletzt: NewScene gibt Assets frei)
             ConfigureBuild();
             AssetDatabase.SaveAssets();
-            return "Meilenstein 10a gebaut (Hauptmenue, Einstellungen): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
+            return "Meilenstein 10b gebaut (Einfuehrung mit Mentor Aldric, Soundeffekte): " + BaseScenePath + " + " + ScenePath + " (" + database.items.Count + " Gegenstaende, "
                 + magic.spells.Length + " Zauber, " + equipSets.Count + " Ausruestungs-Ebenen, " + shop.items.Count + " Waren)";
         }
 

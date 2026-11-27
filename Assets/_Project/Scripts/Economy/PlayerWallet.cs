@@ -15,6 +15,7 @@ namespace Reborn.Economy
         {
             if (amount <= 0) return;
             Gold += amount;
+            Core.Sfx.Play(Core.SfxId.Coin, 0.8f);
             OnChanged?.Invoke(Gold);
         }
 
@@ -24,6 +25,7 @@ namespace Reborn.Economy
         {
             if (!CanAfford(amount)) return false;
             Gold -= amount;
+            if (amount > 0) Core.Sfx.Play(Core.SfxId.Coin, 0.6f);
             OnChanged?.Invoke(Gold);
             return true;
         }

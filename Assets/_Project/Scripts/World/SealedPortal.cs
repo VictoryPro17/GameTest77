@@ -94,6 +94,7 @@ namespace Reborn.World
             WorldFlags.Set(flagId);
             ApplyVisual();
             Say(OpenedText);
+            Core.Sfx.Play(Core.SfxId.Portal);
             var save = _player != null ? _player.GetComponent<Save.SaveSystem>() : null;
             if (save != null) save.Save();
             return true;

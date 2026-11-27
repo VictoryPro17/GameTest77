@@ -157,6 +157,7 @@ namespace Reborn.Enemies
             _blizzardTimer = blizzardFirstDelay;
             _blizzardWait = blizzardFirstDelay;
             Enter(State.Roar, 1f, "roar");
+            Core.Sfx.Play(Core.SfxId.Roar);
         }
 
         void Enter(State state, float time, string anim)

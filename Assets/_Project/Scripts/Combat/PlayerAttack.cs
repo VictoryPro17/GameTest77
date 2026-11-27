@@ -60,6 +60,7 @@ namespace Reborn.Combat
             _cooldownTimer = cooldown;
             _controller.Locked = true;
             if (_animator != null) _animator.Play("attack", true);
+            Core.Sfx.Play(Core.SfxId.Swing, 0.8f);
 
             yield return new WaitForSeconds(hitDelay);
 
